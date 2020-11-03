@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.DirAndDeptDao">
+  <resultMap id="BaseResultMap" type="DirAndDept">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="dir_id" jdbcType="INTEGER" property="dirId" />
+    <result column="dept_id" jdbcType="INTEGER" property="deptId" />
+  </resultMap>
+
+<!--根据id查询目录-部门表-->
+  <sql id="Base_Column_List">
+    id, dir_id, dept_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from dir_dept
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+
+<!--根据id删除目录-部门表-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from dir_dept
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+<!--插入一条记录-->
+  <insert id="insert" parameterType="DirAndDept">
+    insert into dir_dept (id, dir_id, dept_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{dirId,jdbcType=INTEGER}, #{deptId,jdbcType=INTEGER}
+      )
+  </insert>
+
+
+<!--插入一条记录，且根据参数动态组装sql-->
+  <insert id="insertSelective" parameterType="DirAndDept">
+    insert into dir_dept
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="dirId != null">
+        dir_id,
+      </if>
+      <if test="deptId != null">
+        dept_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="dirId != null">
+        #{dirId,jdbcType=INTEGER},
+      </if>
+      <if test="deptId != null">
+        #{deptId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+<!--根据id更新记录，且根据参数动态组装sql-->
+  <update id="updateByPrimaryKeySelective" parameterType="DirAndDept">
+    update dir_dept
+    <set>
+      <if test="dirId != null">
+        dir_id = #{dirId,jdbcType=INTEGER},
+      </if>
+      <if test="deptId != null">
+        dept_id = #{deptId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+<!--根据id更新记录-->
+  <update id="updateByPrimaryKey" parameterType="DirAndDept">
+    update dir_dept
+    set dir_id = #{dirId,jdbcType=INTEGER},
+      dept_id = #{deptId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+</mapper>

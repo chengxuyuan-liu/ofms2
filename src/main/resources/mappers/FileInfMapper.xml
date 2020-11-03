@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.FileInfDao">
+  <resultMap id="BaseResultMap" type="FileInf">
+    <id column="file_id" jdbcType="INTEGER" property="fileId" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_size" jdbcType="DOUBLE" property="fileSize" />
+    <result column="file_unit" jdbcType="VARCHAR" property="fileUnit" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="file_upload_time" jdbcType="DATE" property="fileUploadTime" />
+    <result column="file_status" jdbcType="INTEGER" property="fileStatus" />
+    <result column="file_dir_id" jdbcType="INTEGER" property="fileDirId" />
+    <result column="file_upload_user_id" jdbcType="INTEGER" property="fileUploadUserId" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    file_id, file_name, file_size, file_type, file_upload_time, file_status, file_dir_id, 
+    file_upload_user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from file_inf
+    where file_id = #{fileId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectFileListByFolderId" resultMap="BaseResultMap" parameterType="Integer">
+		SELECT * FROM file_inf
+		WHERE dir_id = #{dirId}
+		ORDER BY file_upload_time DESC
+	</select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from file_inf
+    where file_id = #{fileId,jdbcType=INTEGER}
+  </delete>
+
+
+  <insert id="insert" parameterType="FileInf">
+    insert into file_inf (file_id, file_name, file_size, 
+      file_type, file_upload_time, file_status, 
+      file_dir_id, file_upload_user_id)
+    values (#{fileId,jdbcType=INTEGER}, #{fileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=INTEGER}, 
+      #{fileType,jdbcType=VARCHAR}, #{fileUploadTime,jdbcType=TIMESTAMP}, #{fileStatus,jdbcType=INTEGER}, 
+      #{fileDirId,jdbcType=INTEGER}, #{fileUploadUserId,jdbcType=INTEGER})
+  </insert>
+
+
+  <insert id="insertSelective" parameterType="FileInf">
+    insert into file_inf
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="fileSize != null">
+        file_size,
+      </if>
+      <if test="fileType != null">
+        file_type,
+      </if>
+      <if test="fileUploadTime != null">
+        file_upload_time,
+      </if>
+      <if test="fileStatus != null">
+        file_status,
+      </if>
+      <if test="fileDirId != null">
+        file_dir_id,
+      </if>
+      <if test="fileUploadUserId != null">
+        file_upload_user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="fileId != null">
+        #{fileId,jdbcType=INTEGER},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null">
+        #{fileSize,jdbcType=INTEGER},
+      </if>
+      <if test="fileType != null">
+        #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileUploadTime != null">
+        #{fileUploadTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fileStatus != null">
+        #{fileStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fileDirId != null">
+        #{fileDirId,jdbcType=INTEGER},
+      </if>
+      <if test="fileUploadUserId != null">
+        #{fileUploadUserId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="FileInf">
+    update file_inf
+    <set>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null">
+        file_size = #{fileSize,jdbcType=INTEGER},
+      </if>
+      <if test="fileType != null">
+        file_type = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileUploadTime != null">
+        file_upload_time = #{fileUploadTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fileStatus != null">
+        file_status = #{fileStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fileDirId != null">
+        file_dir_id = #{fileDirId,jdbcType=INTEGER},
+      </if>
+      <if test="fileUploadUserId != null">
+        file_upload_user_id = #{fileUploadUserId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where file_id = #{fileId,jdbcType=INTEGER}
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="FileInf">
+    update file_inf
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=INTEGER},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      file_upload_time = #{fileUploadTime,jdbcType=TIMESTAMP},
+      file_status = #{fileStatus,jdbcType=INTEGER},
+      file_dir_id = #{fileDirId,jdbcType=INTEGER},
+      file_upload_user_id = #{fileUploadUserId,jdbcType=INTEGER}
+    where file_id = #{fileId,jdbcType=INTEGER}
+  </update>
+
+
+
+
+</mapper>

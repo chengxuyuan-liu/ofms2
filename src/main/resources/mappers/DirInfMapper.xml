@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.DirInfDao">
+  <resultMap id="BaseResultMap" type="DirInf">
+    <id column="dir_id" jdbcType="INTEGER" property="dirId" />
+    <result column="dir_name" jdbcType="VARCHAR" property="dirName" />
+    <result column="parent_dir" jdbcType="INTEGER" property="parentDir" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="dir_path" jdbcType="VARCHAR" property="dirPath" />
+  </resultMap>
+
+
+<!--   查询    -->
+<!--  根据文件夹id查文件夹-->
+  <sql id="Base_Column_List">
+    dir_id, dir_name, parent_dir, user_id, dir_path
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from dir_inf
+    where dir_id = #{dirId,jdbcType=INTEGER}
+  </select>
+
+<!--  查询该文件夹下的所有文件夹-->
+<select id="selectDirListByDirId" resultMap="BaseResultMap" parameterType="Integer">
+      SELECT * FROM dir_inf
+      WHERE parent_dir = #{id}
+      ORDER BY dir_id ASC
+  </select>
+<!-- 查询根文件夹-->
+<select id="selectRootDirByUserId" resultMap="BaseResultMap" parameterType="Integer">
+      SELECT * FROM dir_inf
+      WHERE parent_dir is null AND user_id = #{id}
+  </select>
+<!--查询该文件夹的所有父文件夹-->
+  <select id="selectParentDirByDirId" resultMap="BaseResultMap" parameterType="Integer">
+      CALL getAccessPath(#{id})
+  </select>
+
+
+
+  <!--   删除    -->
+<!--  根据id删除文件夹表记录-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from dir_inf
+    where dir_id = #{dirId,jdbcType=INTEGER}
+  </delete>
+
+
+  <!--   插入    -->
+<!--  插入文件夹表-->
+  <insert id="insert" parameterType="DirInf">
+    insert into dir_inf (dir_id, dir_name, parent_dir, 
+      user_id, dir_path)
+    values (#{dirId,jdbcType=INTEGER}, #{dirName,jdbcType=VARCHAR}, #{parentDir,jdbcType=INTEGER}, 
+      #{userId,jdbcType=INTEGER}, #{dirPath,jdbcType=VARCHAR})
+  </insert>
+
+<!--  插入文件夹表，根据参数动态组装插入sql-->
+  <insert id="insertSelective" parameterType="DirInf">
+    insert into dir_inf
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="dirId != null">
+        dir_id,
+      </if>
+      <if test="dirName != null">
+        dir_name,
+      </if>
+      <if test="parentDir != null">
+        parent_dir,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="dirPath != null">
+        dir_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="dirId != null">
+        #{dirId,jdbcType=INTEGER},
+      </if>
+      <if test="dirName != null">
+        #{dirName,jdbcType=VARCHAR},
+      </if>
+      <if test="parentDir != null">
+        #{parentDir,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="dirPath != null">
+        #{dirPath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+
+
+  <!--   修改    -->
+<!--  根据id更新文件夹表，且根据参数动态组装sql-->
+  <update id="updateByPrimaryKeySelective" parameterType="DirInf">
+    update dir_inf
+    <set>
+      <if test="dirName != null">
+        dir_name = #{dirName,jdbcType=VARCHAR},
+      </if>
+      <if test="parentDir != null">
+        parent_dir = #{parentDir,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="dirPath != null">
+        dir_path = #{dirPath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where dir_id = #{dirId,jdbcType=INTEGER}
+  </update>
+
+<!--  根据id更新文件夹表记录-->
+  <update id="updateByPrimaryKey" parameterType="DirInf">
+    update dir_inf
+    set dir_name = #{dirName,jdbcType=VARCHAR},
+      parent_dir = #{parentDir,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      dir_path = #{dirPath,jdbcType=VARCHAR}
+    where dir_id = #{dirId,jdbcType=INTEGER}
+  </update>
+
+
+
+</mapper>

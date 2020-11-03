@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserInfDao">
+  <resultMap id="BaseResultMap" type="UserInf">
+    <id column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_phone" jdbcType="INTEGER" property="userPhone" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="user_type" jdbcType="INTEGER" property="userType" />
+    <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
+    <result column="max_dept" jdbcType="INTEGER" property="maxDept" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    user_id, user_phone, username, password, email, register_time, status, user_type, 
+    max_space, max_dept
+  </sql>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_inf
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_inf
+    where username = #{username}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_inf
+    where user_id = #{userId,jdbcType=INTEGER}
+  </delete>
+
+
+
+
+  <insert id="insert" parameterType="UserInf">
+    insert into user_inf (user_id, user_phone, username, 
+      password, email, register_time, 
+      status, user_type, max_space, 
+      max_dept)
+    values (#{userId,jdbcType=INTEGER}, #{userPhone,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, #{maxSpace,jdbcType=INTEGER}, 
+      #{maxDept,jdbcType=INTEGER})
+  </insert>
+
+
+  <insert id="insertSelective" parameterType="UserInf" keyProperty="userId" useGeneratedKeys="true">
+    insert into user_inf
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userPhone != null">
+        user_phone,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="registerTime != null">
+        register_time,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="userType != null">
+        user_type,
+      </if>
+      <if test="maxSpace != null">
+        max_space,
+      </if>
+      <if test="maxDept != null">
+        max_dept,
+      </if>
+    </trim>
+
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userPhone != null">
+        #{userPhone,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="registerTime != null">
+        #{registerTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=INTEGER},
+      </if>
+      <if test="maxSpace != null">
+        #{maxSpace,jdbcType=INTEGER},
+      </if>
+      <if test="maxDept != null">
+        #{maxDept,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="UserInf">
+    update user_inf
+    <set>
+      <if test="userPhone != null">
+        user_phone = #{userPhone,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="registerTime != null">
+        register_time = #{registerTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userType != null">
+        user_type = #{userType,jdbcType=INTEGER},
+      </if>
+      <if test="maxSpace != null">
+        max_space = #{maxSpace,jdbcType=INTEGER},
+      </if>
+      <if test="maxDept != null">
+        max_dept = #{maxDept,jdbcType=INTEGER},
+      </if>
+    </set>
+    where user_id = #{userId,jdbcType=INTEGER}
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="UserInf">
+    update user_inf
+    set user_phone = #{userPhone,jdbcType=INTEGER},
+      username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      register_time = #{registerTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=INTEGER},
+      user_type = #{userType,jdbcType=INTEGER},
+      max_space = #{maxSpace,jdbcType=INTEGER},
+      max_dept = #{maxDept,jdbcType=INTEGER}
+    where user_id = #{userId,jdbcType=INTEGER}
+  </update>
+
+
+</mapper>
