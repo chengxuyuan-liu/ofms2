@@ -25,19 +25,24 @@
 <!--  查询该文件夹下的所有文件夹-->
 <select id="selectDirListByDirId" resultMap="BaseResultMap" parameterType="Integer">
       SELECT * FROM dir_inf
-      WHERE parent_dir = #{id}
+      WHERE parent_dir = #{dirId}
       ORDER BY dir_id ASC
   </select>
 <!-- 查询根文件夹-->
 <select id="selectRootDirByUserId" resultMap="BaseResultMap" parameterType="Integer">
       SELECT * FROM dir_inf
-      WHERE parent_dir is null AND user_id = #{id}
+      WHERE parent_dir is null AND user_id = #{userId}
   </select>
-<!--查询该文件夹的所有父文件夹-->
+<!--查询该文件夹的所有 父 文件夹-->
   <select id="selectParentDirByDirId" resultMap="BaseResultMap" parameterType="Integer">
-      CALL getAccessPath(#{id})
+      CALL getAccessPath(#{dirId})
   </select>
 
+  <!--查询文件夹下的所有 子 文件夹-->
+  <select id="selectChildrenDirByDirId" resultMap="BaseResultMap" parameterType="Integer">
+      SELECT * FROM dir_inf
+      WHERE FIND_IN_SET(dir_id,getChildrenDir(#{dirId}))
+  </select>
 
 
   <!--   删除    -->

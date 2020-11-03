@@ -20,4 +20,11 @@ public class FileInfServiceImpl implements FileInfServive {
         List<FileInf> result = fileInfDao.selectFileListByFolderId(dirId);
         return result;
     }
+
+    @Override
+    public int deleteByDirId(Integer dirId) {
+
+        int result = fileInfDao.deleteByDirId(dirId);
+        return result;
+    }
 }

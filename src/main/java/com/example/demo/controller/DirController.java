@@ -32,10 +32,8 @@ public class DirController {
     @ResponseBody
     public String deleteDir(Integer dirId){
         //调用业务层
-        int result = dirInfService.deleteByPrimaryKey(dirId);
-        if(result != 0) {
-            return "OK";
-        }
+        Boolean result = dirInfService.deleteByPrimaryKey(dirId); //删除文件和文件夹
+        if(result) return "OK";
         return "FALSE";
     }
 

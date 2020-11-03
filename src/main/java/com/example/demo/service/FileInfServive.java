@@ -11,4 +11,10 @@ public interface FileInfServive {
     List<FileInf> selectFileListByFolderId(Integer dirId);
 
 
+
+    /*
+    删除
+    */
+    int deleteByDirId(Integer dirId);
+
 }

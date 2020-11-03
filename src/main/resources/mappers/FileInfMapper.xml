@@ -14,6 +14,7 @@
   </resultMap>
 
 
+  <!--查询-->
   <sql id="Base_Column_List">
     file_id, file_name, file_size, file_type, file_upload_time, file_status, file_dir_id, 
     file_upload_user_id
@@ -32,12 +33,22 @@
 	</select>
 
 
+  <!-- 删除-->
+ <!-- 通过主键删除-->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from file_inf
     where file_id = #{fileId,jdbcType=INTEGER}
   </delete>
 
+<!-- 通过文件夹id删除-->
+  <delete id="deleteByDirId" parameterType="java.lang.Integer">
+    delete from file_inf
+    where dir_id = #{dirId,jdbcType=INTEGER}
+  </delete>
 
+
+
+  <!--插入-->
   <insert id="insert" parameterType="FileInf">
     insert into file_inf (file_id, file_name, file_size, 
       file_type, file_upload_time, file_status, 
@@ -104,7 +115,7 @@
     </trim>
   </insert>
 
-
+<!--更新-->
   <update id="updateByPrimaryKeySelective" parameterType="FileInf">
     update file_inf
     <set>

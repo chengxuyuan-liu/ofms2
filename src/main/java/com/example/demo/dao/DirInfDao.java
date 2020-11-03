@@ -21,7 +21,8 @@ public interface DirInfDao {
     List<DirInf> selectDirListByDirId(Integer dirId);   //查询该文件夹下的所有文件夹
     DirInf selectRootDirByUserId(Integer userId);       //根文件夹
     DirInf selectByPrimaryKey(Integer dirId);           //根据id查询制定文件夹
-    List<DirInf> selectParentDirByDirId(Integer dirId); //查询该文件夹的所有父文件夹
+    List<DirInf> selectParentDirByDirId(Integer dirId); //查询该文件夹的所有 父 文件夹
+    List<DirInf> selectChildrenDirByDirId(Integer dirId); //查询该文件夹的所有 子 文件夹
 
     //修改
     int updateByPrimaryKeySelective(DirInf record);

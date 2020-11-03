@@ -58,7 +58,7 @@
                     </div>
                     <div id="panel-element-962727" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <a href="/main">个人文件</a>
+                            <a href="/main">我的文件</a>
                         </div>
                         <div class="panel-body">
                             <a href="#">开发部</a>
@@ -94,13 +94,13 @@
             <!--部门概况-->
             <div class="alert  alert-info">
                 <h4>
-                    个人文件
+                    我的文件
                 </h4>  已用:10.5GB/总共:1TB
             </div>
 
             <ul class="breadcrumb">
                 <li th:each="ap : ${accessPath}" th:switch="${ap.dirName}">
-                    <a th:href="@{/main(dirId = ${ap.dirId})}" th:case="${session.USER_SESSION.getUserPhone()}">个人文件</a>
+                    <a th:href="@{/main(dirId = ${ap.dirId})}" th:case="${session.USER_SESSION.getUserPhone()}">我的文件</a>
                     <a th:href="@{/main(dirId = ${ap.dirId})}" th:case="*">[[${ap.dirName}]]</a>
                 </li>
             </ul>
@@ -194,10 +194,12 @@
                             </h4>
                         </div>
                         <div class="modal-body">
-                            内容...
+                            <form onsubmit="return fileCheck()" id="uploal_form" method="post" >
+                                <input type="file" id="file" name="uploadfile"/>
+                            </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button> <button type="button" class="btn btn-primary">保存</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button> <button type="button" class="btn btn-primary" onclick="uploadFile()">上传</button>
                         </div>
                     </div>
                 </div>
@@ -260,7 +262,9 @@
 
  <!--js代码   -->
   <script>
-  //新建文件夹
+  /*
+  新建文件夹
+  */
   function new_dir() {
       $.post("/newDir",$("#newDir").serialize(),function (date) {
             if (date == "OK"){
@@ -272,7 +276,9 @@
       });
   }
 
-  //删除文件夹
+  /*
+  删除文件夹
+  */
   function delete_dir(dirID) {
       if(confirm("确定要删除该文件夹吗？")){
           $.post("/deleteDir",{"dirId":dirID},function (date) {
@@ -285,6 +291,35 @@
           });
       }
 
+  }
+  /*
+  校验文件
+  */
+  function uploadFile() {
+      var file = document.getElementById("file").value ;
+      if(file.length == 0 || file=="" ){
+          alert("请选 上传文件");
+          return false;
+      }
+
+      var formData = new FormData($("#uploal_form")[0]); //获得文件数据
+      $.ajax({
+          type:"POST",
+          url:"/fileUpload",
+          data:formData,
+          async: true,
+          processData: false,
+          contentType: false,
+          success:function(date){
+              if(date=="OK"){
+                  alert('上传成功！');
+                  window.location.reload();
+              }else{
+                  alert('上传失败！请重新上传');
+                  window.location.reload();
+              }
+          }
+      });
   }
 
 
