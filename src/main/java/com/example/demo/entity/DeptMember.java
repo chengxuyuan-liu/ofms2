@@ -1,13 +1,21 @@
 package com.example.demo.entity;
 
-public class UserAndDept {
+import java.util.Date;
+
+public class DeptMember {
     private Integer id;
 
     private Integer userId;
 
     private Integer deptId;
 
-    private Integer pUplaod;
+    private Integer usedSpace;
+
+    private Integer maxSpace;
+
+    private Date recent;
+
+    private Integer pUpload;
 
     private Integer pDown;
 
@@ -37,12 +45,36 @@ public class UserAndDept {
         this.deptId = deptId;
     }
 
-    public Integer getpUplaod() {
-        return pUplaod;
+    public Integer getUsedSpace() {
+        return usedSpace;
     }
 
-    public void setpUplaod(Integer pUplaod) {
-        this.pUplaod = pUplaod;
+    public void setUsedSpace(Integer usedSpace) {
+        this.usedSpace = usedSpace;
+    }
+
+    public Integer getMaxSpace() {
+        return maxSpace;
+    }
+
+    public void setMaxSpace(Integer maxSpace) {
+        this.maxSpace = maxSpace;
+    }
+
+    public Date getRecent() {
+        return recent;
+    }
+
+    public void setRecent(Date recent) {
+        this.recent = recent;
+    }
+
+    public Integer getpUpload() {
+        return pUpload;
+    }
+
+    public void setpUpload(Integer pUpload) {
+        this.pUpload = pUpload;
     }
 
     public Integer getpDown() {

@@ -7,17 +7,15 @@
     <result column="file_size" jdbcType="DOUBLE" property="fileSize" />
     <result column="file_unit" jdbcType="VARCHAR" property="fileUnit" />
     <result column="file_type" jdbcType="VARCHAR" property="fileType" />
-    <result column="file_upload_time" jdbcType="DATE" property="fileUploadTime" />
-    <result column="file_status" jdbcType="INTEGER" property="fileStatus" />
-    <result column="file_dir_id" jdbcType="INTEGER" property="fileDirId" />
-    <result column="file_upload_user_id" jdbcType="INTEGER" property="fileUploadUserId" />
+    <result column="file_upload_time" jdbcType="TIMESTAMP" property="fileUploadTime" />
+    <result column="dir_id" jdbcType="INTEGER" property="dirId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
   </resultMap>
 
 
   <!--查询-->
   <sql id="Base_Column_List">
-    file_id, file_name, file_size, file_type, file_upload_time, file_status, file_dir_id, 
-    file_upload_user_id
+    file_id, file_name, file_size, file_unit, file_type, file_upload_time, dir_id, user_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -31,7 +29,11 @@
 		WHERE dir_id = #{dirId}
 		ORDER BY file_upload_time DESC
 	</select>
-
+  <select id="selectByFileName" resultMap="BaseResultMap">
+        SELECT *
+        FROM file_inf
+        WHERE file_name LIKE "%${fileName}%" and user_id = #{userId}
+	</select>
 
   <!-- 删除-->
  <!-- 通过主键删除-->
@@ -54,8 +56,8 @@
       file_type, file_upload_time, file_status, 
       file_dir_id, file_upload_user_id)
     values (#{fileId,jdbcType=INTEGER}, #{fileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=INTEGER}, 
-      #{fileType,jdbcType=VARCHAR}, #{fileUploadTime,jdbcType=TIMESTAMP}, #{fileStatus,jdbcType=INTEGER}, 
-      #{fileDirId,jdbcType=INTEGER}, #{fileUploadUserId,jdbcType=INTEGER})
+      #{fileType,jdbcType=VARCHAR}, #{fileUploadTime,jdbcType=TIMESTAMP},
+      #{dirId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER})
   </insert>
 
 
@@ -71,20 +73,20 @@
       <if test="fileSize != null">
         file_size,
       </if>
+      <if test="fileUnit!= null">
+        file_unit,
+      </if>
       <if test="fileType != null">
         file_type,
       </if>
       <if test="fileUploadTime != null">
         file_upload_time,
       </if>
-      <if test="fileStatus != null">
-        file_status,
+      <if test="dirId != null">
+        dir_id,
       </if>
-      <if test="fileDirId != null">
-        file_dir_id,
-      </if>
-      <if test="fileUploadUserId != null">
-        file_upload_user_id,
+      <if test="userId != null">
+        user_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -97,20 +99,20 @@
       <if test="fileSize != null">
         #{fileSize,jdbcType=INTEGER},
       </if>
+      <if test="fileUnit!= null">
+        #{fileUnit,jdbcType=VARCHAR},
+      </if>
       <if test="fileType != null">
         #{fileType,jdbcType=VARCHAR},
       </if>
       <if test="fileUploadTime != null">
         #{fileUploadTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="fileStatus != null">
-        #{fileStatus,jdbcType=INTEGER},
+      <if test="dirId != null">
+        #{dirId,jdbcType=INTEGER},
       </if>
-      <if test="fileDirId != null">
-        #{fileDirId,jdbcType=INTEGER},
-      </if>
-      <if test="fileUploadUserId != null">
-        #{fileUploadUserId,jdbcType=INTEGER},
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -134,11 +136,11 @@
       <if test="fileStatus != null">
         file_status = #{fileStatus,jdbcType=INTEGER},
       </if>
-      <if test="fileDirId != null">
-        file_dir_id = #{fileDirId,jdbcType=INTEGER},
+      <if test="dirId != null">
+        file_dir_id = #{dirId,jdbcType=INTEGER},
       </if>
-      <if test="fileUploadUserId != null">
-        file_upload_user_id = #{fileUploadUserId,jdbcType=INTEGER},
+      <if test="userId != null">
+        file_upload_user_id = #{userId,jdbcType=INTEGER},
       </if>
     </set>
     where file_id = #{fileId,jdbcType=INTEGER}
@@ -152,8 +154,8 @@
       file_type = #{fileType,jdbcType=VARCHAR},
       file_upload_time = #{fileUploadTime,jdbcType=TIMESTAMP},
       file_status = #{fileStatus,jdbcType=INTEGER},
-      file_dir_id = #{fileDirId,jdbcType=INTEGER},
-      file_upload_user_id = #{fileUploadUserId,jdbcType=INTEGER}
+      file_dir_id = #{dirId,jdbcType=INTEGER},
+      file_upload_user_id = #{userId,jdbcType=INTEGER}
     where file_id = #{fileId,jdbcType=INTEGER}
   </update>
 

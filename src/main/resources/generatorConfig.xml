@@ -23,6 +23,11 @@
             <property name="forceBigDecimals" value="false" />
         </javaTypeResolver>
 
+
+
+
+
+
         <!-- targetProject:生成PO类的位置 -->
         <javaModelGenerator targetPackage="entity"
                             targetProject="src/main/java/com/example/demo">
@@ -31,28 +36,32 @@
             <!-- 从数据库返回的值被清理前后的空格 -->
             <property name="trimStrings" value="true" />
         </javaModelGenerator>
-        <!-- targetProject:mapper映射文件生成的位置 -->
-       <!-- <sqlMapGenerator targetPackage="mappers"
-                         targetProject="src/main/resources">
-            &lt;!&ndash; enableSubPackages:是否让schema作为包的后缀 &ndash;&gt;
-            <property name="enableSubPackages" value="false" />
-        </sqlMapGenerator>
-        &lt;!&ndash; targetPackage：mapper接口生成的位置 &ndash;&gt;
-        <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="dao"
-                             targetProject="src/main/java/com/example/demo">
-            &lt;!&ndash; enableSubPackages:是否让schema作为包的后缀 &ndash;&gt;
-            <property name="enableSubPackages" value="false" />
-        </javaClientGenerator>
 
-        &lt;!&ndash; 指定数据库表 &ndash;&gt;
-        -->
-        <table tableName="file_inf" domainObjectName="FileInf"
+<!--        &lt;!&ndash; targetProject:mapper映射文件生成的位置 &ndash;&gt;-->
+<!--        <sqlMapGenerator targetPackage="mappers"-->
+<!--                         targetProject="src/main/resources">-->
+<!--            &lt;!&ndash; enableSubPackages:是否让schema作为包的后缀 &ndash;&gt;-->
+<!--            <property name="enableSubPackages" value="false" />-->
+<!--        </sqlMapGenerator>-->
+<!--        &lt;!&ndash; targetPackage：mapper接口生成的位置 &ndash;&gt;-->
+<!--        <javaClientGenerator type="XMLMAPPER"-->
+<!--                             targetPackage="dao"-->
+<!--                             targetProject="src/main/java/com/example/demo">-->
+<!--            &lt;!&ndash; enableSubPackages:是否让schema作为包的后缀 &ndash;&gt;-->
+<!--            <property name="enableSubPackages" value="false" />-->
+<!--        </javaClientGenerator>-->
+
+
+
+
+
+        <!-- 指定数据库表 -->
+  <!--      <table tableName="file_inf" domainObjectName="FileInf"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false"></table>
 
-        <!--<table tableName="dir_inf" domainObjectName="DirInf"
+        <table tableName="dir_inf" domainObjectName="DirInf"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false"></table>
@@ -60,22 +69,22 @@
         <table tableName="user_inf" domainObjectName="UserInf"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
-               selectByExampleQueryId="false"></table>
+               selectByExampleQueryId="false"></table>-->
 
-        <table tableName="dept_inf" domainObjectName="DeptInf"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               selectByExampleQueryId="false"></table>
+<!--        <table tableName="dept_inf" domainObjectName="DeptInf"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false"></table>-->
 
         <table tableName="user_dept" domainObjectName="UserAndDept"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false"></table>
 
-        <table tableName="dir_dept" domainObjectName="DirAndDept"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               selectByExampleQueryId="false"></table>-->
+<!--        <table tableName="dir_dept" domainObjectName="DirAndDept"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false"></table>-->
 
         <!-- 有些表的字段需要指定java类型
          <table schema="" tableName="">

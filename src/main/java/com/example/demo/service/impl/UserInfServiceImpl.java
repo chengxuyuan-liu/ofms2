@@ -49,7 +49,7 @@ public class UserInfServiceImpl implements UserInfService {
     注册
     */
     @Override
-    public int insertSelective(String username, String email, String password, Integer phone) {
+    public int insertSelective(Integer userType,String username, String email, String password, Integer phone) {
 
         //注册时间
         Date date = new Date();
@@ -63,7 +63,7 @@ public class UserInfServiceImpl implements UserInfService {
         userInf.setUserPhone(phone);
         userInf.setRegisterTime(date);
         userInf.setStatus(1);
-        userInf.setUserType(2);
+        userInf.setUserType(userType);
         //调用dao
         int sign = userInfDao.insertSelective(userInf);
 
@@ -81,7 +81,8 @@ public class UserInfServiceImpl implements UserInfService {
 
     @Override
     public UserInf selectByPrimaryKey(Integer userId) {
-        return null;
+        UserInf userInf = userInfDao.selectByPrimaryKey(userId);
+        return userInf;
     }
 
     @Override

@@ -43,21 +43,6 @@ public class FileInf {
     }
 
     public void setFileSize(Double fileSize) {
-
-        if (fileSize >= 1024) {
-            //fileSize换算成KB，只保留整数
-            fileSize = Math.floor(fileSize/1024);
-            if (fileSize >= 1024) {
-                fileSize = Math.floor(fileSize/1024);
-                //fileSize换算成MB,保留两位小数点
-                if (fileSize >= 1024) {
-                    fileSize = Math.floor(fileSize/1024);
-                    //fileSize换算成GB，保留两位小数点
-                }
-            }
-        }
-
-
         this.fileSize = fileSize;
     }
 
@@ -65,10 +50,7 @@ public class FileInf {
         return fileUnit;
     }
 
-    public void setFileUnit(String fileUnit) {
-
-        this.fileUnit = fileUnit;
-    }
+    public void setFileUnit(String fileUnit) { this.fileUnit = fileUnit; }
 
     public String getFileType() {
         return fileType;

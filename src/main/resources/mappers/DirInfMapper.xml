@@ -10,7 +10,9 @@
   </resultMap>
 
 
-<!--   查询    -->
+    <!--
+    查询
+    -->
 <!--  根据文件夹id查文件夹-->
   <sql id="Base_Column_List">
     dir_id, dir_name, parent_dir, user_id, dir_path
@@ -29,10 +31,15 @@
       ORDER BY dir_id ASC
   </select>
 <!-- 查询根文件夹-->
-<select id="selectRootDirByUserId" resultMap="BaseResultMap" parameterType="Integer">
+<select id="selectRootChildrenDirByUserId" resultMap="BaseResultMap">
       SELECT * FROM dir_inf
-      WHERE parent_dir is null AND user_id = #{userId}
+      WHERE  user_id = #{userId} and dir_name = #{dirName}
   </select>
+<select id="selectRootDirByUserId" resultMap="BaseResultMap" parameterType="Integer">
+    SELECT * FROM dir_inf
+    WHERE  user_id = #{userId} and parent_dir IS NULL
+</select>
+
 <!--查询该文件夹的所有 父 文件夹-->
   <select id="selectParentDirByDirId" resultMap="BaseResultMap" parameterType="Integer">
       CALL getAccessPath(#{dirId})
@@ -43,9 +50,21 @@
       SELECT * FROM dir_inf
       WHERE FIND_IN_SET(dir_id,getChildrenDir(#{dirId}))
   </select>
+  <!--查询文件夹下的所有 子 文件夹-->
+  <select id="selectDirByFileId" resultMap="BaseResultMap" parameterType="Integer">
+      SELECT t2.dir_id,dir_name,parent_dir,t2.user_id,dir_path
+      FROM file_inf as t1 JOIN dir_inf as t2 on t1.dir_id = t2.dir_id
+      WHERE t1.file_id = #{fileId}
+  </select>
+  <select id="selectByDirName" resultMap="BaseResultMap">
+      SELECT *
+      FROM dir_inf
+      WHERE dir_name LIKE "%${dirName}%" and user_id = #{userId}
+  </select>
 
-
-  <!--   删除    -->
+  <!--
+    删除
+    -->
 <!--  根据id删除文件夹表记录-->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from dir_inf
@@ -63,7 +82,7 @@
   </insert>
 
 <!--  插入文件夹表，根据参数动态组装插入sql-->
-  <insert id="insertSelective" parameterType="DirInf">
+  <insert id="insertSelective" parameterType="DirInf" keyProperty="dirId" useGeneratedKeys="true">
     insert into dir_inf
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="dirId != null">

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>部门成员</title>
+    <script src="/js/libs/jquery-2.1.1.min.js"></script>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+</head>
+<body>
+
+<!--========================内容=========================-->
+<!--部门概况-->
+<div class="alert  alert-info">
+    <h4>
+        开发部 <button  class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit">编辑</button>
+    </h4>  已用:0B/总共:1TB
+</div>
+<!--添加成员、搜索-->
+<div class="btn-group">
+    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-container-new-member">添加成员</button>
+    <form class="navbar-form navbar-left" role="search" style="margin: 0;">
+        <div class="form-group">
+            <input type="text" class="form-control" />
+        </div>  <button type="button" class="btn btn-default btn-primary">搜索</button>
+    </form>
+</div>
+<!--成员信息-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <input type="checkbox">
+                </th>
+                <th>
+                    用户
+                </th>
+                <th>
+                    用户空间
+                </th>
+                <th>
+                    邮箱/手机号
+                </th>
+                <th>
+                    所属部门
+                </th>
+                <th>
+                    状态
+                </th>
+                <th>
+                    操作
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="member:${memberList}">
+                <td>
+                    <input type="checkbox"/>
+                </td>
+                <td>
+                    [[${member.userName}]]
+                </td>
+                <td>
+                    已用：[[${member.usedSpace}]] 剩余：[[${member.maxSpace}]]
+                </td>
+                <td>
+                    [[${member.phone}]]
+                </td>
+                <td>
+                    [[${member.deptName}]]
+                </td>
+                <td>
+                    最近访问：
+                    [[${member.recent}]]
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-container-edit">编辑</button>
+                    <button type="button" class="btn btn-default btn-primary" id="app" @click="del">删除</button>
+                </td>
+            </tr>
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--========================各种模态窗口=========================-->
+
+<!--添加成员模态窗口-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-container-new-member" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="new_member">
+                            添加成员
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add_member_from">
+                            <input type="hidden"  name="deptId" id="add_member_dept">
+                            手机号码：<input type="text" id="member" name="memberName"/>
+                        </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" th:onclick="add_member()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--编辑模态窗口-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-container-edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="edit">
+                            编辑
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        内容...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" >确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!--部门编辑模态窗口-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-dept-edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="dept_edit">
+                            编辑
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        部门名称：<input type="text" name="deptName"><br/><br/>
+                        部门可以空间：<input type="number" name="maxSpace" disabled="true"> <button type="button" class="btn btn-default">修改</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">解散部门</button> <button type="button" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--========================js=========================-->
+
+
+<script>
+
+    /*
+    添加新成员
+    */
+    function add_member(){
+        $.post("/addMember",$("#add_member_from").serialize(),function (date) {
+            if(date == "OK"){
+                alert("添加成功");
+            }else{
+                alert("添加失败");
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

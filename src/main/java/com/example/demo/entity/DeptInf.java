@@ -9,6 +9,8 @@ public class DeptInf {
 
     private Integer usedSpace;
 
+    private Integer dirId;
+
     public Integer getDeptId() {
         return deptId;
     }
@@ -39,5 +41,13 @@ public class DeptInf {
 
     public void setUsedSpace(Integer usedSpace) {
         this.usedSpace = usedSpace;
+    }
+
+    public Integer getDirId() {
+        return dirId;
+    }
+
+    public void setDirId(Integer dirId) {
+        this.dirId = dirId;
     }
 }

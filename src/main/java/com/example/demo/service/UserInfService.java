@@ -10,7 +10,7 @@ public interface UserInfService {
 
     int insert(UserInf record);
 
-    int insertSelective(String username,String email,String password,Integer phone);
+    int insertSelective(Integer userType,String username,String email,String password,Integer phone);
 
     UserInf selectByPrimaryKey(Integer userId);
 

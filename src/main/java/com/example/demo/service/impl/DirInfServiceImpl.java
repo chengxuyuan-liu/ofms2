@@ -25,43 +25,63 @@ public class DirInfServiceImpl implements DirInfService {
     */
     @Override
     public List<DirInf> selectDirListByDirId(Integer dirId) {
-
         List<DirInf> dirInfList = dirInfDao.selectDirListByDirId(dirId);
-
         return dirInfList;
     }
 
     @Override
     public List<DirInf> selectParentDirByDirId(Integer dirId) {
-
         List<DirInf> accessPath = dirInfDao.selectParentDirByDirId(dirId);
         return accessPath;
     }
 
     @Override
     public List<DirInf> selectChildrenDirByDirId(Integer dirId) {
-
         List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
-
         return dirInfList;
     }
 
     @Override
+    public DirInf selectRootChildrenDirByUserId(Integer userId,String dirName) {
+        DirInf dirInf = dirInfDao.selectRootChildrenDirByUserId(userId,dirName);
+        return dirInf;
+    }
+
+    @Override
     public DirInf selectRootDirByUserId(Integer userId) {
-
         DirInf dirInf = dirInfDao.selectRootDirByUserId(userId);
+        return dirInf;
+    }
 
+    @Override
+    public DirInf selectByPrimaryKey(Integer dirId) {
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId);
+        return dirInf;
+    }
+
+    @Override
+    public DirInf selectDirByFileId(Integer fileId) {
+        DirInf dirInf = dirInfDao.selectDirByFileId(fileId);
+        return dirInf;
+    }
+
+    @Override
+    public List<DirInf> selectByDirName(String dirName, Integer dirId) {
+
+        List<DirInf> dirInf = dirInfDao.selectByDirName(dirName,dirId);
         return dirInf;
     }
 
     /*
-    插入
+   新建文件夹
     */
     @Override
     public int insertSelective(String dirName, Integer parentDirId, UserInf user) {
 
-        String realPath = "D:\\graduation project\\ofms\\"; //获取系统的绝对路径
+        String realPath = "D:\\graduation project\\ofms"; //获取系统的绝对路径
         File realDir;
+        File myDirFile;
+        int result;
         DirInf newDir = new DirInf();
 
         if(parentDirId!=null) {
@@ -70,27 +90,53 @@ public class DirInfServiceImpl implements DirInfService {
 
             newDir.setDirName(dirName);
             newDir.setParentDir(fatherDir.getDirId());
-            newDir.setUserId(user.getUserId());
+            newDir.setUserId(user.getUserId());         //文件夹所属
             newDir.setDirPath(fatherDir.getDirPath()
                     + fatherDir.getDirName() + "\\");
             realDir = new File(realPath + fatherDir.getDirPath() + fatherDir.getDirName()
                     + "\\" + dirName);    //创建 新文件夹 的  文件类
+            //如果文件不存在
+            if(!realDir.exists()) {
+                realDir.mkdir();    //磁盘内创建相应的文件夹
+            }
+
+            //记录写入数据库
+            result = dirInfDao.insertSelective(newDir);
+
         } else{
+
+            //用户根目录
             newDir.setDirName(user.getUserPhone().toString());
-            newDir.setUserId(user.getUserId());
-            //新用户根文件夹
+            newDir.setUserId(user.getUserId());         //文件夹所属
             newDir.setDirPath("\\");
-            //新用户根文件夹
-            realDir = new File(realPath + "\\" + user.getUserPhone());    //创建 新文件夹 的  文件类
+            //记录写入数据库
+            result = dirInfDao.insertSelective(newDir);
+
+            //”我的文件“
+            DirInf myDir = new DirInf();
+            myDir.setDirName("我的文件");
+            myDir.setParentDir(newDir.getDirId());
+            myDir.setUserId(user.getUserId());          //文件夹所属
+            myDir.setDirPath(newDir.getDirPath()+newDir.getDirName()+"\\");
+
+            //外存中新建文件夹
+            realDir = new File(realPath + newDir.getDirPath() + newDir.getDirName());    //创建 新文件夹 的  文件类
+            myDirFile = new File(realPath + myDir.getDirPath() + myDir.getDirName());
+            if (result != 0)
+                result = dirInfDao.insertSelective(myDir);
+
+            //如果文件不存在
+            if(!realDir.exists()) {
+                realDir.mkdir();    //磁盘内创建相应的文件夹
+                if (!myDirFile.exists()) {
+                    myDirFile.mkdir();
+                }
+            }
+
+
+
         }
 
-        //如果文件不存在
-        if(!realDir.exists()) {
-            realDir.mkdir();    //磁盘内创建相应的文件夹
-        }
-
-        //记录写入数据库
-        int result = dirInfDao.insertSelective(newDir);
 
         return result;
     }
@@ -127,4 +173,10 @@ public class DirInfServiceImpl implements DirInfService {
         }
         return true;
     }
+
+    /*
+    下载文件夹
+    */
+
+
 }

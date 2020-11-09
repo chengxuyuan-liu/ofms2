@@ -17,14 +17,14 @@ public class LoginAndRegisterController {
     @Autowired
     UserInfService userInfService;
 
-    /**
-     *  登录
+    /*
+     登录
      */
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public String login(String username,String password, Model model,
                         HttpSession session) {
         // 通过账号和密码查询用户
-        UserInf user = userInfService.verifyLogin(username,password);
+        UserInf user = userInfService.verifyLogin(username,password);//验证登录信息
         System.out.println(username+"----"+password);
 
         //验证用户
@@ -33,7 +33,7 @@ public class LoginAndRegisterController {
             session.setAttribute("USER_SESSION", user);
             // 跳转到主页面
 
-            return "redirect:/main";
+            return "redirect:/menu";
         }
 
         //验证失败
@@ -46,16 +46,16 @@ public class LoginAndRegisterController {
 
 
 
-    /**
-     * 注册
-     * */
+    /*
+     注册
+     */
     @ResponseBody
     @RequestMapping(value = "/register",method = RequestMethod.POST)
-    public String toRgister(String username,String email,String password,Integer phone) {
+    public String toRgister(Integer userType,String username,String email,String password,Integer phone) {
 
         System.out.println("测试");
         //调用业务层注册方法
-        Integer sign =  userInfService.insertSelective(username,email,password,phone);
+        Integer sign =  userInfService.insertSelective(userType,username,email,password,phone);
         //判断是否注册成功，且向前端响应mesg
         if (sign != 0) {
             return "OK";
@@ -63,8 +63,8 @@ public class LoginAndRegisterController {
         return "Fail";
     }
 
-    /**
-     * 退出登录
+    /*
+     退出登录
      */
 
     @RequestMapping("/logout")
