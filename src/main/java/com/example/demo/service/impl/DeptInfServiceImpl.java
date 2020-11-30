@@ -5,6 +5,7 @@ import com.example.demo.entity.DeptInf;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DeptInfService;
+import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.DirInfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ public class DeptInfServiceImpl implements DeptInfService {
     private DeptInfDao deptInfDao;
     @Autowired
     private DirInfService dirInfService;
+    @Autowired
+    private DeptMemberService deptMemberService;
 
     @Override
     public Boolean newDept(String deptName,UserInf userInf) {
@@ -57,8 +60,48 @@ public class DeptInfServiceImpl implements DeptInfService {
 
     @Override
     public List<DeptInf> selectDeptListByUserId(Integer userId) {
-
         List<DeptInf> deptInfList = deptInfDao.selectDeptListByUserId(userId);
         return deptInfList;
     }
+
+
+
+    /*
+    解散部门
+    */
+    @Override
+    public Boolean deleteDept(Integer deptId) {
+
+        //修改部门id为deptId的成员，把该部门的成员都分配到 “待分配”,把该成员的部门设置NULL
+        if(!deptMemberService.updateDeptById(null,deptId)) return false;
+        //获取部门信息，删除该id为dirId的文件夹
+        DeptInf deptInf = deptInfDao.selectByPrimaryKey(deptId);      //获取部门信息
+        if(deptInfDao.deleteByPrimaryKey(deptId) == 0) return false;
+        if(!dirInfService.deleteByPrimaryKey(deptInf.getDirId())) return false;
+        return true;
+    }
+
+    @Override
+    public int deleteByUserId(Integer userId) {
+
+        //查询部门文件夹
+        //dirInfService.se
+
+        //int result = deptInfDao.deleteByDirId(dirId);
+        return 0;
+    }
+
+    @Override
+    public Boolean updateByPrimaryKeySelective(String deptName,Integer maxSpace,Integer deptId) {
+
+        DeptInf deptInf = new DeptInf();
+        deptInf.setDeptId(deptId);
+        deptInf.setDeptName(deptName);
+        deptInf.setMaxSpace(maxSpace);
+
+        if(deptInfDao.updateByPrimaryKeySelective(deptInf) == 0) return false;
+
+        return true;
+    }
+
 }

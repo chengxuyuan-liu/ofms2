@@ -1,12 +1,17 @@
 package com.example.demo.util;
 
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 
 public class ResponseUtil {
 
 
-
+    @ResponseBody
     public static void responFileToBrower(HttpServletResponse response,String filePaht) throws Exception {
 
         //输入流
@@ -32,6 +37,7 @@ public class ResponseUtil {
         bis = new BufferedInputStream(fis);
 
         //获得输出流
+
         os = response.getOutputStream();
 
         //开始输出
@@ -42,5 +48,7 @@ public class ResponseUtil {
         }
         bis.close();
         fis.close();
+        os.flush();
+        os.close();
     }
 }

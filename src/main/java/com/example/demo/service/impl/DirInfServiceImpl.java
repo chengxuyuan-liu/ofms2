@@ -5,6 +5,7 @@ import com.example.demo.dao.FileInfDao;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
+import com.example.demo.util.DateUtil;
 import com.example.demo.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,12 @@ public class DirInfServiceImpl implements DirInfService {
         List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
         return dirInfList;
     }
+
+    @Override
+    public DirInf selectDirByDirName(String dirName, Integer parentId) {
+        return null;
+    }
+
 
     @Override
     public DirInf selectRootChildrenDirByUserId(Integer userId,String dirName) {
@@ -87,6 +94,11 @@ public class DirInfServiceImpl implements DirInfService {
         if(parentDirId!=null) {
             DirInf fatherDir = dirInfDao.selectByPrimaryKey(parentDirId);//获得父文件夹
             //构建新文件的属性
+
+            //以文件名查询文件夹
+            DirInf dirInf = dirInfDao.selectDirByDirName(dirName,parentDirId);
+            //判断文件名是否重复，若重复则 重构：文件名+当前日期
+            if(dirInf != null) dirName = dirName+"_"+DateUtil.getNowDateForString();
 
             newDir.setDirName(dirName);
             newDir.setParentDir(fatherDir.getDirId());
@@ -172,6 +184,12 @@ public class DirInfServiceImpl implements DirInfService {
                 return false;
         }
         return true;
+    }
+
+    @Override
+    public int deleteByUserId(Integer userId) {
+        int result = dirInfDao.deleteByUserId(userId);
+        return result;
     }
 
     /*

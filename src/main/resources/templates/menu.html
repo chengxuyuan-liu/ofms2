@@ -6,6 +6,54 @@
     <script src="/js/libs/jquery-2.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+
+
+    <style>
+        body{
+            background: #cccccc;
+            overflow-y: hidden;
+        }
+        .col-md-10{
+            padding-left: 0;
+            height: 100vh;
+        }
+        .panel-body{
+            padding: 0;
+            transition: 0.2s;
+        }
+        .panel-body:hover{
+            background: #d8d8d8;
+        }
+        .panel-body a{
+            width: 166px;
+            height: 50px;
+            display: inline-block;
+            line-height: 50px;
+            padding-left: 20%;
+        }
+
+        .new_dept{
+
+        }
+
+        .navbar-brand:hover{
+            background: #d8d8d8;
+        }
+    </style>
+    <script>
+        $(function (){
+            $('.file').click(function (){
+                $('.panel-body').css({background:'#ffffff'});
+                $(this).css({background:'#d8d8d8',color:'#ffffff'});
+            });
+            $('.member').click(function (){
+                $('.panel-body').css({background:'#ffffff'});
+                $(this).css({background:'#d8d8d8',color:'#ffffff'});
+            });
+
+
+        });
+    </script>
 </head>
 <body bgcolor="#696969">
 <div class="container">
@@ -15,7 +63,7 @@
         <div class="col-md-12 column">
             <nav class="navbar navbar-default" role="navigation">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">办公文件管理系统</a>
+                    <a class="navbar-brand" href="#">天涯办公文件管理系统</a>
                 </div>
 
                 <div  class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -56,16 +104,15 @@
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#panel-element-962727" >文件管理</a>
                     </div>
                     <div id="panel-element-962727" class="panel-collapse collapse in">
-                        <div class="panel-body">
+                        <div class="panel-body file">
                             <a href="#" _link="/main">我的文件</a>
                         </div>
-                        <div class="panel-body" th:each="dept:${deptList}">
+                        <div class="panel-body file" th:each="dept:${deptList}">
                             <a href="#" th:attr="_link= @{/main(dirId = ${dept.dirId})}">[[${dept.deptName}]]</a>
                         </div>
 
                     </div>
                 </div>
-                判断是否是团队账号，只有团队账号才有成员管理菜单
                 <!--成员管理-->
                 <div class="panel panel-default" th:if="${session.USER_SESSION.userType eq 2}">
                     <div class="panel-heading">
@@ -75,19 +122,19 @@
                         <div class="new_dept btn-primary">
                             <a href="#" style="color: white" class="btn" data-toggle="modal" data-target="#modal-container-new-department">+新建部门</a>
                         </div>
-                        <div class="panel-body" th:each="dept:${deptList}">
+                        <div class="panel-body member" th:each="dept:${deptList}">
                             <a href="#" th:attr="_link=@{/deptMemberView(deptId=${dept.deptId})}" >[[${dept.deptName}]]</a>
                         </div>
-                        <div class="panel-body">
-                            <a href="#">待分配</a>
+                        <div class="panel-body member">
+                            <a href="#" _link="/toBeAssigned">待分配</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 <!--========================主要内容=========================-->
-        <div class="col-md-10 column" style="height: 700px;">
-            <iframe id="main" class="main" frameborder="0" scrolling="yse"
+        <div class="col-md-10 column">
+            <iframe id="main" class="main" frameborder="0" scrolling="no"
                     width="100%" height="100%" style="position: relative; z-index: 2;"
                     src="/main">
             </iframe>
@@ -151,9 +198,11 @@
 
       /*新建部门*/
       function new_dept() {
+          $(".d").va
           $.post("/newDept",$("#dept_edit_form").serialize(),function (date) {
               if (date == "OK"){
                   alert("新建成功");
+                  window.location.reload();
               }else{
                   alert("新建失败");
               }

@@ -2,18 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.dao.DeptMemberDao">
 
-  <!--user_dept====>DeptMember-->
   <resultMap id="BaseResultMap" type="DeptMember">
     <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="dir_id" jdbcType="INTEGER" property="dirId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="dept_id" jdbcType="INTEGER" property="deptId" />
+    <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
+    <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
+    <result column="recent" jdbcType="TIMESTAMP" property="recent" />
+    <result column="p_upload" jdbcType="INTEGER" property="pUpload" />
+    <result column="p_down" jdbcType="INTEGER" property="pDown" />
+    <result column="p_preview" jdbcType="INTEGER" property="pPreview" />
   </resultMap>
+
   <!--user_dept====>Member-->
   <resultMap id="MemberResultMap" type="Member">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="username" jdbcType="VARCHAR" property="userName" />
     <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
-    <result column="user_phone" jdbcType="INTEGER" property="phone" />
+    <result column="user_phone" jdbcType="VARCHAR" property="phone" />
     <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
     <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
     <result column="recent" jdbcType="TIMESTAMP" property="recent" />
@@ -23,94 +29,218 @@
   </resultMap>
 
 
-
-<!--根据id查询目录-部门表-->
   <sql id="Base_Column_List">
-    id, dir_id, dept_id
+    id, user_id, dept_id, used_space, max_space, recent, p_upload, p_down, p_preview
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from dir_dept
-    where id = #{id,jdbcType=INTEGER}
+    from user_dept
+    where id = #{id,jdbcType=INTEGER} and m_status = 1
   </select>
+
 
   <!--查询部门成员-->
   <select id="selectListByDeptKey" parameterType="java.lang.Integer" resultMap="MemberResultMap">
-
-        select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+        select t2.id,t1.username,t2.dept_name,t2.m_status,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
         from user_inf as t1 join
         (
-        SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+        SELECT t3.id,t3.user_id,t3.dept_id,t3.m_status,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
 		FROM user_dept as t3 join dept_inf as t4 on t3.dept_id = t4.dept_id
 		)
 		as t2 on t1.user_id = t2.user_id
-        where dept_id = #{deptId,jdbcType=INTEGER}
+        where dept_id = #{deptId,jdbcType=INTEGER} and m_status = 1
   </select>
 
-<!--根据id删除目录-部门表-->
+  <!--查询部门成员-->
+  <select id="selectToBeAssignedMemberListByDeptKey" parameterType="java.lang.Integer" resultMap="MemberResultMap">
+      select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+      from user_inf as t1 join (
+          SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          FROM user_dept AS t3 JOIN (
+            SELECT dept_id,dept_name
+            FROM dept_inf AS t5 join dir_inf as t6 on t5.dir_id = t6.dir_id
+            WHERE t6.user_id = #{userId,jdbcType=INTEGER})AS t4 ON t4.dept_id = t3.dept_id
+          WHERE t3.m_status = 0) as t2 on t1.user_id = t2.user_id
+  </select>
+
+  <select id="selectToBeAssignedMemberByUserName"  resultMap="MemberResultMap">
+      select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+      from user_inf as t1 join (
+          SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          FROM user_dept AS t3 JOIN (
+            SELECT dept_id,dept_name
+            FROM dept_inf AS t5 join dir_inf as t6 on t5.dir_id = t6.dir_id
+            WHERE t6.user_id = #{userId})AS t4 ON t4.dept_id = t3.dept_id
+          WHERE t3.m_status = 0) as t2 on t1.user_id = t2.user_id
+      where t1.username = #{userName}
+  </select>
+
+  <select id="selectToBeAssignedMemberByPhone"  resultMap="MemberResultMap">
+      select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+      from user_inf as t1 join (
+          SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          FROM user_dept AS t3 JOIN (
+            SELECT dept_id,dept_name
+            FROM dept_inf AS t5 join dir_inf as t6 on t5.dir_id = t6.dir_id
+            WHERE t6.user_id = #{userId})AS t4 ON t4.dept_id = t3.dept_id
+          WHERE t3.m_status = 0) as t2 on t1.user_id = t2.user_id
+      where t1.user_phone = #{phone}
+  </select>
+
+
+  <select id="selectByUserKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from user_dept
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from dir_dept
+    delete from user_dept
     where id = #{id,jdbcType=INTEGER}
   </delete>
 
-<!--插入一条记录-->
+
+
   <insert id="insert" parameterType="DeptMember">
-    insert into dir_dept (id, dir_id, dept_id
+    insert into user_dept (id, user_id, dept_id, 
+      used_space, max_space, recent, 
+      p_upload, p_down, p_preview
       )
-    values (#{id,jdbcType=INTEGER}, #{dirId,jdbcType=INTEGER}, #{deptId,jdbcType=INTEGER}
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{deptId,jdbcType=INTEGER}, 
+      #{usedSpace,jdbcType=INTEGER}, #{maxSpace,jdbcType=INTEGER}, #{recent,jdbcType=TIMESTAMP}, 
+      #{pUpload,jdbcType=INTEGER}, #{pDown,jdbcType=INTEGER}, #{pPreview,jdbcType=INTEGER}
       )
   </insert>
 
 
-<!--插入一条记录，且根据参数动态组装sql-->
+
   <insert id="insertSelective" parameterType="DeptMember">
-    insert into dir_dept
+    insert into user_dept
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
-      <if test="dirId != null">
-        dir_id,
+      <if test="userId != null">
+        user_id,
       </if>
       <if test="deptId != null">
         dept_id,
+      </if>
+      <if test="usedSpace != null">
+        used_space,
+      </if>
+      <if test="maxSpace != null">
+        max_space,
+      </if>
+      <if test="recent != null">
+        recent,
+      </if>
+      <if test="pUpload != null">
+        p_upload,
+      </if>
+      <if test="pDown != null">
+        p_down,
+      </if>
+      <if test="pPreview != null">
+        p_preview,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="dirId != null">
-        #{dirId,jdbcType=INTEGER},
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
       </if>
       <if test="deptId != null">
         #{deptId,jdbcType=INTEGER},
       </if>
+      <if test="usedSpace != null">
+        #{usedSpace,jdbcType=INTEGER},
+      </if>
+      <if test="maxSpace != null">
+        #{maxSpace,jdbcType=INTEGER},
+      </if>
+      <if test="recent != null">
+        #{recent,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pUpload != null">
+        #{pUpload,jdbcType=INTEGER},
+      </if>
+      <if test="pDown != null">
+        #{pDown,jdbcType=INTEGER},
+      </if>
+      <if test="pPreview != null">
+        #{pPreview,jdbcType=INTEGER},
+      </if>
     </trim>
-  </insert>
 
-<!--根据id更新记录，且根据参数动态组装sql-->
+
+
+  </insert>
   <update id="updateByPrimaryKeySelective" parameterType="DeptMember">
-    update dir_dept
+    update user_dept
     <set>
-      <if test="dirId != null">
-        dir_id = #{dirId,jdbcType=INTEGER},
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
       </if>
       <if test="deptId != null">
         dept_id = #{deptId,jdbcType=INTEGER},
+      </if>
+      <if test="mStatus != null">
+       m_status = #{mStatus,jdbcType=INTEGER},
+      </if>
+      <if test="usedSpace != null">
+        used_space = #{usedSpace,jdbcType=INTEGER},
+      </if>
+      <if test="maxSpace != null">
+        max_space = #{maxSpace,jdbcType=INTEGER},
+      </if>
+      <if test="recent != null">
+        recent = #{recent,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pUpload != null">
+        p_upload = #{pUpload,jdbcType=INTEGER},
+      </if>
+      <if test="pDown != null">
+        p_down = #{pDown,jdbcType=INTEGER},
+      </if>
+      <if test="pPreview != null">
+        p_preview = #{pPreview,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-<!--根据id更新记录-->
+
+
+
   <update id="updateByPrimaryKey" parameterType="DeptMember">
-    update dir_dept
-    set dir_id = #{dirId,jdbcType=INTEGER},
-      dept_id = #{deptId,jdbcType=INTEGER}
+    update user_dept
+    set user_id = #{userId,jdbcType=INTEGER},
+      dept_id = #{deptId,jdbcType=INTEGER},
+      used_space = #{usedSpace,jdbcType=INTEGER},
+      max_space = #{maxSpace,jdbcType=INTEGER},
+      recent = #{recent,jdbcType=TIMESTAMP},
+      p_upload = #{pUpload,jdbcType=INTEGER},
+      p_down = #{pDown,jdbcType=INTEGER},
+      p_preview = #{pPreview,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <update id="updateDeptById" parameterType="java.lang.Integer">
+    update user_dept set m_status = 0
+    <where>
+      <if test="id !=null and id !='' ">
+        id = #{id,jdbcType=INTEGER}
+      </if>
+      <if test="deptId != null and deptId != ''">
+        and  dept_id = #{deptId,jdbcType=INTEGER}
+      </if>
+    </where>
+  </update>
 
 </mapper>

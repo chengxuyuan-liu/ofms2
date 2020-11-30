@@ -9,6 +9,8 @@ public class DeptMember {
 
     private Integer deptId;
 
+    private Integer mStatus;
+
     private Integer usedSpace;
 
     private Integer maxSpace;
@@ -92,4 +94,8 @@ public class DeptMember {
     public void setpPreview(Integer pPreview) {
         this.pPreview = pPreview;
     }
+
+    public Integer getmStatus() { return mStatus; }
+
+    public void setmStatus(Integer mStatus) { this.mStatus = mStatus; }
 }

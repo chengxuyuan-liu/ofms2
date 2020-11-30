@@ -2,7 +2,6 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.DirInf;
-import com.example.demo.entity.FileInf;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -14,6 +13,7 @@ import java.util.List;
 public interface DirInfDao {
     //删除
     int deleteByPrimaryKey(Integer dirId);
+    int deleteByUserId(Integer userId);
 
     //插入
     int insert(DirInf record);
@@ -23,7 +23,7 @@ public interface DirInfDao {
     List<DirInf> selectDirListByDirId(Integer dirId);       //查询该文件夹下的所有文件夹
     DirInf selectRootChildrenDirByUserId(@Param("userId")Integer userId,@Param("dirName")String dirName);           //“我的文件”文件夹
     DirInf selectRootDirByUserId(Integer userId);         //根文件夹
-
+    DirInf selectDirByDirName(@Param("dirName")String dirName,@Param("parentId")Integer parentId);
     DirInf selectByPrimaryKey(Integer dirId);               //根据id查询制定文件夹
     DirInf selectDirByFileId(Integer fileId);               //根据文件id查询文件夹
     List<DirInf> selectParentDirByDirId(Integer dirId);     //查询该文件夹的所有 父 文件夹

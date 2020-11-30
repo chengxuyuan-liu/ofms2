@@ -5,7 +5,7 @@ import java.util.Date;
 public class UserInf {
     private Integer userId;
 
-    private Integer userPhone;
+    private String userPhone;
 
     private String username;
 
@@ -31,11 +31,11 @@ public class UserInf {
         this.userId = userId;
     }
 
-    public Integer getUserPhone() {
+    public String getUserPhone() {
         return userPhone;
     }
 
-    public void setUserPhone(Integer userPhone) {
+    public void setUserPhone(String userPhone) {
         this.userPhone = userPhone;
     }
 

@@ -3,7 +3,7 @@
 <mapper namespace="com.example.demo.dao.UserInfDao">
   <resultMap id="BaseResultMap" type="UserInf">
     <id column="user_id" jdbcType="INTEGER" property="userId" />
-    <result column="user_phone" jdbcType="INTEGER" property="userPhone" />
+    <result column="user_phone" jdbcType="VARCHAR" property="userPhone" />
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="email" jdbcType="VARCHAR" property="email" />
@@ -28,12 +28,41 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
 
+  <select id="selectByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_inf
+    where email = #{email,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_inf
+    where user_type != 0
+  </select>
+
   <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from user_inf
     where username = #{username}
   </select>
+
+
+  <select id="selectListByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_inf
+    where username LIKE "%${username}%" and user_type != 0
+  </select>
+
+  <select id="selectByUserPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select *
+    from user_inf
+    where user_phone = #{userPhone,jdbcType=VARCHAR} and user_type = 1
+  </select>
+
 
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

@@ -10,15 +10,14 @@ import java.util.List;
 @Repository
 public interface DeptInfDao {
     int deleteByPrimaryKey(Integer deptId);
+    int deleteByDirId(Integer dirId);
 
     int insert(DeptInf record);
-
     int insertSelective(DeptInf record);
 
     DeptInf selectByPrimaryKey(Integer deptId);
     List<DeptInf> selectDeptListByUserId(Integer userId);
 
-    int updateByPrimaryKeySelective(DeptInf record);
-
+    int updateByPrimaryKeySelective(DeptInf record);  //动态
     int updateByPrimaryKey(DeptInf record);
 }

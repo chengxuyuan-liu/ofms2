@@ -4,12 +4,13 @@ import com.example.demo.dao.UserInfDao;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.UserInfService;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.util.calendar.LocalGregorianCalendar;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -26,6 +27,8 @@ public class UserInfServiceImpl implements UserInfService {
     @Override
     public UserInf verifyLogin(String username, String password) {
         UserInf userInf = userInfDao.selectByUsername(username);
+        System.out.println(userInf);
+        System.out.println(password+"--"+ userInf.getPassword()+","+password.equals(userInf.getPassword()));
         if (userInf != null) {
             if (password.equals(userInf.getPassword())) {
                 return userInf;
@@ -36,7 +39,8 @@ public class UserInfServiceImpl implements UserInfService {
 
     @Override
     public int deleteByPrimaryKey(Integer userId) {
-        return 0;
+        int result = userInfDao.deleteByPrimaryKey(userId);
+        return result;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class UserInfServiceImpl implements UserInfService {
     注册
     */
     @Override
-    public int insertSelective(Integer userType,String username, String email, String password, Integer phone) {
+    public int insertSelective(Integer userType,String username, String email, String password, String phone) {
 
         //注册时间
         Date date = new Date();
@@ -86,8 +90,34 @@ public class UserInfServiceImpl implements UserInfService {
     }
 
     @Override
+    public UserInf selectByUserPhone(String userPhone) {
+        UserInf userInf = userInfDao.selectByUserPhone(userPhone);
+        return userInf;
+    }
+
+    @Override
+    public List<UserInf> selectListByUserName(String userName) {
+        List<UserInf> userInfList = userInfDao.selectListByUsername(userName);
+        return userInfList;
+    }
+
+    @Override
+    public UserInf selectByEmail(String email) {
+        UserInf userInf = userInfDao.selectByEmail(email);
+        return userInf;
+    }
+
+
+    @Override
+    public List<UserInf> selectAll() {
+        List<UserInf> userInfList = userInfDao.selectAll();
+        return userInfList;
+    }
+
+    @Override
     public int updateByPrimaryKeySelective(UserInf record) {
-        return 0;
+        int result = userInfDao.updateByPrimaryKeySelective(record);
+        return result;
     }
 
     @Override

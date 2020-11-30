@@ -14,11 +14,25 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addViewController("menu").setViewName("menu");
         registry.addViewController("toregister").setViewName("register");
         registry.addViewController("dept_member").setViewName("dept_member");
+        registry.addViewController("to_be_assigned").setViewName("dept_member");
+        registry.addViewController("adminstrationMenu").setViewName("adminstration_menu");
+        registry.addViewController("adminstrationUser").setViewName("adminstration_user");
+        registry.addViewController("adminstration_login").setViewName("adminstration_login");
+        registry.addViewController("forgot_password").setViewName("forgot_password");
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/login","/register","/**/*.js","/**/*.css");
+        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/login",
+                                                                                                    "/register",
+                                                                                                    "/adminstration_login",
+                                                                                                    "/forGotPassword",
+                                                                                                    "/forgot_password",
+                                                                                                    "/adminstrationLogin",
+                                                                                                    "/checkEmail",
+                                                                                                    "/**/*.js",
+                                                                                                    "/**/*.css",
+                                                                                                    "/**/*.jpg");
     }
 
 }

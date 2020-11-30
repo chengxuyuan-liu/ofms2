@@ -6,6 +6,32 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
     <script src="/js/libs/jquery-2.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <style>
+        body{
+            background: #e0e9f3;
+        }
+        .col-md-12{
+            height: 100vh;
+            position: relative;
+        }
+        .login{
+            /*border: 1px solid #000000;*/
+            position: absolute;
+            left:35% ;
+            top:20% ;
+            background: #ffffff;
+            box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        }
+        .logon{
+            margin-left: 50%;
+        }
+        .login>.page-header>.manage_enter{
+            position: absolute;
+            right: 10px;
+            top: 35px;
+        }
+
+    </style>
 </head>
 <body>
 <div class="container">
@@ -14,11 +40,12 @@
             <div class="row clearfix">
                 <div class="col-md-4 column">
                 </div>
-                <div class="col-md-4 column" >
+                <div class="col-md-4 column login" >
                     <div class="page-header">
                         <h1>
                             办公管理系统 <small>登录</small>
                         </h1>
+                        <a href="/adminstration_login" class="manage_enter">>>>后台</a>
                     </div>
 
                     <form class="form-horizontal" action="/login" method="POST">
@@ -46,7 +73,8 @@
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="submit" class="btn btn-default">登录</button>
-                                <a href="/toregister">注册</a>
+                                <a href="/toregister" class="register"> >>>注册</a>
+                                <a href="/forgot_password" class="forgot-password"> >>>忘记密码？</a>
                             </div>
                         </div>
                     </form>

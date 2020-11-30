@@ -17,4 +17,9 @@ public interface DeptInfService {
     public DeptInf selectByPrimaryKey(Integer deptId);
     List<DeptInf> selectDeptListByUserId(Integer userId);
 
+    public Boolean deleteDept(Integer deptId);
+
+    public int deleteByUserId(Integer userId);
+
+    Boolean updateByPrimaryKeySelective(String deptName,Integer maxSpace,Integer deptId);
 }

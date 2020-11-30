@@ -1,179 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>注册</title>
+	<head>
+		<meta charset="UTF-8">
+		<title>注册</title>
+
 
 
     <script src="/js/libs/jquery-2.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container">
-    <div class="row clearfix">
-        <div class="col-md-4 column">
-        </div>
-        <div class="col-md-4 column">
-            <div class="page-header">
-                <h1>
-                    办公管理系统 <small>注册</small>
-                </h1>
-            </div>
-        </div>
-        <div class="col-md-4 column">
-        </div>
-    </div>
-    <div class="row clearfix">
-        <div class="col-md-4 column">
-        </div>
-        <div class="col-md-4 column">
-            <div class="tabbable" id="tabs-161807">
-                <ul class="nav nav-tabs">
-                    <li>
-                        <a href="#panel-965523" data-toggle="tab">个人账号</a>
-                    </li>
-                    <li class="active">
-                        <a href="#panel-182379" data-toggle="tab">团队账号</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane" id="panel-965523">
-                        <p>
-                        <!--个人账号注册-->
-                        <form class="form-horizontal" action="/register" id="register_form" method="post">
-                            <input  type="hidden" id="type1" name="userType" value="1">
-                            <div class="form-group">
-                                <label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">用户名</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="user-name-label"
-                                           placeholder="" name="username"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">邮箱</label>
-                                <div class="col-sm-8">
-                                    <input type="email" name="email" class="form-control" id="inputEmail3" />
-                                </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">密码</label>
-                                <div class="col-sm-8">
-                                    <input type="password" name="password" class="form-control" id="inputPassword3" placeholder="至少6位"/>
-                                </div>
-                            </div>
+		<style>
+			
+			body{
+				background: #E9ECEF;
+			}
+			#app{
+				
+			}
+			.container{
+				width: 408px;
+				position: relative;
+				top: 72px;
+				background: #FFFFFF;
+				box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+			}
+			.col-md-4{
+				width: 100%;
+			}
+			
+			.col-sm-8 input{
+				border-radius: 3px;
+			}
+			.col-sm-offset-2 button{
+				border-radius: 5px;
+				background: #007BFF;
+				color: #FFFFFF;
+			}
+			.col-sm-offset-2 button:hover{
+				background: #0069D9;
+				color: #FFFFFF;
+			}
+			
 
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">确认密码</label>
-                                <div class="col-sm-8">
-                                    <input type="password" class="form-control" id="inputPassword3_again" />
-                                </div>
-                            </div>
+		</style>
+		
+		<script>
+			$(function(){
+		
+			});
+			
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="container">
+				<div class="row clearfix">
+					<div class="col-md-4 column">
+						<div class="page-header">
+							<h1>
+								办公管理系统 <small>注册</small>
+							</h1>
+							<span>已有账号---></span><a href="/tolgoin">去登录</a>
+						</div>
+					</div>
+				</div>
+				<div class="row clearfix">
+					<div class="col-md-4 column">
+						<div class="tabbable" id="tabs-161807">
+							<ul class="nav nav-tabs">
+								<li class="active">
+									<a href="#panel-965523" data-toggle="tab" >个人账号</a>
+								</li>
+								<li >
+									<a href="#panel-182379" data-toggle="tab">团队账号</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane" id="panel-965523">
+									<p>
+										<!--个人账号注册-->
+										<form class="form-horizontal" action="/register" id="register_form" method="post">
+											<input type="hidden" id="type1" name="userType" value="1">
+											<div class="form-group">
+												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">用户名</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control" id="user-name-label" placeholder="" name="username" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">邮箱</label>
+												<div class="col-sm-8">
+													<input type="email" name="email" class="form-control" id="inputEmail3" />
+												</div>
+											</div>
 
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="phone" class="form-control" id="phone" />
-                                </div>
-                            </div>
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
+												<div class="col-sm-8">
+													<input type="text" name="phone" class="form-control" id="phone" />
+												</div>
+											</div>
+											
 
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" />同意XXXX</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="button" class="btn btn-default" onclick="register()">提交</button>
-                                    <button type="button" class="btn btn-default" onclick="test()">测试</button>
-                                </div>
-                            </div>
-                        </form>
-                        </p>
-                    </div>
-                    <div class="tab-pane active" id="panel-182379">
-                        <p>
-                        <!--团队账号注册-->
-                        <form class="form-horizontal" action="/register" id="register_form2" method="post">
-                            <input  type="hidden" id="type2" name="userType" value="2">
-                            <div class="form-group">
-                                <label for="inputEmail3" class="col-sm-2 control-label"  style="width: 96px;">团队名</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="user-name-label2"
-                                           placeholder="" name="username"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">邮箱</label>
-                                <div class="col-sm-8">
-                                    <input type="email" name="email" class="form-control" id="inputEmail32" />
-                                </div>
-                            </div>
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">密码</label>
+												<div class="col-sm-8">
+													<input type="password" name="password" class="form-control" id="inputPassword3" placeholder="至少6位" />
+												</div>
+											</div>
 
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">密码</label>
-                                <div class="col-sm-8">
-                                    <input type="password" name="password" class="form-control" id="inputPassword2" placeholder="至少6位"/>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">确认密码</label>
-                                <div class="col-sm-8">
-                                    <input type="password" class="form-control" id="inputPassword3_again2" />
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="phone" class="form-control" id="phone2" />
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" />同意XXXX</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="button" class="btn btn-default" onclick="register()">提交</button>
-                                    <button type="button" class="btn btn-default" onclick="test()">测试</button>
-                                </div>
-                            </div>
-                        </form>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="col-md-4 column">
-        </div>
-    </div>
-
-<script>
-    //注册
-    function register() {
-        $.post("/register",$("#register_form").serialize(),function (date) {
-            if (date == "OK") {
-                alert("注册成功");
-                window.location.href = "/page/login.html";
-            }else{
-                alert("失败");
-            }
-        });
-    }
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">确认密码</label>
+												<div class="col-sm-8">
+													<input type="password" class="form-control" id="inputPassword3_again" />
+												</div>
+											</div>
 
 
-</script>
+											<div class="form-group">
+												<div class="col-sm-offset-2 col-sm-10">
+													<div class="checkbox">
+														<label><input type="checkbox" />同意XXXX</label>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<div class="col-sm-offset-2 col-sm-10">
+													<button type="button" class="btn btn-default" onclick="register()">提交</button>
+													<button type="button" class="btn btn-default" onclick="test()">测试</button>
+												</div>
+											</div>
+										</form>
+									</p>
+								</div>
+								<div class="tab-pane active" id="panel-182379">
+									<p>
+										<!--团队账号注册-->
+										<form class="form-horizontal" action="/register" id="register_form2" method="post">
+											<input type="hidden" id="type2" name="userType" value="2">
+											<div class="form-group">
+												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">团队名</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control" id="user-name-label2" placeholder="" name="username" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">邮箱</label>
+												<div class="col-sm-8">
+													<input type="email" name="email" class="form-control" id="inputEmail32" />
+												</div>
+											</div>
+											
+											
+											
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
+												<div class="col-sm-8">
+													<input type="text" name="phone" class="form-control" id="phone2" />
+												</div>
+											</div>
 
-</div>
-</body>
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">密码</label>
+												<div class="col-sm-8">
+													<input type="password" name="password" class="form-control" id="inputPassword2" placeholder="至少6位" />
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">确认密码</label>
+												<div class="col-sm-8">
+													<input type="password" class="form-control" id="inputPassword3_again2" />
+												</div>
+											</div>
+
+		
+
+											<div class="form-group">
+												<div class="col-sm-offset-2 col-sm-10">
+													<div class="checkbox">
+														<label><input type="checkbox" />同意XXXX</label>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<div class="col-sm-offset-2 col-sm-10">
+													<button type="button" class="btn btn-default" onclick="register2()">提交</button>
+													<button type="button" class="btn btn-default" onclick="test()">测试</button>
+												</div>
+											</div>
+										</form>
+									</p>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+
+				<script>
+					//注册
+					function register() {
+						$.post("/register", $("#register_form").serialize(), function(date) {
+							if (date == "OK") {
+								alert("注册成功");
+								window.location.href = "/page/login.html";
+							} else {
+								alert("失败");
+							}
+						});
+					}
+
+					function register2() {
+						$.post("/register", $("#register_form2").serialize(), function(date) {
+							if (date == "OK") {
+								alert("注册成功");
+								window.location.href = "/page/login.html";
+							} else {
+								alert("失败");
+							}
+						});
+					}
+				</script>
+
+			</div>
+		</div>
+	</body>
 </html>

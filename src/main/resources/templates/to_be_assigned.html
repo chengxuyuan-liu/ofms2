@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+		<script src="/js/libs/jquery-2.1.1.min.js"></script>
+		<script src="/js/bootstrap/bootstrap.min.js"></script>
+
+
+		<style>
+			body{overflow-x:hidden;overflow-y:auto;}
+
+			select{
+				height: 32px;
+				box-sizing: border-box;
+				padding-top: 1px;
+			}
+
+			
+		</style>
+		<script>
+			$(function(){
+				//选择部门，提示可分配空间
+				$('#select_dept').change(function(){
+					//alert("aaa");
+					let select = document.getElementById('select_dept'); 
+					let maxspace = select.item(select.selectedIndex).getAttribute('data-maxspace');
+					
+	
+					if($(this).val() != 0){
+						$('#tip_maxSpace').html('&nbsp;&nbsp;-最大可分配空间:'+maxspace+'GB');
+					}else{
+						$('#tip_maxSpace').html('');
+					}
+					
+				});
+				
+				//获得成员id
+				$('#edit_btn').click(function(){
+					let id = $('#edit_btn').attr('data-memberid');
+					$('#edit_memberId').prop('value',id);
+					
+				});
+				
+
+				$('#sid').change(function () {
+					if($('#sid').val() == 1){
+						$('#search_content').prop('name','userName')
+					}else{
+						$('#search_content').prop('name','phone')
+					}
+				});
+
+				//搜索
+				// $('#search').click(function(){
+				// 	$.post('/toBeAssignedSearch',{'searchType':$('#sid').val(),'searchContent':$('#search_content').val()});
+				// });
+			});	
+
+		</script>
+	</head>
+	<body>
+		
+		<!--========================内容=========================-->
+		<!--部门概况-->
+		<div class="alert  alert-info">
+		    <h4>
+		        待分配
+		    </h4>
+		</div>
+		<!--添加成员、搜索-->
+		<div class="btn-group">
+
+		    <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/toBeAssignedSearch">
+				
+				
+				<select  id="sid"  name="searchType" >
+				   			<option value="1">用户名</option>
+				   			<option value="2">手机号码</option>
+				</select><h2 style="display: inline;">&nbsp;:</h2>
+				
+		        <div class="form-group">
+		            <input type="text" class="form-control" id="search_content" name="userName"/>
+		        </div>
+		        <button type="submit" class="btn btn-default btn-primary" id="search">搜索</button>
+		    </form>
+		</div>
+		<!--成员信息-->
+		<div class="row clearfix">
+		    <div class="col-md-12 column">
+		        <table class="table table-hover" id="test">
+					
+		            <thead>
+		            <tr>
+		                <th>
+		                    <input type="checkbox" onchange="allCheck()" id="all_check">
+		                </th>
+		                <th>
+		                    用户
+		                </th>
+		                <th>
+		                    邮箱/手机号
+		                </th>
+		                <th>
+		                    状态
+		                </th>
+		                <th>
+		                    操作
+		                </th>
+		            </tr>
+		            </thead>
+					
+		            <tbody >
+						
+		            <tr th:each="member:${memberList}">
+		                <td>
+		                    <input type="checkbox" class="all_check_button"/>
+		                </td>
+		                <td>
+		                    [[${member.userName}]]
+		                </td>
+		                <td>
+		                    [[${member.phone}]]
+		                </td>
+		                <td>
+		                    最近访问：
+		                    [[${member.recent}]]
+		                </td>
+		                <td>
+		                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" id="edit_btn"
+		                            data-target="#modal-container-edit"  th:attr="data-memberid=${member.id}">编辑
+		                    </button>
+		                    <button type="button" class="btn btn-default btn-primary" id="delete_forever" th:onclick= |deleteMember(${member.id})|>删除</button>
+
+		                </td>
+		            </tr>
+		            </tbody>
+		        </table>
+				
+		    </div>
+		</div>
+		<!--========================各种模态窗口=========================-->
+		<div th:value="${memberList}"></div>
+		
+		<!--成员编辑模态窗口-->
+		<div class="row clearfix">
+		    <div class="col-md-12 column">
+		        <!--toggle and tagget-->
+		        <div class="modal fade" id="modal-container-edit" role="dialog" aria-labelledby="myModalLabel"
+		             aria-hidden="true">
+		            <div class="modal-dialog">
+		                <div class="modal-content">
+		                    <div class="modal-header">
+		                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		                        <h4 class="modal-title" id="edit">
+		                            编辑
+		                        </h4>
+		                    </div>
+		                    <div class="modal-body">
+		                        <form class="form-horizontal" role="form" id="edit_member">
+		                            <input type="hidden" id="edit_memberId" name="id" >
+		                            <div class="form-group">
+		                                <label for="edit_maxSpace" class="col-sm-2 control-label"
+		                                       style="padding-top:3px;">选择部门:</label>
+		                                <div class="col-sm-10">
+		                                    <select  id="select_dept"  name="deptId" >
+		                                       			<option value="0">--请选择--</option>
+		                                       			<option th:value="${dept.deptId}"  th:each="dept : ${deptInfList}" th:attr="data-maxspace=${dept.maxSpace}">[[${dept.deptName}]]</option>
+		                                    </select>
+		                                </div>
+		                            </div>
+		                            <div class="form-group">
+		                                <label for="edit_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
+		                                    分配空间:</label>
+		                                <div class="col-sm-10">
+											 <input type="number" id="edit_maxSpace" style="width:50px;" name="maxSpace">&nbsp;GB<span id="tip_maxSpace"></span>
+		                                </div>
+		                            </div>
+		                        </form>
+		                    </div>
+		                    <div class="modal-footer">
+		                        <button type="button" class="btn btn-primary" onclick="editMember()">确定</button>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		
+
+	
+		
+		<!--========================js=========================-->
+		
+		
+		<script>
+		
+		
+		    /*
+		    全选
+		    */
+		    function allCheck(){
+		        var check = document.getElementById("all_check").checked;
+		
+		        if(check == true){
+		            $(".all_check_button").prop("checked",true);
+		            console.log("true");
+		        }else{
+		            $(".all_check_button").prop("checked",false);
+		            console.log("false");
+		        }
+		    }
+		
+
+		    
+		    
+		    /*
+		    添加新成员
+		    */
+		    function add_member() {
+		        $.post("/addMember", $("#add_member_from").serialize(), function (date) {
+		            if (date == "OK") {
+		                alert("添加成功");
+		                window.location.reload();
+		            } else {
+		                alert("添加失败");
+		            }
+		
+		        });
+		    }
+		
+		
+		    /*
+		    移除成员
+		    */
+		    function removeMember(id,deptId) {
+		        if (confirm("确定要移除该成员吗")) {
+		            $.post("/removeMember", {"id":id,"deptId":deptId}, function (date) {
+		                if (date == "OK") {
+		                    alert("删除成功");
+		                    window.location.reload();
+		                } else {
+		                    alert("删除失败");
+		                }
+		            });
+		        }
+		    }
+		
+		
+		    /*
+		    删除成员
+		    */
+		    function deleteMember(id) {
+		        if (confirm("确定要删除该成员吗")) {
+		            $.post("/deleteMember", {"id": id}, function (date) {
+		                if (date == "OK") {
+		                    alert("删除成功");
+		                    window.location.reload();
+		                } else {
+		                    alert("删除失败");
+		                }
+		            });
+		        }
+		    }
+		
+		    /*
+		    编辑部门
+		    */
+		    function editDept() {
+		            $.post("/editDept",$("#edit_dept").serialize(), function (date) {
+		                if (date == "OK") {
+		                    alert("保存成功");
+		                    window.location.reload();
+		                } else {
+		                    alert("保存失败");
+		                }
+		            });
+		    }
+		
+		
+			//编辑成员
+			function editMember(){
+					let deptId = $('#select_dept').val();
+					let maxSpace = $('#edit_maxSpace').val();
+					let id = $('#edit_memberId').val();
+					
+
+					$.post('/editToBeAssignedMember',{'id':id,'deptId':deptId,'maxSpace':maxSpace},function (data) {
+						if(data == 'OK'){
+							alert("保存成功");
+						}else{
+							alert("保存失败");
+						}
+					});
+			}
+				
+		
+		</script>
+	</body>
+</html>

@@ -1,13 +1,13 @@
 package com.example.demo.controller;
 
+
 import com.example.demo.entity.*;
-import com.example.demo.service.DeptInfService;
-import com.example.demo.service.DeptMemberService;
-import com.example.demo.service.DirInfService;
-import com.example.demo.service.FileInfServive;
+import com.example.demo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -24,6 +24,8 @@ public class ViewController {
     DeptInfService deptInfService;
     @Autowired
     DeptMemberService deptMemberService;
+    @Autowired
+    UserInfService userInfService;
 
     /**
      * 跳转到菜单页面
@@ -57,7 +59,7 @@ public class ViewController {
      * 文件管理页面主要数据
     **/
     @RequestMapping("/main")
-    public String mainView(Integer dirId, Map<String,Object> map, HttpSession session){
+    public String mainView(Integer dirId, Map<String,Object> map, ModelAndView a, HttpSession session){
         //调用业务
         List<DirInf> dirInfList;          //文件夹List
         List<FileInf> fileInfList;         //文件List
@@ -144,15 +146,63 @@ public class ViewController {
         //调用业务
         //通过部门Id获得部门成员List
         List<Member> memberList = deptMemberService.selectListByDeptKey(deptId);
-        System.out.println(memberList);
-        for (Member member : memberList) {
-            System.out.println(member.getUserName());
-            System.out.println(member.getDeptName());
-        }
+        DeptInf deptInf = deptInfService.selectByPrimaryKey(deptId);
 
+
+        map.put("dept",deptInf);
         map.put("memberList",memberList);
 
         return "dept_member";
     }
+
+
+    /**
+     * 成员管理页面-->待分配
+     **/
+    @RequestMapping("/toBeAssigned")
+    public String toBeAssigned(Map<String,Object> map ,HttpSession session) {
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        List<Member> memberList = deptMemberService.selectToBeAssignedMemberListByDeptKey(userInf.getUserId());
+
+        List<DeptInf> deptInfList = deptInfService.selectDeptListByUserId(userInf.getUserId());
+        map.put("memberList",memberList);
+        map.put("deptInfList",deptInfList);
+        return "to_be_assigned";
+    }
+
+        /*
+    待分配-搜索
+    */
+    @RequestMapping("/toBeAssignedSearch")
+    public String toBeAssignedSearch(Integer searchType,String userName,String phone,Map<String,Object> map,HttpSession session) {
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        List<Member> memberList = new ArrayList<>();
+        if(searchType==1){
+            System.out.println("用户名："+userName);
+            memberList = deptMemberService.selectToBeAssignedMemberByUserName(userInf.getUserId(),userName);
+        }else{
+            System.out.println("手机号码："+phone);
+            memberList = deptMemberService.selectToBeAssignedMemberByPhone(userInf.getUserId(),phone);
+        }
+        map.put("memberList",memberList);
+        return "to_be_assigned";
+    }
+
+
+
+    /**
+     * 管理用户界面
+     **/
+    @RequestMapping("/toAdminstrationUser")
+    public String toAdminstrationUser(Map<String,Object> map ,HttpSession session) {
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        List<UserInf> userInfList = userInfService.selectAll();
+        map.put("userInfList",userInfList);
+        return "adminstration_user";
+    }
+
+
+
+
 
 }

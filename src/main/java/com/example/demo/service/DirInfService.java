@@ -16,10 +16,12 @@ public interface DirInfService {
     List<DirInf> selectDirListByDirId(Integer dirId);
     List<DirInf> selectParentDirByDirId(Integer dirId);
     List<DirInf> selectChildrenDirByDirId(Integer dirId);
+    DirInf selectDirByDirName(String dirName,Integer parentId);
 
     //插入
     int insertSelective(String dirName, Integer dirId, UserInf userId);
 
     //删除
     Boolean deleteByPrimaryKey(Integer dirId);
+    int deleteByUserId(Integer userId);
 }

@@ -9,7 +9,7 @@
     <result column="dir_id" jdbcType="INTEGER" property="dirId" />
   </resultMap>
   <sql id="Base_Column_List">
-    dept_id, dept_name, max_space, used_space, t1.dir_id
+    dept_id, dept_name, max_space, used_space,dir_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -30,6 +30,13 @@
     delete from dept_inf
     where dept_id = #{deptId,jdbcType=INTEGER}
   </delete>
+
+  <delete id="deleteByDirId" parameterType="java.lang.Integer">
+    delete from dept_inf
+    where dir_id = #{dirId,jdbcType=INTEGER}
+  </delete>
+
+
   <insert id="insert" parameterType="DeptInf">
     insert into dept_inf (dept_id, dept_name, max_space, 
       used_space, dir_id)

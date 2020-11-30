@@ -6,6 +6,9 @@
     <script src="/js/libs/jquery-2.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+    <style>
+        body{overflow-x:hidden;overflow-y:auto;}
+    </style>
 </head>
 <body>
 
@@ -13,16 +16,21 @@
 <!--部门概况-->
 <div class="alert  alert-info">
     <h4>
-        开发部 <button  class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit">编辑</button>
-    </h4>  已用:0B/总共:1TB
+        [[${dept.deptName}]]
+        <button class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit">编辑</button>
+    </h4>
+    已用:0B/总共:1TB
 </div>
 <!--添加成员、搜索-->
 <div class="btn-group">
-    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-container-new-member">添加成员</button>
+    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+            data-target="#modal-container-new-member">添加成员
+    </button>
     <form class="navbar-form navbar-left" role="search" style="margin: 0;">
         <div class="form-group">
-            <input type="text" class="form-control" />
-        </div>  <button type="button" class="btn btn-default btn-primary">搜索</button>
+            <input type="text" class="form-control"/>
+        </div>
+        <button type="button" class="btn btn-default btn-primary">搜索</button>
     </form>
 </div>
 <!--成员信息-->
@@ -32,7 +40,7 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox">
+                    <input type="checkbox" onchange="allCheck()" id="all_check">
                 </th>
                 <th>
                     用户
@@ -57,7 +65,7 @@
             <tbody>
             <tr th:each="member:${memberList}">
                 <td>
-                    <input type="checkbox"/>
+                    <input type="checkbox" class="all_check_button"/>
                 </td>
                 <td>
                     [[${member.userName}]]
@@ -76,8 +84,12 @@
                     [[${member.recent}]]
                 </td>
                 <td>
-                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-container-edit">编辑</button>
-                    <button type="button" class="btn btn-default btn-primary" id="app" @click="del">删除</button>
+                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+                            data-target="#modal-container-edit"  th:onclick="|get_member_mes(${member.id},${member.maxSpace},${member.pUpload},${member.pDown},${member.pPreview})|">编辑
+                    </button>
+                    <button type="button" class="btn btn-default btn-primary" id="app"
+                            th:onclick="|removeMember(${member.id},null)|">移除
+                    </button>
                 </td>
             </tr>
 
@@ -92,7 +104,8 @@
 <div class="row clearfix">
     <div class="col-md-12 column">
         <!--toggle and tagget-->
-        <div class="modal fade" id="modal-container-new-member" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="modal-container-new-member" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -103,14 +116,13 @@
                     </div>
                     <div class="modal-body">
                         <form id="add_member_from">
-                            <input type="hidden"  name="deptId" id="add_member_dept">
-                            手机号码：<input type="text" id="member" name="memberName"/>
+                            <input type="hidden" name="deptId" id="am_dept_id" th:value="${dept.deptId}">
+                            手机号码：<input type="text" id="am_dept_phone" name="userPhone"/>
                         </form>
 
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn btn-primary" th:onclick="add_member()">保存</button>
+                        <button type="button" class="btn btn-primary" th:onclick="add_member()">确定</button>
                     </div>
                 </div>
             </div>
@@ -119,11 +131,12 @@
 </div>
 
 
-<!--编辑模态窗口-->
+<!--成员编辑模态窗口-->
 <div class="row clearfix">
     <div class="col-md-12 column">
         <!--toggle and tagget-->
-        <div class="modal fade" id="modal-container-edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="modal-container-edit" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -133,19 +146,34 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        内容...
+                        <form class="form-horizontal" role="form" id="edit_member">
+                            <input type="hidden" id="edit_memberId" name="id" >
+                            <div class="form-group">
+                                <label for="edit_maxSpace" class="col-sm-2 control-label"
+                                       style="padding-top:3px;">可用总空间:</label>
+                                <div class="col-sm-10">
+                                    <input type="number" id="edit_maxSpace" style="width:50px;" name="maxSpace">GB
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_p_upload" class="col-sm-2 control-label" style="padding-top:0;">
+                                    用户权限:</label>
+                                <div class="col-sm-10">
+                                    <input type="checkbox" id="edit_p_upload" name="pUpload" onclick="setCheck1()" value="0">上传 &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" id="edit_p_down" name="pDown" onclick="setCheck2()" value="0">&nbsp;下载 &nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" id="edit_p_preview" name="pPreview" onclick="setCheck3()" value="0">&nbsp;预览 &nbsp;&nbsp;&nbsp;
+                                </div>
+                            </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn btn-primary" >确定</button>
+                        <button type="button" class="btn btn-primary" onclick="editMember()">确定</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
 
 
 <!--部门编辑模态窗口-->
@@ -162,16 +190,33 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        部门名称：<input type="text" name="deptName"><br/><br/>
-                        部门可以空间：<input type="number" name="maxSpace" disabled="true"> <button type="button" class="btn btn-default">修改</button>
+                        <form class="form-horizontal" role="form" id="edit_dept">
+                            <input type="hidden" name="deptId" id="edit_deptId" th:value="${dept.deptId}">
+                            <div class="form-group">
+                                <label for="edit_dept_name" class="col-sm-2 control-label" style="padding-top:3px;">部门名称:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="deptName" id="edit_dept_name" th:value="${dept.deptName}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
+                                    部门总空间:</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="maxSpace" style="width:50px;" id="edit_dept_maxSpace" th:value="${dept.maxSpace}">GB
+                                </div>
+                            </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">解散部门</button> <button type="button" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:onclick="|delete_dept(${dept.deptId})|">解散部门</button>
+                        <button type="button" class="btn btn-primary" th:onclick="editDept()">保存</button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <!--========================js=========================-->
@@ -179,19 +224,172 @@
 
 <script>
 
+
+    /*
+    全选
+    */
+    function allCheck(){
+        var check = document.getElementById("all_check").checked;
+
+        if(check == true){
+            $(".all_check_button").prop("checked",true);
+            console.log("true");
+        }else{
+            $(".all_check_button").prop("checked",false);
+            console.log("false");
+        }
+    }
+
+    /*
+    解散部门
+    */
+    function delete_dept(deptId){
+            if(confirm("确定要解散部门?（部门文件将会被删除，部门成员分配至“待分配”）")){
+                $.post("/deleteDept",{"deptId":deptId}, function (date) {
+                if (date == "OK") {
+                    alert("解散成功");
+                    window.parent.location.href="/menu";
+                } else {
+                    alert("解散失败");
+                }
+                });
+            }
+
+
+    }
+
+    /*
+    模态窗口获取成员信息
+    */
+    function get_member_mes(id,maxSpace,pUpload,pDown,pPreview){
+        $("#edit_memberId").prop("value",id);
+        $("#edit_maxSpace").prop("value",maxSpace);
+
+        if(pUpload == 1){ $("#edit_p_upload").prop({checked:true,value:pUpload}) } ;
+        if(pDown == 1)  $("#edit_p_down").prop({checked:true,value:pDown});
+        if(pPreview == 1)  $("#edit_p_preview").prop({checked:true,value:pPreview});
+    }
+
+    /*设置check*/
+    function setCheck1() {
+
+
+        if($("#edit_p_upload").prop("checked")){
+            $("#edit_p_upload").prop("value",1)
+        }else{
+            $("#edit_p_upload").prop("value",0)
+        }
+        console.log("p_upload:"+$("#edit_p_upload").prop("value"));
+    }
+    function setCheck2() {
+
+
+        if($("#edit_p_down").prop("checked")){
+            $("#edit_p_down").prop("value",1)
+        }else{
+            $("#edit_p_down").prop("value",0)
+        }
+        console.log("p_down:"+$("#edit_p_down").prop("value"));
+    }
+    function setCheck3() {
+
+        if($("#edit_p_preview").prop("checked")){
+            $("#edit_p_preview").prop("value",1)
+        }else{
+            $("#edit_p_preview").prop("value",0)
+        }
+        console.log("p_preview:"+$("#edit_p_preview").prop("value"));
+    }
+    
+    
     /*
     添加新成员
     */
-    function add_member(){
-        $.post("/addMember",$("#add_member_from").serialize(),function (date) {
-            if(date == "OK"){
+    function add_member() {
+        $.post("/addMember", $("#add_member_from").serialize(), function (date) {
+            if (date == "OK") {
                 alert("添加成功");
-            }else{
+                window.location.reload();
+            } else {
                 alert("添加失败");
             }
+
         });
     }
 
+
+    /*
+    移除成员
+    */
+    function removeMember(id,deptId) {
+        if (confirm("确定要移除该成员吗")) {
+            $.post("/removeMember", {"id":id,"deptId":deptId}, function (date) {
+                if (date == "OK") {
+                    alert("删除成功");
+                    window.location.reload();
+                } else {
+                    alert("删除失败");
+                }
+            });
+        }
+    }
+
+
+    /*
+    删除成员
+    */
+    function deleteMember(id) {
+        if (confirm("确定要删除该成员吗")) {
+            $.post("/deleteMember", {"id": id}, function (date) {
+                if (date == "OK") {
+                    alert("删除成功");
+                    window.location.reload();
+                } else {
+                    alert("删除失败");
+                }
+            });
+        }
+    }
+
+    /*
+    编辑部门
+    */
+    function editDept() {
+            $.post("/editDept",$("#edit_dept").serialize(), function (date) {
+                if (date == "OK") {
+                    alert("保存成功");
+                    window.location.reload();
+                } else {
+                    alert("保存失败");
+                }
+            });
+    }
+
+
+    /*
+    编辑成员
+    */
+    function editMember() {
+
+        console.log("p_preview:"+$("#edit_p_preview").prop("value"));
+        console.log("p_down:"+$("#edit_p_down").prop("value"));
+        console.log("p_upload:"+$("#edit_p_upload").prop("value"));
+
+        $.post("/editMember",{
+            "id":$("#edit_memberId").prop("value"),
+            "maxSpace":$("#edit_maxSpace").prop("value"),
+            "pUpload":$("#edit_p_upload").prop("value"),
+            "pDown":$("#edit_p_down").prop("value"),
+            "pPreview":$("#edit_p_preview").prop("value")
+        }, function (date) {
+            if (date == "OK") {
+                alert("保存成功");
+                window.location.reload();
+            } else {
+                alert("保存失败");
+            }
+        });
+    }
 </script>
 </body>
 </html>

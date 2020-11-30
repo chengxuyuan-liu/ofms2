@@ -10,11 +10,35 @@ spring:
     multipart:
       enabled: true
       max-file-size: 100MB
-      max-request-size:  100MB
-
+      max-request-size: 100MB
+  mail:
+    host: smtp.qq.com
+    username: 2919586256@qq.com
+    password: olishikeebubdgge
+    protocol: smtp
+    default-encoding: UTF-8
 
 mybatis:
   type-aliases-package: com.example.demo.entity
   mapper-locations: classpath:/mappers/*
   configuration:
     map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.example.demo.dao: debug
+
+
+jodconverter:
+  local:
+    enabled: true
+    office-home: D:\Allsoftware\Program Files\openOffice 4
+    max-tasks-per-process: 10
+    port-numbers: 8100
+
+
+#系统参数
+system_space : {} #系统总空间
+system_used_space : {} #系统已用空间
+system_available_space : {} #系统已用空间
+
