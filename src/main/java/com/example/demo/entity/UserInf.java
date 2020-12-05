@@ -21,6 +21,8 @@ public class UserInf {
 
     private Integer maxSpace;
 
+    private Integer usedSpace;
+
     private Integer maxDept;
 
     public Integer getUserId() {
@@ -95,11 +97,36 @@ public class UserInf {
         this.maxSpace = maxSpace;
     }
 
+    public Integer getUsedSpace() {
+        return usedSpace;
+    }
+
+    public void setUsedSpace(Integer usedSpace) {
+        this.usedSpace = usedSpace;
+    }
+
     public Integer getMaxDept() {
         return maxDept;
     }
 
     public void setMaxDept(Integer maxDept) {
         this.maxDept = maxDept;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInf{" +
+                "userId=" + userId +
+                ", userPhone='" + userPhone + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", registerTime=" + registerTime +
+                ", status=" + status +
+                ", userType=" + userType +
+                ", maxSpace=" + maxSpace +
+                ", usedSpace=" + usedSpace +
+                ", maxDept=" + maxDept +
+                '}';
     }
 }

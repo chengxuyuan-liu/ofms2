@@ -1,23 +1,19 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.entity.DeptInf;
-import com.example.demo.entity.DeptMember;
-import com.example.demo.entity.Member;
+import com.example.demo.entity.Department;
+import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class UserController {
@@ -25,7 +21,7 @@ public class UserController {
     @Autowired
     UserInfService userInfService;
     @Autowired
-    DeptInfService deptInfService;
+    FileCabinetService fileCabinetService;
     @Autowired
     DeptMemberService deptMemberService;
     @Autowired
@@ -34,8 +30,11 @@ public class UserController {
     FileInfServive fileInfServive;
     @Autowired
     private JavaMailSender javaMailSender;
+    @Autowired
+    DepartmentService departmentService;
 
 
+    //删除用户
     @ResponseBody
     @RequestMapping("/deleteUser")
     public String deleteUser(Integer userId, HttpSession session){
@@ -43,7 +42,16 @@ public class UserController {
 
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //删除用户部门和部门成员
-        List<DeptInf> deptInfList=  deptInfService.selectDeptListByUserId(userId);
+        List<Department> departmentList = departmentService.selectDeptListByUserId(userId);
+
+        if(departmentList.size()>0) {
+            for (Department department : departmentList) {
+                System.out.println("删除成员");
+                deptMemberService.deleteByDeptId(department.getDeptId());
+            }
+        }
+        //deptMemberService.
+
 
         //删除用户文件和文件夹
         fileInfServive.deleteByUserId(userId);  //删除文件

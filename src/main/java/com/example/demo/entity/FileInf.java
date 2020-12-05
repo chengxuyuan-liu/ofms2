@@ -8,9 +8,7 @@ public class FileInf {
 
     private String fileName;
 
-    private Double fileSize;
-
-    private String fileUnit;
+    private Integer fileSize;
 
     private String fileType;
 
@@ -36,19 +34,14 @@ public class FileInf {
         this.fileName = fileName == null ? null : fileName.trim();
     }
 
-    public Double getFileSize() {
+    public Integer getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(Double fileSize) {
+    public void setFileSize(Integer fileSize) {
         this.fileSize = fileSize;
     }
 
-    public String getFileUnit() {
-        return fileUnit;
-    }
-
-    public void setFileUnit(String fileUnit) { this.fileUnit = fileUnit; }
 
     public String getFileType() {
         return fileType;

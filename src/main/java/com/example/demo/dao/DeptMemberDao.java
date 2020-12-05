@@ -2,7 +2,7 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.DeptMember;
-import com.example.demo.entity.Member;
+import com.example.demo.vo.Member;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -17,6 +17,7 @@ public interface DeptMemberDao {
     删除
     */
     int deleteByPrimaryKey(Integer id);
+    int deleteByDeptId(Integer deptId);
 
     /*
     插入
@@ -30,7 +31,7 @@ public interface DeptMemberDao {
     DeptMember selectByPrimaryKey(Integer id);
     List<Member> selectListByDeptKey(Integer id);
     DeptMember selectByUserKey(Integer userId);
-    List<Member> selectToBeAssignedMemberListByDeptKey(Integer userId);
+    List<Member> selectToBeAssignedMemberListByUserId(Integer userId);
     List<Member> selectToBeAssignedMemberByUserName(@Param("userId")Integer userId,@Param("userName")String userName);
     List<Member> selectToBeAssignedMemberByPhone(@Param("userId")Integer userId,@Param("phone")String phone);
 

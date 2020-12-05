@@ -30,7 +30,7 @@ public interface FileInfServive {
     /*
     文件上传和下载
     */
-    Boolean fileUpload(MultipartFile file,Integer dirId,UserInf userInf);
+    String fileUpload(MultipartFile file,Integer dirId,UserInf userInf);
     void download(Integer fileId, Integer dirId, HttpServletResponse response, HttpSession session);
 
 

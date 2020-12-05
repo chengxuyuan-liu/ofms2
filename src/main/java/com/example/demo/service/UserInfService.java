@@ -17,7 +17,7 @@ public interface UserInfService {
     int deleteByPrimaryKey(Integer userId);
 
     int insert(UserInf record);
-    int insertSelective(Integer userType,String username,String email,String password,String phone);
+    UserInf insertSelective(UserInf userInf);
 
     int updateByPrimaryKeySelective(UserInf record);
     int updateByPrimaryKey(UserInf record);

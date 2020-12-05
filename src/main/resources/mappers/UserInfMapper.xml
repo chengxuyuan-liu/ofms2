@@ -11,13 +11,14 @@
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="user_type" jdbcType="INTEGER" property="userType" />
     <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
+    <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
     <result column="max_dept" jdbcType="INTEGER" property="maxDept" />
   </resultMap>
 
 
   <sql id="Base_Column_List">
     user_id, user_phone, username, password, email, register_time, status, user_type, 
-    max_space, max_dept
+    max_space,used_space, max_dept
   </sql>
 
 
@@ -76,7 +77,7 @@
   <insert id="insert" parameterType="UserInf">
     insert into user_inf (user_id, user_phone, username, 
       password, email, register_time, 
-      status, user_type, max_space, 
+      status, user_type, max_space,used_space,
       max_dept)
     values (#{userId,jdbcType=INTEGER}, #{userPhone,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP}, 
@@ -114,6 +115,9 @@
       </if>
       <if test="maxSpace != null">
         max_space,
+      </if>
+      <if test="usedSpace != null">
+        used_space,
       </if>
       <if test="maxDept != null">
         max_dept,
@@ -181,6 +185,9 @@
       </if>
       <if test="maxSpace != null">
         max_space = #{maxSpace,jdbcType=INTEGER},
+      </if>
+      <if test="usedSpace != null">
+        used_space = #{usedSpace,jdbcType=INTEGER},
       </if>
       <if test="maxDept != null">
         max_dept = #{maxDept,jdbcType=INTEGER},

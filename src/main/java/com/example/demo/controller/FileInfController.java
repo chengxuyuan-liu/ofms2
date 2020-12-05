@@ -48,13 +48,12 @@ public class FileInfController {
         if(dirInf.getUserId() != userInf.getUserId()){
             //检查上传权限，如果返回为false；
              if(checkPermissionsService.checkUploadPremission(userInf))
-                 fileInfServive.fileUpload(uploadfile,dirId,userInf);
+                 return fileInfServive.fileUpload(uploadfile,dirId,userInf);
              return "No Access";
        }
 
         //上传服务
-        fileInfServive.fileUpload(uploadfile,dirId,userInf);
-        return "OK";
+        return fileInfServive.fileUpload(uploadfile,dirId,userInf);
     }
 
     /*
@@ -63,6 +62,7 @@ public class FileInfController {
     @ResponseBody
     @RequestMapping(value = "/download")
     public void download(Integer fileId,Integer dirId,HttpServletResponse response,HttpSession session) throws Exception {
+        
         DirInf dirInf = dirInfService.selectByPrimaryKey(dirId); //文件夹信息
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION"); //用户信息
         //判断下载行为；

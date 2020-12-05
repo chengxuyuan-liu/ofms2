@@ -3,10 +3,10 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.*;
 import com.example.demo.service.*;
+import com.example.demo.vo.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -21,36 +21,30 @@ public class ViewController {
     @Autowired
     DirInfService dirInfService;
     @Autowired
-    DeptInfService deptInfService;
+    FileCabinetService fileCabinetService;
     @Autowired
     DeptMemberService deptMemberService;
     @Autowired
     UserInfService userInfService;
+    @Autowired
+    DepartmentService departmentService;
 
     /**
      * 跳转到菜单页面
      **/
     @RequestMapping("/menu")
     public String toMenuView(Map<String,Object> map, HttpSession session){
-
+        //当前用户
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        if(userInf == null)
-        {
-            return "login";
+        //获得用户或用户所在部门的文件柜
+        List<FileCabinet> fileCabinetList = fileCabinetService.selectByUserId(userInf.getUserId());
+        //如果是团队账号,获取部门列表
+        if(userInf.getUserType() == 2){
+            List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
+            map.put("deptList", departmentList);
         }
-        List<DeptInf> deptInfList;          //部门List
-        //部门
-        if (userInf.getUserType() == 1) {
-            deptInfList = deptInfService.selectDeptListByUserId(userInf.getUserId());   //个人账户
-        }else{
-            deptInfList = deptInfService.selectDeptListByUserId(userInf.getUserId());   //团队账户
-        }
-        for (DeptInf deptInf : deptInfList) {
-            System.out.println(deptInf.getDeptName());
+        map.put("fileCabinetList", fileCabinetList);
 
-        }
-
-        map.put("deptList",deptInfList);
         return "menu";
     }
 
@@ -59,32 +53,26 @@ public class ViewController {
      * 文件管理页面主要数据
     **/
     @RequestMapping("/main")
-    public String mainView(Integer dirId, Map<String,Object> map, ModelAndView a, HttpSession session){
+    public String mainView(Integer dirId,Map<String,Object> map,HttpSession session){
+
         //调用业务
         List<DirInf> dirInfList;          //文件夹List
         List<FileInf> fileInfList;         //文件List
         List<DirInf> accessPath = null;     //访问路径
 
-
+        FileCabinet fileCabinet;//当前文件的文件柜
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        if(userInf == null)
-        {
-            return "login";
-        }
 
         //如果dirId为空
         if(dirId != null)
         {
+            //导航路径
+            accessPath = dirInfService.selectParentDirByDirId(dirId);
+
+            fileCabinet  = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
             //获得文件id为dirId文件夹下的文件夹、文件
             dirInfList = dirInfService.selectDirListByDirId(dirId);
             fileInfList = fileInfServive.selectFileListByFolderId(dirId);
-            //获得父文件夹
-//            DirInf fatherFolder = dirInfService.selectFatherFolderById(
-//                    dirInfService.selectFolderById(folderId).getParentFolder());
-//            model.addAttribute("fatherFolder",fatherFolder);
-
-            //导航路径
-            accessPath = dirInfService.selectParentDirByDirId(dirId);
 
         }
         else
@@ -92,16 +80,17 @@ public class ViewController {
             //获得根文件夹
             DirInf rootDir= dirInfService.selectRootChildrenDirByUserId(userInf.getUserId(),"我的文件");
             dirId = rootDir.getDirId();
+            fileCabinet  = fileCabinetService.selectByDirId(rootDir.getDirId());
             //获得根文件夹下的文件夹
             dirInfList = dirInfService.selectDirListByDirId(rootDir.getDirId());
             //获得根文件夹下的文件
             fileInfList = fileInfServive.selectFileListByFolderId(rootDir.getDirId());
             //导航路径
             accessPath = dirInfService.selectParentDirByDirId(rootDir.getDirId());
+
         }
-
-
         //返回
+        map.put("fileCabinet", fileCabinet);
         map.put("dirId",dirId);
         map.put("fileList",fileInfList);
         map.put("dirList",dirInfList);
@@ -119,6 +108,8 @@ public class ViewController {
         //获得当前用户
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
 
+        //文件柜
+        //FileCabinet fileCabinet = fileCabinetService.selectByDirId();
         //文件
         List<FileInf> fileInfList = fileInfServive.selectByFileName(queryName,userInf.getUserId());
         //文件夹
@@ -143,14 +134,16 @@ public class ViewController {
     @RequestMapping("/deptMemberView")
     public String deptMember(Integer deptId , Map<String,Object> map , HttpSession session) {
 
-        //调用业务
+
         //通过部门Id获得部门成员List
         List<Member> memberList = deptMemberService.selectListByDeptKey(deptId);
-        DeptInf deptInf = deptInfService.selectByPrimaryKey(deptId);
+        //部门文件柜
+        FileCabinet fileCabinet = fileCabinetService.selectByPrimaryKey(deptId);
 
-
-        map.put("dept",deptInf);
+        //返回
+        map.put("fileCabinet", fileCabinet);
         map.put("memberList",memberList);
+        map.put("deptId", deptId);
 
         return "dept_member";
     }
@@ -162,11 +155,14 @@ public class ViewController {
     @RequestMapping("/toBeAssigned")
     public String toBeAssigned(Map<String,Object> map ,HttpSession session) {
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        List<Member> memberList = deptMemberService.selectToBeAssignedMemberListByDeptKey(userInf.getUserId());
 
-        List<DeptInf> deptInfList = deptInfService.selectDeptListByUserId(userInf.getUserId());
+
+        List<Member> memberList = deptMemberService.selectToBeAssignedMemberListByUserId(userInf.getUserId());
+
+        List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
+
         map.put("memberList",memberList);
-        map.put("deptInfList",deptInfList);
+        map.put("deptInfList", departmentList);
         return "to_be_assigned";
     }
 

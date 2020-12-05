@@ -77,13 +77,13 @@
 								</li>
 							</ul>
 							<div class="tab-content">
-								<div class="tab-pane" id="panel-965523">
+								<div class="tab-pane  active" id="panel-965523">
 									<p>
 										<!--个人账号注册-->
 										<form class="form-horizontal" action="/register" id="register_form" method="post">
 											<input type="hidden" id="type1" name="userType" value="1">
 											<div class="form-group">
-												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">用户名</label>
+												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">账号名</label>
 												<div class="col-sm-8">
 													<input type="text" class="form-control" id="user-name-label" placeholder="" name="username" />
 												</div>
@@ -98,7 +98,7 @@
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
 												<div class="col-sm-8">
-													<input type="text" name="phone" class="form-control" id="phone" />
+													<input type="text" name="userPhone" class="form-control" id="userPhone" />
 												</div>
 											</div>
 											
@@ -134,7 +134,7 @@
 										</form>
 									</p>
 								</div>
-								<div class="tab-pane active" id="panel-182379">
+								<div class="tab-pane" id="panel-182379">
 									<p>
 										<!--团队账号注册-->
 										<form class="form-horizontal" action="/register" id="register_form2" method="post">
@@ -142,7 +142,13 @@
 											<div class="form-group">
 												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">团队名</label>
 												<div class="col-sm-8">
-													<input type="text" class="form-control" id="user-name-label2" placeholder="" name="username" />
+													<input type="text" class="form-control" id="user-name-label2" placeholder="" name="teamName" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">账号名</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control" id="user-name-label3" placeholder="" name="username" />
 												</div>
 											</div>
 											<div class="form-group">
@@ -157,7 +163,7 @@
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
 												<div class="col-sm-8">
-													<input type="text" name="phone" class="form-control" id="phone2" />
+													<input type="text" name="userPhone" class="form-control" id="phone2" />
 												</div>
 											</div>
 

@@ -43,13 +43,14 @@
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
             <property name="enableSubPackages" value="false" />
         </sqlMapGenerator>
-<!--        &lt;!&ndash; targetPackage：mapper接口生成的位置 &ndash;&gt;-->
-<!--        <javaClientGenerator type="XMLMAPPER"-->
-<!--                             targetPackage="dao"-->
-<!--                             targetProject="src/main/java/com/example/demo">-->
-<!--            &lt;!&ndash; enableSubPackages:是否让schema作为包的后缀 &ndash;&gt;-->
-<!--            <property name="enableSubPackages" value="false" />-->
-<!--        </javaClientGenerator>-->
+
+        <!-- targetPackage：mapper接口生成的位置 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="dao"
+                             targetProject="src/main/java/com/example/demo">
+            <!-- enableSubPackages:是否让schema作为包的后缀 -->
+            <property name="enableSubPackages" value="false" />
+        </javaClientGenerator>
 
 
 
@@ -76,7 +77,17 @@
 <!--               enableDeleteByExample="false" enableSelectByExample="false"-->
 <!--               selectByExampleQueryId="false"></table>-->
 
-        <table tableName="user_dept" domainObjectName="UserAndDept"
+<!--        <table tableName="user_dept" domainObjectName="UserAndDept"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false"></table>-->
+
+<!--        <table tableName="department" domainObjectName="Department"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false"></table>-->
+
+        <table tableName="team" domainObjectName="Team"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false"></table>

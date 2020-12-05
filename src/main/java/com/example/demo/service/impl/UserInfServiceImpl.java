@@ -1,10 +1,15 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dao.DirInfDao;
+import com.example.demo.dao.FileCabinetDao;
 import com.example.demo.dao.UserInfDao;
+import com.example.demo.entity.Department;
+import com.example.demo.entity.Team;
 import com.example.demo.entity.UserInf;
+import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DirInfService;
+import com.example.demo.service.TeamService;
 import com.example.demo.service.UserInfService;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,18 @@ public class UserInfServiceImpl implements UserInfService {
     UserInfDao userInfDao;
     @Autowired
     DirInfService dirInfService;
+    @Autowired
+    DirInfDao dirInfDao;
+
+    @Autowired
+    FileCabinetService deptInfService;
+    @Autowired
+    FileCabinetService fileCabinetService;
+    @Autowired
+    FileCabinetDao fileCabinetDao;
+
+    @Autowired
+    TeamService teamService;
 
     /*
     验证登录
@@ -27,8 +44,6 @@ public class UserInfServiceImpl implements UserInfService {
     @Override
     public UserInf verifyLogin(String username, String password) {
         UserInf userInf = userInfDao.selectByUsername(username);
-        System.out.println(userInf);
-        System.out.println(password+"--"+ userInf.getPassword()+","+password.equals(userInf.getPassword()));
         if (userInf != null) {
             if (password.equals(userInf.getPassword())) {
                 return userInf;
@@ -53,34 +68,42 @@ public class UserInfServiceImpl implements UserInfService {
     注册
     */
     @Override
-    public int insertSelective(Integer userType,String username, String email, String password, String phone) {
+    public UserInf insertSelective(UserInf userInf) {
 
         //注册时间
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
         //封装数据
-        UserInf userInf = new UserInf();
-        userInf.setUsername(username);
-        userInf.setEmail(email);
-        userInf.setPassword(password);
-        userInf.setUserPhone(phone);
         userInf.setRegisterTime(date);
         userInf.setStatus(1);
-        userInf.setUserType(userType);
-        //调用dao
+        //调用dao,插入用户表
         int sign = userInfDao.insertSelective(userInf);
 
-        System.out.println("用户id:"+userInf.getUserId());
 
         //新建用户根文件夹
-        if(sign != 0) {
-           int sign2 =  dirInfService.insertSelective(phone.toString(), null, userInf);
-           if(sign2 == 0)
-               sign = 0;
-        }
-        return sign;
+//        if(sign != 0) {
+//           int sign2 =  dirInfService.insertSelective(phone.toString(), null, userInf);
+//           if(sign2 == 0)
+//               sign = 0;
+//        }
+
+
+
+
+        //团队用户创建团队
+//        if(userType == 2){
+//            if(teamName != null){
+//                Team team = new Team();
+//                team.setTeamName(teamName);
+//                team.setUserId(userInf.getUserId());
+//                if(teamService.insertSelective(team) == 0) System.err.println("团队创建失败");
+//            }
+//        }
+
+        return userInf;
     }
+
 
 
     @Override

@@ -1,16 +1,17 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.DeptMemberDao;
-import com.example.demo.entity.DeptInf;
+import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.DeptMember;
-import com.example.demo.entity.Member;
+import com.example.demo.vo.Member;
 import com.example.demo.entity.UserInf;
-import com.example.demo.service.DeptInfService;
+import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.UserInfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Service
@@ -21,7 +22,7 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     @Autowired
     UserInfService userInfService;
     @Autowired
-    DeptInfService deptInfService;
+    FileCabinetService fileCabinetService;
 
     @Override
     public DeptMember selectByPrimaryKey(Integer id) {
@@ -43,8 +44,8 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     }
 
     @Override
-    public List<Member> selectToBeAssignedMemberListByDeptKey(Integer userId) {
-        List<Member> list = deptMemberDao.selectToBeAssignedMemberListByDeptKey(userId);
+    public List<Member> selectToBeAssignedMemberListByUserId(Integer userId) {
+        List<Member> list = deptMemberDao.selectToBeAssignedMemberListByUserId(userId);
         return list;
     }
 
@@ -65,6 +66,10 @@ public class DeptMemberServiceImpl implements DeptMemberService {
         int result = deptMemberDao.deleteByPrimaryKey(id);
         return result;
     }
+    public int deleteByDeptId(Integer deptId){
+        int result = deptMemberDao.deleteByDeptId(deptId);
+        return  result;
+    };
 
     @Override
     public Boolean insertSelective(Integer deptId,String userPhone) {
@@ -73,12 +78,12 @@ public class DeptMemberServiceImpl implements DeptMemberService {
 
         if(userInf != null){
             //通过deptId获得部门对象，通过部门对象获得maxSpace
-            DeptInf deptInf = deptInfService.selectByPrimaryKey(deptId);
+            FileCabinet fileCabinet = fileCabinetService.selectByPrimaryKey(deptId);
             //封装成员信息成DeptMember对象
             DeptMember deptMember = new DeptMember();
             deptMember.setDeptId(deptId);
             deptMember.setUserId(userInf.getUserId());
-            deptMember.setMaxSpace(deptInf.getMaxSpace());  //默认为部门最大值
+            deptMember.setMaxSpace(new BigInteger(fileCabinet.getMaxSpace().toString()));  //默认为部门最大值
 
             Integer result = deptMemberDao.insertSelective(deptMember);
             if(result != 0) return true;
@@ -99,15 +104,6 @@ public class DeptMemberServiceImpl implements DeptMemberService {
 
     @Override
     public Boolean updateByPrimaryKeySelective(DeptMember record) {
-
-
-        System.out.println(record.getMaxSpace());
-        System.out.println(record.getpUpload());
-        System.out.println(record.getpDown());
-        System.out.println(record.getpPreview());
-
-
-
         if(deptMemberDao.updateByPrimaryKeySelective(record) == 0) return false;
         return true;
     }

@@ -19,7 +19,7 @@ public interface DirInfService {
     DirInf selectDirByDirName(String dirName,Integer parentId);
 
     //插入
-    int insertSelective(String dirName, Integer dirId, UserInf userId);
+    DirInf insertSelective(String dirName, Integer dirId, UserInf userId);
 
     //删除
     Boolean deleteByPrimaryKey(Integer dirId);

@@ -4,8 +4,7 @@
   <resultMap id="BaseResultMap" type="FileInf">
     <id column="file_id" jdbcType="INTEGER" property="fileId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
-    <result column="file_size" jdbcType="DOUBLE" property="fileSize" />
-    <result column="file_unit" jdbcType="VARCHAR" property="fileUnit" />
+    <result column="file_size" jdbcType="INTEGER" property="fileSize" />
     <result column="file_type" jdbcType="VARCHAR" property="fileType" />
     <result column="file_upload_time" jdbcType="TIMESTAMP" property="fileUploadTime" />
     <result column="dir_id" jdbcType="INTEGER" property="dirId" />
@@ -15,7 +14,7 @@
 
   <!--查询-->
   <sql id="Base_Column_List">
-    file_id, file_name, file_size, file_unit, file_type, file_upload_time, dir_id, user_id
+    file_id, file_name, file_size,file_type, file_upload_time, dir_id, user_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -86,9 +85,6 @@
       <if test="fileSize != null">
         file_size,
       </if>
-      <if test="fileUnit!= null">
-        file_unit,
-      </if>
       <if test="fileType != null">
         file_type,
       </if>
@@ -111,9 +107,6 @@
       </if>
       <if test="fileSize != null">
         #{fileSize,jdbcType=INTEGER},
-      </if>
-      <if test="fileUnit!= null">
-        #{fileUnit,jdbcType=VARCHAR},
       </if>
       <if test="fileType != null">
         #{fileType,jdbcType=VARCHAR},
@@ -140,9 +133,6 @@
       <if test="fileSize != null">
         file_size = #{fileSize,jdbcType=INTEGER},
       </if>
-      <if test="fileUnit != null">
-        file_unit = #{fileUnit,jdbcType=VARCHAR},
-      </if>
       <if test="fileType != null">
         file_type = #{fileType,jdbcType=VARCHAR},
       </if>
@@ -150,7 +140,7 @@
         file_upload_time = #{fileUploadTime,jdbcType=TIMESTAMP},
       </if>
       <if test="dirId != null">
-        file_dir_id = #{dirId,jdbcType=INTEGER},
+        dir_id = #{dirId,jdbcType=INTEGER},
       </if>
       <if test="userId != null">
         user_id = #{userId,jdbcType=INTEGER},

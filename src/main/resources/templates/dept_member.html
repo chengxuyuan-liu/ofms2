@@ -16,7 +16,7 @@
 <!--部门概况-->
 <div class="alert  alert-info">
     <h4>
-        [[${dept.deptName}]]
+        [[${fileCabinet.fcName}]]
         <button class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit">编辑</button>
     </h4>
     已用:0B/总共:1TB
@@ -46,7 +46,10 @@
                     用户
                 </th>
                 <th>
-                    用户空间
+                    已用空间
+                </th>
+                <th>
+                   剩余空间
                 </th>
                 <th>
                     邮箱/手机号
@@ -70,8 +73,11 @@
                 <td>
                     [[${member.userName}]]
                 </td>
-                <td>
-                    已用：[[${member.usedSpace}]] 剩余：[[${member.maxSpace}]]
+                <td class="used_space"  th:text="${(#numbers.formatDecimal((((member.usedSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'">
+
+                </td>
+                <td class="max_space"  th:text="${(#numbers.formatDecimal((((member.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'">
+
                 </td>
                 <td>
                     [[${member.phone}]]
@@ -116,7 +122,7 @@
                     </div>
                     <div class="modal-body">
                         <form id="add_member_from">
-                            <input type="hidden" name="deptId" id="am_dept_id" th:value="${dept.deptId}">
+                            <input type="hidden" name="deptId" id="am_dept_id" th:value="${deptId}">
                             手机号码：<input type="text" id="am_dept_phone" name="userPhone"/>
                         </form>
 
@@ -191,24 +197,24 @@
                     </div>
                     <div class="modal-body">
                         <form class="form-horizontal" role="form" id="edit_dept">
-                            <input type="hidden" name="deptId" id="edit_deptId" th:value="${dept.deptId}">
+                            <input type="hidden" name="deptId" id="edit_deptId" th:value="${fileCabinet.fcId}">
                             <div class="form-group">
                                 <label for="edit_dept_name" class="col-sm-2 control-label" style="padding-top:3px;">部门名称:</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="deptName" id="edit_dept_name" th:value="${dept.deptName}">
+                                    <input type="text" name="deptName" id="edit_dept_name" th:value="${fileCabinet.fcName}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
                                     部门总空间:</label>
                                 <div class="col-sm-10">
-                                    <input type="number" name="maxSpace" style="width:50px;" id="edit_dept_maxSpace" th:value="${dept.maxSpace}">GB
+                                    <input type="number" name="maxSpace" style="width:50px;" id="edit_dept_maxSpace" th:value="${fileCabinet.maxSpace}">GB
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" th:onclick="|delete_dept(${dept.deptId})|">解散部门</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:onclick="|delete_dept(${fileCabinet.fcId})|">解散部门</button>
                         <button type="button" class="btn btn-primary" th:onclick="editDept()">保存</button>
                     </div>
                 </div>
@@ -263,7 +269,7 @@
     */
     function get_member_mes(id,maxSpace,pUpload,pDown,pPreview){
         $("#edit_memberId").prop("value",id);
-        $("#edit_maxSpace").prop("value",maxSpace);
+        $("#edit_maxSpace").prop("value",(maxSpace/1024/1024/1024).toFixed(0));
 
         if(pUpload == 1){ $("#edit_p_upload").prop({checked:true,value:pUpload}) } ;
         if(pDown == 1)  $("#edit_p_down").prop({checked:true,value:pDown});
@@ -369,7 +375,7 @@
     /*
     编辑成员
     */
-    function editMember() {
+    function  editMember() {
 
         console.log("p_preview:"+$("#edit_p_preview").prop("value"));
         console.log("p_down:"+$("#edit_p_down").prop("value"));
@@ -389,7 +395,17 @@
                 alert("保存失败");
             }
         });
+
+
+
+
     }
+
+    $(function () {
+
+
+    });
+
 </script>
 </body>
 </html>

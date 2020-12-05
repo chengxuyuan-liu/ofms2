@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 public class DeptMember {
@@ -11,9 +12,9 @@ public class DeptMember {
 
     private Integer mStatus;
 
-    private Integer usedSpace;
+    private BigInteger usedSpace;
 
-    private Integer maxSpace;
+    private BigInteger maxSpace;
 
     private Date recent;
 
@@ -47,19 +48,19 @@ public class DeptMember {
         this.deptId = deptId;
     }
 
-    public Integer getUsedSpace() {
+    public BigInteger getUsedSpace() {
         return usedSpace;
     }
 
-    public void setUsedSpace(Integer usedSpace) {
+    public void setUsedSpace(BigInteger usedSpace) {
         this.usedSpace = usedSpace;
     }
 
-    public Integer getMaxSpace() {
+    public BigInteger getMaxSpace() {
         return maxSpace;
     }
 
-    public void setMaxSpace(Integer maxSpace) {
+    public void setMaxSpace(BigInteger maxSpace) {
         this.maxSpace = maxSpace;
     }
 

@@ -5,6 +5,7 @@ import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.UserInfService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,11 +35,11 @@ public class DirController {
             user = userInfService.selectByPrimaryKey(dirInf.getUserId());
         }
         //调用业务层
-        int result = dirInfService.insertSelective(dirName,dirId,user);
-        if(result != 0) {
-            return "OK";
-        }
-        return "FALSE";
+        /*int result = */dirInfService.insertSelective(dirName,dirId,user);
+//        if(result != 0) {
+//            return "OK";
+//        }
+         return "OK";
     }
 
 

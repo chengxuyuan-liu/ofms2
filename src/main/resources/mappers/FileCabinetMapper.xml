@@ -1,56 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.demo.dao.DeptInfDao">
-  <resultMap id="BaseResultMap" type="DeptInf">
-    <id column="dept_id" jdbcType="INTEGER" property="deptId" />
-    <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
+<mapper namespace="com.example.demo.dao.FileCabinetDao">
+  <resultMap id="BaseResultMap" type="FileCabinet">
+    <id column="fc_id" jdbcType="INTEGER" property="fcId" />
+    <result column="fc_name" jdbcType="VARCHAR" property="fcName" />
     <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
     <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
     <result column="dir_id" jdbcType="INTEGER" property="dirId" />
   </resultMap>
+
+
   <sql id="Base_Column_List">
-    dept_id, dept_name, max_space, used_space,dir_id
+    fc_id, fc_name, max_space, used_space,dir_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from dept_inf
-    where dept_id = #{deptId,jdbcType=INTEGER}
+    from file_cabinet
+    where fc_id = #{fcId,jdbcType=INTEGER}
   </select>
 
-  <select id="selectDeptListByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        CALL selectDept(#{userId,jdbcType=INTEGER});
+
+  <select id="selectByDirId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from file_cabinet
+    where dir_id = #{dirId,jdbcType=INTEGER}
   </select>
 
+
+  <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        CALL selectFileCabinet(#{userId,jdbcType=INTEGER});
+  </select>
 
 
 
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from dept_inf
-    where dept_id = #{deptId,jdbcType=INTEGER}
+    delete from file_cabinet
+    where fc_id = #{fcId,jdbcType=INTEGER}
   </delete>
 
   <delete id="deleteByDirId" parameterType="java.lang.Integer">
-    delete from dept_inf
+    delete from file_cabinet
     where dir_id = #{dirId,jdbcType=INTEGER}
   </delete>
 
 
-  <insert id="insert" parameterType="DeptInf">
-    insert into dept_inf (dept_id, dept_name, max_space, 
+  <insert id="insert" parameterType="com.example.demo.entity.FileCabinet">
+    insert into file_cabinet (fc_id, fc_name, max_space,
       used_space, dir_id)
-    values (#{deptId,jdbcType=INTEGER}, #{deptName,jdbcType=VARCHAR}, #{maxSpace,jdbcType=INTEGER}, 
+    values (#{fcId,jdbcType=INTEGER}, #{fcName,jdbcType=VARCHAR}, #{maxSpace,jdbcType=INTEGER}, 
       #{usedSpace,jdbcType=INTEGER}, #{dirId,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="DeptInf">
-    insert into dept_inf
+  <insert id="insertSelective" parameterType="com.example.demo.entity.FileCabinet" keyProperty="fcId" useGeneratedKeys="true">
+    insert into file_cabinet
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="deptId != null">
-        dept_id,
+      <if test="fcId != null">
+        fc_id,
       </if>
-      <if test="deptName != null">
-        dept_name,
+      <if test="fcName != null">
+        fc_name,
       </if>
       <if test="maxSpace != null">
         max_space,
@@ -63,11 +73,11 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="deptId != null">
-        #{deptId,jdbcType=INTEGER},
+      <if test="fcId != null">
+        #{fcId,jdbcType=INTEGER},
       </if>
-      <if test="deptName != null">
-        #{deptName,jdbcType=VARCHAR},
+      <if test="fcName != null">
+        #{fcName,jdbcType=VARCHAR},
       </if>
       <if test="maxSpace != null">
         #{maxSpace,jdbcType=INTEGER},
@@ -80,11 +90,11 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="DeptInf">
-    update dept_inf
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.FileCabinet">
+    update file_cabinet
     <set>
-      <if test="deptName != null">
-        dept_name = #{deptName,jdbcType=VARCHAR},
+      <if test="fcName != null">
+        fc_name = #{fcName,jdbcType=VARCHAR},
       </if>
       <if test="maxSpace != null">
         max_space = #{maxSpace,jdbcType=INTEGER},
@@ -96,14 +106,14 @@
         dir_id = #{dirId,jdbcType=INTEGER},
       </if>
     </set>
-    where dept_id = #{deptId,jdbcType=INTEGER}
+    where fc_id = #{fcId,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="DeptInf">
-    update dept_inf
-    set dept_name = #{deptName,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.FileCabinet">
+    update file_cabinet
+    set fc_name = #{fcName,jdbcType=VARCHAR},
       max_space = #{maxSpace,jdbcType=INTEGER},
       used_space = #{usedSpace,jdbcType=INTEGER},
       dir_id = #{dirId,jdbcType=INTEGER}
-    where dept_id = #{deptId,jdbcType=INTEGER}
+    where fc_id = #{fcId,jdbcType=INTEGER}
   </update>
 </mapper>

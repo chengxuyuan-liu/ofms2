@@ -18,17 +18,17 @@
             background: #ffffff;
         }
 
-        .test{
+        .test {
             width: 101%;
-            height:430px;
+            height: 430px;
             top: 250px;
             position: absolute;
             overflow: auto;
         }
 
-        .scrollbar{
+        .scrollbar {
             width: 1px;
-            height: 500px;
+            height: 800px;
             position: absolute;
         }
 
@@ -59,125 +59,131 @@
 <!--========================内容=========================-->
 
 
-    <div id="no_fix">
-        <!--部门概况-->
-        <div class="alert  alert-info">
-            <h4>
-                [[${accessPath.get(0).dirName}]]
-            </h4> 已用:10.5GB/总共:1TB
+<div id="no_fix">
+    <!--部门概况-->
+    <div class="alert  alert-info">
+        <h4>
+            [[${accessPath.get(0).dirName}]]
+        </h4>
+        <div th:if="${fileCabinet} != null">
+            <span  th:attr="data-usedspace=${fileCabinet.getUsedSpace()}" id="used_space"></span>/
+            <span th:attr="data-maxspace=${fileCabinet.getMaxSpace()}" id="max_space"></span>
         </div>
 
-        <ul class="breadcrumb">
-            <li th:each="ap : ${accessPath}">
-                <a th:href="@{/main(dirId = ${ap.dirId})}">[[${ap.dirName}]]</a>
-            </li>
-        </ul>
+    </div>
 
-        <!--上传、新建、搜索-->
-        <div class="btn-group">
-            <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                    data-target="#modal-container-upload" th:if="${not #strings.isEmpty(dirId)}"> 上传
-            </button>
-            <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                    data-target="#modal-container-new-dir" th:if="${not #strings.isEmpty(dirId)}"> 新建文件夹
-            </button>
-            <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/query">
-                <div class="form-group">
-                    <input type="text" class="form-control" name="queryName"/>
-                </div>
-                <button type="submit" class="btn btn-default btn-primary">搜索</button>
-            </form>
-        </div>
+    <ul class="breadcrumb">
+        <li th:each="ap : ${accessPath}">
+            <a th:href="@{/main(dirId = ${ap.dirId})}">[[${ap.dirName}]]</a>
+        </li>
+    </ul>
+
+    <!--上传、新建、搜索-->
+    <div class="btn-group">
+        <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+                data-target="#modal-container-upload" th:if="${not #strings.isEmpty(dirId)}"> 上传
+        </button>
+        <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+                data-target="#modal-container-new-dir" th:if="${not #strings.isEmpty(dirId)}"> 新建文件夹
+        </button>
+        <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/query">
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="queryName"/>
+            </div>
+            <button type="submit" class="btn btn-default btn-primary">搜索</button>
+        </form>
+    </div>
+    <table style="table-layout: fixed" class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                文件
+            </th>
+            <th>
+                文件类型
+            </th>
+            <th>
+                上传时间
+            </th>
+            <th>
+                大小
+            </th>
+            <th>
+                操作
+            </th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<div class="row clearfix test">
+    <div class="scrollbar"></div>
+    <div class="col-md-12 column">
+
         <table style="table-layout: fixed" class="table table-hover">
-            <thead>
-            <tr>
-                <th>
-                    文件
-                </th>
-                <th>
-                    文件类型
-                </th>
-                <th>
-                    上传时间
-                </th>
-                <th>
-                    大小
-                </th>
-                <th>
-                    操作
-                </th>
+            <!--            <thead>-->
+            <!--            <tr>-->
+            <!--                <th>-->
+            <!--                    文件-->
+            <!--                </th>-->
+            <!--                <th>-->
+            <!--                    文件类型-->
+            <!--                </th>-->
+            <!--                <th>-->
+            <!--                    修改时间-->
+            <!--                </th>-->
+            <!--                <th>-->
+            <!--                    大小-->
+            <!--                </th>-->
+            <!--                <th>-->
+            <!--                    操作-->
+            <!--                </th>-->
+            <!--            </tr>-->
+            <!--            </thead>-->
+            <tbody>
+            <!--循环输出文件夹-->
+            <tr th:each="dir:${dirList}" class="success">
+                <td><a th:href="@{/main(dirId=${dir.dirId})}">[[${dir.dirName}]]</a></td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>
+                    <a type="button" class="btn btn-default btn-primary"
+                       th:href="@{/download(dirId=${dir.dirId})}">下载</a>
+                    <button type="button" class="btn btn-default btn-primary"
+                            th:onclick="|delete_dir(${dir.dirId})|">
+                        删除
+                    </button>
+                </td>
             </tr>
-            </thead>
+
+            <!--循环输出文件-->
+            <tr th:each="file:${fileList}">
+                <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;" th:title="${file.fileName}">
+                    [[${file.fileName}]]
+                </td>
+                <td>[[${file.fileType}]]</td>
+                <td th:text="${#dates.format(file.fileUploadTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <td class="file-size" th:value="${file.fileSize}">[[${file.fileSize}]]</td>
+                <td>
+                    <button type="button" class="btn btn-default btn-primary"><a
+                            th:href="@{/preview(fileId=${file.fileId})}" target="_blank" style="color: white"
+                            disabled="true">预览</a></button>
+                    <button type="button" class="btn btn-default btn-primary"
+                            th:onclick="|delete_file(${file.fileId})|">删除
+                    </button>
+                    <a type="button" class="btn btn-default btn-primary"
+                       th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
+                </td>
+            </tr>
+
+
+            </tbody>
         </table>
     </div>
 
-    <div class="row clearfix test">
-        <div class="scrollbar"></div>
-        <div class="col-md-12 column">
-
-            <table style="table-layout: fixed" class="table table-hover" >
-                <!--            <thead>-->
-                <!--            <tr>-->
-                <!--                <th>-->
-                <!--                    文件-->
-                <!--                </th>-->
-                <!--                <th>-->
-                <!--                    文件类型-->
-                <!--                </th>-->
-                <!--                <th>-->
-                <!--                    修改时间-->
-                <!--                </th>-->
-                <!--                <th>-->
-                <!--                    大小-->
-                <!--                </th>-->
-                <!--                <th>-->
-                <!--                    操作-->
-                <!--                </th>-->
-                <!--            </tr>-->
-                <!--            </thead>-->
-                <tbody>
-                <!--循环输出文件夹-->
-                <tr th:each="dir:${dirList}" class="success">
-                    <td><a th:href="@{/main(dirId=${dir.dirId})}">[[${dir.dirName}]]</a></td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>
-                        <a type="button" class="btn btn-default btn-primary"
-                           th:href="@{/download(dirId=${dir.dirId})}">下载</a>
-                        <button type="button" class="btn btn-default btn-primary"
-                                th:onclick="|delete_dir(${dir.dirId})|">
-                            删除
-                        </button>
-                    </td>
-                </tr>
-
-                <!--循环输出文件-->
-                <tr th:each="file:${fileList}">
-                    <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;" th:title="${file.fileName}">
-                        [[${file.fileName}]]
-                    </td>
-                    <td>[[${file.fileType}]]</td>
-                    <td th:text="${#dates.format(file.fileUploadTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                    <td>[[${file.fileSize+file.fileUnit}]]</td>
-                    <td>
-                        <button type="button" class="btn btn-default btn-primary"><a
-                                th:href="@{/preview(fileId=${file.fileId})}" target="_blank" style="color: white"
-                                disabled="true">预览</a></button>
-                        <button type="button" class="btn btn-default btn-primary"
-                                th:onclick="|delete_file(${file.fileId})|">删除
-                        </button>
-                        <a type="button" class="btn btn-default btn-primary"
-                           th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
-                    </td>
-                </tr>
-
-
-                </tbody>
-            </table>
-        </div>
-
-    </div>
+</div>
 </div>
 <!--========================各种模态窗口=========================-->
 
@@ -339,20 +345,58 @@
             processData: false,
             contentType: false,
             success: function (data) {
-                if (data == "OK") {
+                if (data == "successful") {
                     alert('上传成功！');
                     window.location.reload();
-                } else {
-                    alert('上传失败，您没有上传权限！');
+                } else if (data == "No Access") {
+                    alert('您没有上传权限！');
                     window.location.reload();
+                } else if (data == "full") {
+                    alert('空间已达上限，请联系管理员加增空间！')
                 }
             }
         });
     }
 
+
+    spaceChang();
+
+    function spaceChang() {
+        $('#max_space').text(count($('#max_space').attr('data-maxspace')));
+        $('#used_space').text(count($('#used_space').attr('data-usedspace')));
+
+        let td = $('.file-size');
+
+        for (let i = 0; i < td.length; i++) {
+            let size = td.eq(i).attr('value');
+            let unit = 'B'
+            if (size > 1024) {
+                unit = 'KB'
+                size = (size / 1024).toFixed(0)
+                if (size > 1024) {
+                    unit = 'MB'
+                    size = (size / 1024).toFixed(2)
+                    if (size > 1024) {
+                        unit = 'GB'
+                        size = (size / 1024).toFixed(2)
+                    }
+                }
+            }
+            td.eq(i).text(size + unit);
+
+        }
+    }
+
     /*
     下载文件
     */
+    function count(space) {
+        let unit = '';
+        unit = 'GB'
+        space = (space / 1024 / 1024 / 1024).toFixed(2);
+        return space + unit;
+    }
+
 
 </script>
 

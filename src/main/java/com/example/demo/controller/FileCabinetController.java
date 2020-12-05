@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.UserInf;
-import com.example.demo.service.DeptInfService;
+import com.example.demo.service.FileCabinetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.*;
 import org.springframework.stereotype.Controller;
@@ -12,48 +12,49 @@ import javax.servlet.http.HttpSession;
 
 
 @Controller
-public class DeptInfController {
+public class FileCabinetController {
     @Autowired
-    DeptInfService deptInfService;
+    FileCabinetService fileCabinetService;
 
     @Autowired
     private JavaMailSender javaMailSender;
 
     /*
-    新建部门
+    新建文件柜
     */
     @ResponseBody
-    @RequestMapping("/newDept")
-    public String newDept(String deptName,HttpSession session){
+    @RequestMapping("/newFileCabinet")
+    public String newFileCabinet(String deptName,HttpSession session){
 
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //调用业务
-        Boolean result = deptInfService.newDept(deptName,userInf);
-        if(result) return "OK";
-        return "FALSE";
+//        Boolean result = fileCabinetService.newFileCabinet(deptName,userInf);
+//        if(result) return "OK";
+//        return "FALSE";
+        return null;
     }
 
     /*
-    解散部门
+    解散文件柜
     */
     @ResponseBody
-    @RequestMapping("/deleteDept")
+    @RequestMapping("/deleteFileCabinet")
     public String deleteDept(Integer deptId){
         //调用业务
-       boolean result = deptInfService.deleteDept(deptId);
+       boolean result = fileCabinetService.deleteDept(deptId);
        if(result) return "OK";
         return "FALSE";
     }
 
 
     /*
-    编辑部门
+    编辑文件柜
     */
     @ResponseBody
-    @RequestMapping("/editDept")
+    @RequestMapping("/editFileCabinet")
     public String editDept(String deptName,Integer maxSpace,Integer deptId){
         //调用业务
-        if(deptInfService.updateByPrimaryKeySelective(deptName,maxSpace,deptId)) return "OK";
+        if(fileCabinetService.updateByPrimaryKeySelective(deptName,maxSpace,deptId)) return "OK";
         return "FALSE";
     }
 

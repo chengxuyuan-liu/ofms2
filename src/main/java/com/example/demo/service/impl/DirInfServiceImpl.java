@@ -83,7 +83,7 @@ public class DirInfServiceImpl implements DirInfService {
    新建文件夹
     */
     @Override
-    public int insertSelective(String dirName, Integer parentDirId, UserInf user) {
+    public DirInf insertSelective(String dirName, Integer parentDirId, UserInf user) {
 
         String realPath = "D:\\graduation project\\ofms"; //获取系统的绝对路径
         File realDir;
@@ -125,24 +125,24 @@ public class DirInfServiceImpl implements DirInfService {
             result = dirInfDao.insertSelective(newDir);
 
             //”我的文件“
-            DirInf myDir = new DirInf();
-            myDir.setDirName("我的文件");
-            myDir.setParentDir(newDir.getDirId());
-            myDir.setUserId(user.getUserId());          //文件夹所属
-            myDir.setDirPath(newDir.getDirPath()+newDir.getDirName()+"\\");
+//            DirInf myDir = new DirInf();
+//            myDir.setDirName("我的文件");
+//            myDir.setParentDir(newDir.getDirId());
+//            myDir.setUserId(user.getUserId());          //文件夹所属
+//            myDir.setDirPath(newDir.getDirPath()+newDir.getDirName()+"\\");
 
             //外存中新建文件夹
             realDir = new File(realPath + newDir.getDirPath() + newDir.getDirName());    //创建 新文件夹 的  文件类
-            myDirFile = new File(realPath + myDir.getDirPath() + myDir.getDirName());
-            if (result != 0)
-                result = dirInfDao.insertSelective(myDir);
+//            myDirFile = new File(realPath + myDir.getDirPath() + myDir.getDirName());
+//            if (result != 0)
+//                result = dirInfDao.insertSelective(myDir);
 
             //如果文件不存在
             if(!realDir.exists()) {
                 realDir.mkdir();    //磁盘内创建相应的文件夹
-                if (!myDirFile.exists()) {
-                    myDirFile.mkdir();
-                }
+//                if (!myDirFile.exists()) {
+//                    myDirFile.mkdir();
+//                }
             }
 
 
@@ -150,7 +150,7 @@ public class DirInfServiceImpl implements DirInfService {
         }
 
 
-        return result;
+        return newDir;
     }
 
 

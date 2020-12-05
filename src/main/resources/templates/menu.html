@@ -104,13 +104,9 @@
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#panel-element-962727" >文件管理</a>
                     </div>
                     <div id="panel-element-962727" class="panel-collapse collapse in">
-                        <div class="panel-body file">
-                            <a href="#" _link="/main">我的文件</a>
+                        <div class="panel-body file" th:each="fileCabinet:${fileCabinetList}">
+                            <a href="#" th:attr="_link= @{/main(dirId = ${fileCabinet.dirId})}">[[${fileCabinet.fcName}]]</a>
                         </div>
-                        <div class="panel-body file" th:each="dept:${deptList}">
-                            <a href="#" th:attr="_link= @{/main(dirId = ${dept.dirId})}">[[${dept.deptName}]]</a>
-                        </div>
-
                     </div>
                 </div>
                 <!--成员管理-->

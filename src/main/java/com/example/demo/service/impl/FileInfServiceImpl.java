@@ -1,11 +1,14 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.FileInfDao;
+import com.example.demo.entity.DeptMember;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
+import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.FileInfServive;
+import com.example.demo.service.UserInfService;
 import com.example.demo.util.DateUtil;
 import com.example.demo.util.PreviewUtil;
 import com.example.demo.util.ResponseUtil;
@@ -22,6 +25,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
+import java.math.BigInteger;
 import java.util.List;
 
 @Service
@@ -35,6 +39,10 @@ public class FileInfServiceImpl implements FileInfServive {
     FileInfServive fileInfServive;
     @Autowired
     private DocumentConverter converter;
+    @Autowired
+    UserInfService userInfService;
+    @Autowired
+    DeptMemberService deptMemberService;
 
     /*
     查询
@@ -108,8 +116,26 @@ public class FileInfServiceImpl implements FileInfServive {
     文件上传
     */
     @Override
-    public Boolean fileUpload(MultipartFile file, Integer dirId, UserInf userInf) {
+    public String fileUpload(MultipartFile file, Integer dirId, UserInf userInf) {
+
         DirInf dirInf = dirInfService.selectByPrimaryKey(dirId); //获取目标文件夹
+        DeptMember deptMember=null;
+
+
+
+        //判断空间是否已满了
+        if(dirInf.getUserId() == userInf.getUserId()) {
+            if (userInf.getUsedSpace() + file.getSize() > userInf.getMaxSpace()) {
+                return "full";
+            }
+        }else{
+            deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
+            System.out.println(deptMember);
+            if(deptMember.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString())).compareTo(deptMember.getMaxSpace())>0){
+                return "full";
+            }
+        }
+
 
 
         //系统路径
@@ -118,45 +144,69 @@ public class FileInfServiceImpl implements FileInfServive {
         String fileOriginalName = file.getOriginalFilename();  //文件的原始名
         String fileName = fileOriginalName;
         String fileType = fileOriginalName.substring(fileOriginalName.lastIndexOf(".") + 1); //获取文件类型
-        Double fileSize = (double) file.getSize(); //获取文件的大小，单位为字节
-        String fileUnit = "B";      //文件的初始单位
+        Integer fileSize =  (int)file.getSize(); //获取文件的大小，单位为字节
 
-        //单位转换
-        if (fileSize >= 1024) {
-            //fileSize换算成KB，只保留整数
-            fileSize = Math.floor(fileSize / 1024);
-            fileUnit = "KB";
-            if (fileSize >= 1024) {
-                //fileSize换算成MB,保留两位小数点
-                fileSize = Math.floor(fileSize / 1024);
-                fileUnit = "MB";
-                if (fileSize >= 1024) {
-                    //fileSize换算成GB，保留两位小数点
-                    fileSize = Math.floor(fileSize / 1024);
-                    fileUnit = "GB";
 
-                }
-            }
-        }
 
         FileInf repeatFile = fileInfDao.selectByFileNameAndDirId(fileName,dirId);
 
         FileInf fileInf = new FileInf();
         fileInf.setFileName(fileName);//设置文件名
         fileInf.setFileSize(fileSize);//设置文件大小，以字节为单位
-        fileInf.setFileUnit(fileUnit);//设置文件转换后的单位
         fileInf.setFileType(fileType);//设置文件的类型
         fileInf.setFileUploadTime(DateUtil.getNowDate());//设置上传时间
         fileInf.setDirId(dirId);//文件夹id
         fileInf.setUserId(userInf.getUserId());//用户id
 
+
+
+        boolean flag = true;      //插入数据开关
         //判断数据库中是否存在该文件的记录
-        if (repeatFile == null) {
-            //插入数据库文件记录
-            if(fileInfDao.insertSelective(fileInf) == 0)  return false;
-        }else{
-            //更新文件信息
-            if(fileInfDao.updateByPrimaryKeySelective(fileInf) == 0) return false ;
+        if (repeatFile != null) {
+            //如果文件字节相同，则覆盖，用户空间不用更新
+            //如果文件字节大小不同，则更改名字后插入数据库，并且更新用户空间
+            int fix = 0;
+
+            String perfix = fileName.substring(0,fileName.lastIndexOf("."));
+            String suffix = fileName.substring(fileName.lastIndexOf("."));
+            do{
+                if(repeatFile.getFileSize().equals(fileInf.getFileSize())){
+                    flag = false;
+                    break;
+                }
+                fix+=1;
+                fileName = perfix+"("+(fix)+")"+suffix;
+                System.out.println("文件名="+fileName);
+                repeatFile = fileInfDao.selectByFileNameAndDirId(fileName,dirId);
+            }while (repeatFile != null);
+
+        }
+
+        //判断是否要插入文件信息
+        if(flag) {
+            //插入文件信息
+            fileInf.setFileName(fileName);
+            if (fileInfDao.insertSelective(fileInf) == 0) return "inset false";
+
+            //更新已使用空间
+            int count;
+
+            if(dirInf.getUserId() != userInf.getUserId()){
+                //部门成员更新空间
+                BigInteger n = deptMember.getUsedSpace().add(new BigInteger(fileInf.getFileSize().toString()));
+                System.out.println("使用空间："+n);
+                deptMember.setUsedSpace(n);
+                deptMemberService.updateByPrimaryKeySelective(deptMember);
+                //更新文件柜的空间
+
+
+            }else{
+                //用户更新空间
+                count = userInf.getUsedSpace()+(int)file.getSize();
+                //当前用户的used_space增加
+                userInf.setUsedSpace(count);
+                userInfService.updateByPrimaryKeySelective(userInf);
+            }
         }
 
         //上传文件到外存
@@ -172,10 +222,10 @@ public class FileInfServiceImpl implements FileInfServive {
                 file.transferTo(new File(realPath, fileName));
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
+                return "save false";
             }
         }
-        return true;
+        return "successful";
 
     }
 

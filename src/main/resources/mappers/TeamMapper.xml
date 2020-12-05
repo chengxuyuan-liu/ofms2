@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.TeamDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Team">
+    <id column="team_id" jdbcType="INTEGER" property="teamId" />
+    <result column="team_name" jdbcType="VARCHAR" property="teamName" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+
+
+  <!--查询-->
+  <sql id="Base_Column_List">
+    team_id, team_name, user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from team
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from team
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+
+  <!--删除-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from team
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </delete>
+
+
+  <!--插入-->
+  <insert id="insert" parameterType="com.example.demo.entity.Team">
+    insert into team (team_id, team_name, user_id
+      )
+    values (#{teamId,jdbcType=INTEGER}, #{teamName,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}
+      )
+  </insert>
+
+
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Team">
+    insert into team
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="teamId != null">
+        team_id,
+      </if>
+      <if test="teamName != null">
+        team_name,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="teamId != null">
+        #{teamId,jdbcType=INTEGER},
+      </if>
+      <if test="teamName != null">
+        #{teamName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <!--更新-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.Team">
+    update team
+    <set>
+      <if test="teamName != null">
+        team_name = #{teamName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </update>
+
+
+
+
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.Team">
+    update team
+    set team_name = #{teamName,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER}
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </update>
+
+</mapper>

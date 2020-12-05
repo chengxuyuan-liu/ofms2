@@ -1,30 +1,30 @@
 package com.example.demo.entity;
 
-public class DeptInf {
-    private Integer deptId;
+public class FileCabinet {
+    private Integer fcId;
 
-    private String deptName;
+    private String fcName;
 
     private Integer maxSpace;
 
     private Integer usedSpace;
-
+    
     private Integer dirId;
 
-    public Integer getDeptId() {
-        return deptId;
+    public Integer getFcId() {
+        return fcId;
     }
 
-    public void setDeptId(Integer deptId) {
-        this.deptId = deptId;
+    public void setFcId(Integer fcId) {
+        this.fcId = fcId;
     }
 
-    public String getDeptName() {
-        return deptName;
+    public String getFcName() {
+        return fcName;
     }
 
-    public void setDeptName(String deptName) {
-        this.deptName = deptName == null ? null : deptName.trim();
+    public void setFcName(String fcName) {
+        this.fcName = fcName == null ? null : fcName.trim();
     }
 
     public Integer getMaxSpace() {
@@ -50,4 +50,5 @@ public class DeptInf {
     public void setDirId(Integer dirId) {
         this.dirId = dirId;
     }
+    
 }

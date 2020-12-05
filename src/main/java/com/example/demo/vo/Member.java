@@ -1,4 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.vo;
+
+import com.example.demo.entity.DeptMember;
 
 import java.util.Date;
 
