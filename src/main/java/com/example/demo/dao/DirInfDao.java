@@ -20,7 +20,7 @@ public interface DirInfDao {
     int insertSelective(DirInf record);
 
     //查询
-    List<DirInf> selectDirListByDirId(Integer dirId);       //查询该文件夹下的所有文件夹
+    List<DirInf> selectDirListByParentDirId(Integer dirId);       //查询该文件夹下的所有文件夹
     DirInf selectRootChildrenDirByUserId(@Param("userId")Integer userId,@Param("dirName")String dirName);           //“我的文件”文件夹
     DirInf selectRootDirByUserId(Integer userId);         //根文件夹
     DirInf selectDirByDirName(@Param("dirName")String dirName,@Param("parentId")Integer parentId);

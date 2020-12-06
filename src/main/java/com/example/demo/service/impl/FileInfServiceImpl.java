@@ -1,10 +1,9 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dao.DeptMemberDao;
+import com.example.demo.dao.FileCabinetDao;
 import com.example.demo.dao.FileInfDao;
-import com.example.demo.entity.DeptMember;
-import com.example.demo.entity.DirInf;
-import com.example.demo.entity.FileInf;
-import com.example.demo.entity.UserInf;
+import com.example.demo.entity.*;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.FileInfServive;
@@ -41,8 +40,11 @@ public class FileInfServiceImpl implements FileInfServive {
     private DocumentConverter converter;
     @Autowired
     UserInfService userInfService;
+
     @Autowired
-    DeptMemberService deptMemberService;
+    DeptMemberDao deptMemberDao;
+    @Autowired
+    FileCabinetDao fileCabinetDao;
 
     /*
     查询
@@ -120,16 +122,19 @@ public class FileInfServiceImpl implements FileInfServive {
 
         DirInf dirInf = dirInfService.selectByPrimaryKey(dirId); //获取目标文件夹
         DeptMember deptMember=null;
-
+        List<DirInf> dirInfList = dirInfService.selectParentDirByDirId(dirId);
+        FileCabinet fileCabinet = fileCabinetDao.selectByDirId(dirInfList.get(0).getDirId());
 
 
         //判断空间是否已满了
         if(dirInf.getUserId() == userInf.getUserId()) {
-            if (userInf.getUsedSpace() + file.getSize() > userInf.getMaxSpace()) {
+            if (fileCabinet.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString())).compareTo(fileCabinet.getMaxSpace()) > 0) {
                 return "full";
             }
+
+
         }else{
-            deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
+            deptMember = deptMemberDao.selectByUserKey(userInf.getUserId());
             System.out.println(deptMember);
             if(deptMember.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString())).compareTo(deptMember.getMaxSpace())>0){
                 return "full";
@@ -152,7 +157,7 @@ public class FileInfServiceImpl implements FileInfServive {
 
         FileInf fileInf = new FileInf();
         fileInf.setFileName(fileName);//设置文件名
-        fileInf.setFileSize(fileSize);//设置文件大小，以字节为单位
+        fileInf.setFileSize(new BigInteger(fileSize.toString()));//设置文件大小，以字节为单位
         fileInf.setFileType(fileType);//设置文件的类型
         fileInf.setFileUploadTime(DateUtil.getNowDate());//设置上传时间
         fileInf.setDirId(dirId);//文件夹id
@@ -196,17 +201,16 @@ public class FileInfServiceImpl implements FileInfServive {
                 BigInteger n = deptMember.getUsedSpace().add(new BigInteger(fileInf.getFileSize().toString()));
                 System.out.println("使用空间："+n);
                 deptMember.setUsedSpace(n);
-                deptMemberService.updateByPrimaryKeySelective(deptMember);
-                //更新文件柜的空间
-
-
-            }else{
+                deptMemberDao.updateByPrimaryKeySelective(deptMember);
+            }else {
                 //用户更新空间
-                count = userInf.getUsedSpace()+(int)file.getSize();
-                //当前用户的used_space增加
-                userInf.setUsedSpace(count);
-                userInfService.updateByPrimaryKeySelective(userInf);
+
+                BigInteger updateSpcae = fileCabinet.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString()));
+                fileCabinet.setUsedSpace(updateSpcae);
+                //当前文件柜的used_space增加
+                fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
             }
+
         }
 
         //上传文件到外存

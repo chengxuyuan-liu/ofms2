@@ -35,10 +35,12 @@ public interface DeptMemberDao {
     List<Member> selectToBeAssignedMemberByUserName(@Param("userId")Integer userId,@Param("userName")String userName);
     List<Member> selectToBeAssignedMemberByPhone(@Param("userId")Integer userId,@Param("phone")String phone);
 
+
     /*
     更改
     */
     int updateByPrimaryKeySelective(DeptMember record);
     int updateByPrimaryKey(DeptMember record);
     int updateDeptById(Integer id ,Integer deptId);         //根据部门id修改部门成员,修改status
+    int updateMemberByDeptId(Integer detpId);
 }

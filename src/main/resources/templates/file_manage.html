@@ -287,7 +287,7 @@
         $.post("/newDir", $("#newDir").serialize(), function (date) {
             if (date == "OK") {
                 alert("创建成功");
-                window.location.reload();
+                window.opener.location.reload();
             } else {
                 alert("创建失败，请联系客服");
             }
@@ -362,6 +362,7 @@
     spaceChang();
 
     function spaceChang() {
+
         $('#max_space').text(count($('#max_space').attr('data-maxspace')));
         $('#used_space').text(count($('#used_space').attr('data-usedspace')));
 

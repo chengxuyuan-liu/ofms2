@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 public class UserInf {
@@ -19,11 +20,10 @@ public class UserInf {
 
     private Integer userType;
 
-    private Integer maxSpace;
+    private BigInteger maxSpace;
 
-    private Integer usedSpace;
+    private BigInteger usedSpace;
 
-    private Integer maxDept;
 
     public Integer getUserId() {
         return userId;
@@ -89,28 +89,20 @@ public class UserInf {
         this.userType = userType;
     }
 
-    public Integer getMaxSpace() {
+    public BigInteger getMaxSpace() {
         return maxSpace;
     }
 
-    public void setMaxSpace(Integer maxSpace) {
+    public void setMaxSpace(BigInteger maxSpace) {
         this.maxSpace = maxSpace;
     }
 
-    public Integer getUsedSpace() {
+    public BigInteger getUsedSpace() {
         return usedSpace;
     }
 
-    public void setUsedSpace(Integer usedSpace) {
+    public void setUsedSpace(BigInteger usedSpace) {
         this.usedSpace = usedSpace;
-    }
-
-    public Integer getMaxDept() {
-        return maxDept;
-    }
-
-    public void setMaxDept(Integer maxDept) {
-        this.maxDept = maxDept;
     }
 
     @Override
@@ -126,7 +118,6 @@ public class UserInf {
                 ", userType=" + userType +
                 ", maxSpace=" + maxSpace +
                 ", usedSpace=" + usedSpace +
-                ", maxDept=" + maxDept +
                 '}';
     }
 }

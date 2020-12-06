@@ -39,6 +39,12 @@
         .navbar-brand:hover{
             background: #d8d8d8;
         }
+        #user-space{
+            position: absolute;
+            bottom: 17px;
+            left: 197px;
+        }
+
     </style>
     <script>
         $(function (){
@@ -53,6 +59,7 @@
 
 
         });
+
     </script>
 </head>
 <body bgcolor="#696969">
@@ -64,6 +71,12 @@
             <nav class="navbar navbar-default" role="navigation">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">天涯办公文件管理系统</a>
+                    <div id="user-space">
+                        用户总空间:
+                        已分配：<span  th:attr="data-usedspace=${session.USER_SESSION.getUsedSpace()}" id="used_space"></span>/
+                        共：<span th:attr="data-maxspace=${session.USER_SESSION.getMaxSpace()}" id="max_space"></span>
+                    </div>
+
                 </div>
 
                 <div  class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -195,14 +208,30 @@
       /*新建部门*/
       function new_dept() {
           $(".d").va
-          $.post("/newDept",$("#dept_edit_form").serialize(),function (date) {
-              if (date == "OK"){
+          $.post("/newDept",$("#dept_edit_form").serialize(),function (data) {
+              if (data == "OK"){
                   alert("新建成功");
                   window.location.reload();
-              }else{
+              }else if(data = 'SPACE_FULL'){
+                  alert("分配失败，您的用户空间已满");
+              }
+              else{
                   alert("新建失败");
               }
           })
+      }
+      spaceChang();
+      function spaceChang() {
+          $('#used_space').text(count($('#used_space').attr('data-usedspace')));
+          $('#max_space').text(count($('#max_space').attr('data-maxspace')));
+      }
+
+
+      function count(space) {
+          let unit = '';
+          unit = 'GB'
+          space = (space / 1024 / 1024 / 1024).toFixed(2);
+          return space + unit;
       }
   </script>
 </div>

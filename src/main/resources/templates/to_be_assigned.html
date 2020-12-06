@@ -26,10 +26,13 @@
 					//alert("aaa");
 					let select = document.getElementById('select_dept'); 
 					let maxspace = select.item(select.selectedIndex).getAttribute('data-maxspace');
-					
-	
+					let usedSpace = select.item(select.selectedIndex).getAttribute('data-usedspace');
+					let surplus = parseInt(maxspace) - parseInt(usedSpace);
+
 					if($(this).val() != 0){
-						$('#tip_maxSpace').html('&nbsp;&nbsp;-最大可分配空间:'+maxspace+'GB');
+						$('#tip_maxSpace').html(
+								'&nbsp;&nbsp;-最大可分配空间:'+(surplus/1024/1024).toFixed(0)+'MB'+
+								'('+(surplus/1024/1024/1024).toFixed(2)+'GB)');
 					}else{
 						$('#tip_maxSpace').html('');
 					}
@@ -166,7 +169,11 @@
 		                                <div class="col-sm-10">
 		                                    <select  id="select_dept"  name="deptId" >
 		                                       			<option value="0">--请选择--</option>
-		                                       			<option th:value="${dept.deptId}"  th:each="dept : ${fileCabinetList}" th:attr="data-maxspace=${dept.maxSpace}">[[${dept.deptName}]]</option>
+		                                       			<option th:value="${fileCabinet.getFcId()}"  th:each="fileCabinet : ${fileCabinetList}"
+																th:attr="data-maxspace=${fileCabinet.getMaxSpace()},
+																		data-usedspace=${fileCabinet.getUsedSpace()}">
+																[[${fileCabinet.getFcName()}]]
+														</option>
 		                                    </select>
 		                                </div>
 		                            </div>
@@ -174,7 +181,7 @@
 		                                <label for="edit_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
 		                                    分配空间:</label>
 		                                <div class="col-sm-10">
-											 <input type="number" id="edit_maxSpace" style="width:50px;" name="maxSpace">&nbsp;GB<span id="tip_maxSpace"></span>
+											 <input type="number" id="edit_maxSpace" style="width:80px;" name="maxSpace" min="0">&nbsp;MB<span id="tip_maxSpace"></span>
 		                                </div>
 		                            </div>
 		                        </form>
@@ -284,17 +291,52 @@
 					let deptId = $('#select_dept').val();
 					let maxSpace = $('#edit_maxSpace').val();
 					let id = $('#edit_memberId').val();
-					
+					//检验输入
+					if(deptId == 0){
+						alert('请选择部门');
+						return false;
+					}
 
-					$.post('/editToBeAssignedMember',{'id':id,'deptId':deptId,'maxSpace':maxSpace},function (data) {
-						if(data == 'OK'){
-							alert("保存成功");
-						}else{
-							alert("保存失败");
-						}
-					});
+
+					$.post('/getDeptId',{'deptId':deptId},function (date){
+						deptId = date;
+
+						$.post('/editToBeAssignedMember',{'id':id,'deptId':deptId,'maxSpace':maxSpace},function (data) {
+							if(data == 'OK'){
+								alert("保存成功");
+								window.location.reload();
+							}else{
+								alert("保存失败");
+								window.location.reload();
+							}
+						});
+					})
+
 			}
-				
+
+			//限制输入
+			$('#edit_maxSpace').keydown(function (e) {
+				var code = parseInt(e.keyCode);
+				if (code >= 96 && code <= 105 || code >= 48 && code <= 57 || code == 8) {
+					return true;
+				} else {
+					return false;
+				}
+			})
+
+			//空间输入框失去焦点，检验输入
+			$('#edit_maxSpace').blur(function () {
+				let select = document.getElementById('select_dept');
+				let inputSpace = parseInt($('#edit_maxSpace').val())*1024*1024;
+				let maxspace = select.item(select.selectedIndex).getAttribute('data-maxspace');
+				let usedSpace = select.item(select.selectedIndex).getAttribute('data-usedspace');
+				let surplus = parseInt(maxspace) - parseInt(usedSpace);
+				console.log(surplus+'----'+maxspace+'--'+usedSpace);
+				if(inputSpace>surplus){
+					let count = (surplus/1024/1024).toFixed(0);
+					$('#edit_maxSpace').prop('value',count);
+				}
+			});
 		
 		</script>
 	</body>

@@ -212,7 +212,26 @@
 
 
 
+1.修改空间变量类型为BigInteger
+4.完成系统空间显示方案
+2.完善部门、成员编辑功能
+       部门编辑
+           显示：最小单位GB （单位转换，字节--》GB）
+           限制输入：只能输入整数,不能小于已使用空间，不能大于最大空间   -其他所有符号都要禁止
+       成员编辑
+           有两种单位：MB 和 GB
+           限制输入：只能输入整数,不能小于已使用空间，不能大于最大空间
+4.完善系统空间分配机制
+3.完善成员最近访问时间
+
+th:text="${(#numbers.formatDecimal((((member.usedSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'"
+th:text="${(#numbers.formatDecimal((((member.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'"
 
 
+    文件剩余空间不足1024MB
 
-
+解散部门：
+    解散文件柜
+    解散成员
+    删除文件
+    删除文件夹

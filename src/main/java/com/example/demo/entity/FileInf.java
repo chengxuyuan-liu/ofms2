@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 
+import java.math.BigInteger;
 import java.util.Date;
 
 public class FileInf {
@@ -8,7 +9,7 @@ public class FileInf {
 
     private String fileName;
 
-    private Integer fileSize;
+    private BigInteger fileSize;
 
     private String fileType;
 
@@ -34,11 +35,11 @@ public class FileInf {
         this.fileName = fileName == null ? null : fileName.trim();
     }
 
-    public Integer getFileSize() {
+    public BigInteger getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(Integer fileSize) {
+    public void setFileSize(BigInteger fileSize) {
         this.fileSize = fileSize;
     }
 

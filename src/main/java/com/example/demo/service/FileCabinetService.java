@@ -1,11 +1,9 @@
 package com.example.demo.service;
 
 
-import com.example.demo.entity.Department;
-import com.example.demo.entity.DirInf;
-import com.example.demo.entity.FileCabinet;
-import com.example.demo.entity.UserInf;
+import com.example.demo.entity.*;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public interface FileCabinetService {
@@ -17,7 +15,7 @@ public interface FileCabinetService {
     public Boolean newFileCabinet(DirInf dirInf, UserInf userInf);  //通过新建用户创建文件柜
 
 
-    public FileCabinet selectByPrimaryKey(Integer deptId);
+    public FileCabinet selectByDeptId(Integer deptId);
 
     FileCabinet selectByDirId(Integer dirId);
     List<FileCabinet> selectByUserId(Integer userId);
@@ -26,5 +24,9 @@ public interface FileCabinetService {
 
     public int deleteByUserId(Integer userId);
 
-    Boolean updateByPrimaryKeySelective(String deptName,Integer maxSpace,Integer deptId);
+    Boolean updateByPrimaryKeySelective(Object... param);
+    public Boolean updateWhenEditMember(FileCabinet fileCabinet, DeptMember member,BigInteger maxSpace);
+    public Boolean updateWhenNewMember(FileCabinet fileCabinet);
+    public Boolean updateWhenDeleteMember(FileCabinet fileCabinet, DeptMember member);
+
 }

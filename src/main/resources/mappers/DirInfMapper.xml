@@ -25,7 +25,7 @@
   </select>
 
 <!--  查询该文件夹下的所有文件夹-->
-<select id="selectDirListByDirId" resultMap="BaseResultMap" parameterType="Integer">
+<select id="selectDirListByParentDirId" resultMap="BaseResultMap" parameterType="Integer">
       SELECT * FROM dir_inf
       WHERE parent_dir = #{dirId}
       ORDER BY dir_id ASC

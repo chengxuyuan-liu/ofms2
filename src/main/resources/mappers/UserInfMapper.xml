@@ -12,13 +12,12 @@
     <result column="user_type" jdbcType="INTEGER" property="userType" />
     <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
     <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
-    <result column="max_dept" jdbcType="INTEGER" property="maxDept" />
   </resultMap>
 
 
   <sql id="Base_Column_List">
     user_id, user_phone, username, password, email, register_time, status, user_type, 
-    max_space,used_space, max_dept
+    max_space,used_space
   </sql>
 
 
@@ -77,12 +76,11 @@
   <insert id="insert" parameterType="UserInf">
     insert into user_inf (user_id, user_phone, username, 
       password, email, register_time, 
-      status, user_type, max_space,used_space,
-      max_dept)
+      status, user_type, max_space,used_space)
     values (#{userId,jdbcType=INTEGER}, #{userPhone,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP}, 
-      #{status,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, #{maxSpace,jdbcType=INTEGER}, 
-      #{maxDept,jdbcType=INTEGER})
+      #{status,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, #{maxSpace,jdbcType=INTEGER}
+
   </insert>
 
 
@@ -119,9 +117,7 @@
       <if test="usedSpace != null">
         used_space,
       </if>
-      <if test="maxDept != null">
-        max_dept,
-      </if>
+
     </trim>
 
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -151,9 +147,6 @@
       </if>
       <if test="maxSpace != null">
         #{maxSpace,jdbcType=INTEGER},
-      </if>
-      <if test="maxDept != null">
-        #{maxDept,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -189,9 +182,7 @@
       <if test="usedSpace != null">
         used_space = #{usedSpace,jdbcType=INTEGER},
       </if>
-      <if test="maxDept != null">
-        max_dept = #{maxDept,jdbcType=INTEGER},
-      </if>
+
     </set>
     where user_id = #{userId,jdbcType=INTEGER}
   </update>
@@ -206,8 +197,7 @@
       register_time = #{registerTime,jdbcType=TIMESTAMP},
       status = #{status,jdbcType=INTEGER},
       user_type = #{userType,jdbcType=INTEGER},
-      max_space = #{maxSpace,jdbcType=INTEGER},
-      max_dept = #{maxDept,jdbcType=INTEGER}
+      max_space = #{maxSpace,jdbcType=INTEGER}
     where user_id = #{userId,jdbcType=INTEGER}
   </update>
 

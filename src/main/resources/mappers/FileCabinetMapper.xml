@@ -80,10 +80,10 @@
         #{fcName,jdbcType=VARCHAR},
       </if>
       <if test="maxSpace != null">
-        #{maxSpace,jdbcType=INTEGER},
+        #{maxSpace},
       </if>
       <if test="usedSpace != null">
-        #{usedSpace,jdbcType=INTEGER},
+        #{usedSpace},
       </if>
       <if test="dirId != null">
         #{dirId,jdbcType=INTEGER},

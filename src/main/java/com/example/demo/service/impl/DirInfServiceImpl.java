@@ -25,8 +25,8 @@ public class DirInfServiceImpl implements DirInfService {
     查询
     */
     @Override
-    public List<DirInf> selectDirListByDirId(Integer dirId) {
-        List<DirInf> dirInfList = dirInfDao.selectDirListByDirId(dirId);
+    public List<DirInf> selectDirListByParentDirId(Integer dirId) {
+        List<DirInf> dirInfList = dirInfDao.selectDirListByParentDirId(dirId);
         return dirInfList;
     }
 

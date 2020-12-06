@@ -1,10 +1,10 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.DeptMemberDao;
-import com.example.demo.entity.FileCabinet;
-import com.example.demo.entity.DeptMember;
+import com.example.demo.dao.TeamDao;
+import com.example.demo.entity.*;
+import com.example.demo.service.TeamService;
 import com.example.demo.vo.Member;
-import com.example.demo.entity.UserInf;
 import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.UserInfService;
@@ -23,6 +23,9 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     UserInfService userInfService;
     @Autowired
     FileCabinetService fileCabinetService;
+
+    @Autowired
+    TeamDao teamDao;
 
     @Override
     public DeptMember selectByPrimaryKey(Integer id) {
@@ -72,18 +75,18 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     };
 
     @Override
-    public Boolean insertSelective(Integer deptId,String userPhone) {
+    public Boolean insertSelective(Integer deptId,String userPhone,UserInf userInf) {
         //通过userPhone获取用户对象，通过用户对象获得userId
-        UserInf userInf = userInfService.selectByUserPhone(userPhone);
+        UserInf newMember = userInfService.selectByUserPhone(userPhone);
 
         if(userInf != null){
-            //通过deptId获得部门对象，通过部门对象获得maxSpace
-            FileCabinet fileCabinet = fileCabinetService.selectByPrimaryKey(deptId);
+
+            Team team = teamDao.selectByUserId(userInf.getUserId());
             //封装成员信息成DeptMember对象
             DeptMember deptMember = new DeptMember();
             deptMember.setDeptId(deptId);
-            deptMember.setUserId(userInf.getUserId());
-            deptMember.setMaxSpace(new BigInteger(fileCabinet.getMaxSpace().toString()));  //默认为部门最大值
+            deptMember.setUserId(newMember.getUserId());
+            deptMember.setTeamId(team.getTeamId());
 
             Integer result = deptMemberDao.insertSelective(deptMember);
             if(result != 0) return true;
@@ -108,5 +111,13 @@ public class DeptMemberServiceImpl implements DeptMemberService {
         return true;
     }
 
+    /*
+    * 解散部门时，解散成员：把部门成员状态改成未分配
+    * */
+    @Override
+    public Boolean dissolveMemberToBeAssigned(Integer deptId) {
+        if(deptMemberDao.updateMemberByDeptId(deptId) == 0) return false;
+        return true;
+    }
 
 }

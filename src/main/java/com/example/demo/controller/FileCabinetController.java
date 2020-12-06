@@ -52,9 +52,9 @@ public class FileCabinetController {
     */
     @ResponseBody
     @RequestMapping("/editFileCabinet")
-    public String editDept(String deptName,Integer maxSpace,Integer deptId){
+    public String editDept(String deptName,String maxSpace,Integer deptId){
         //调用业务
-        if(fileCabinetService.updateByPrimaryKeySelective(deptName,maxSpace,deptId)) return "OK";
+        if(fileCabinetService.updateByPrimaryKeySelective(deptId,deptName,maxSpace,null,null)) return "OK";
         return "FALSE";
     }
 

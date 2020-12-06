@@ -2,17 +2,16 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dao.DepartmentDao;
 import com.example.demo.dao.FileCabinetDao;
-import com.example.demo.entity.Department;
-import com.example.demo.entity.FileCabinet;
-import com.example.demo.entity.DirInf;
-import com.example.demo.entity.UserInf;
+import com.example.demo.entity.*;
 import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.DirInfService;
+import com.example.demo.util.UnitChange;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Service
@@ -63,7 +62,7 @@ public class FileCabinetServiceImpl implements FileCabinetService {
     查询
     */
     @Override
-    public FileCabinet selectByPrimaryKey(Integer deptId) {
+    public FileCabinet selectByDeptId(Integer deptId) {
         Department department = departmentDao.selectByPrimaryKey(deptId);
         return fileCabinetDao.selectByPrimaryKey(department.getFcId());
     }
@@ -88,8 +87,6 @@ public class FileCabinetServiceImpl implements FileCabinetService {
     */
     @Override
     public Boolean deleteDept(Integer deptId) {
-
-
         System.out.println("解散");
         //修改部门id为deptId的成员，把该部门的成员都分配到 “待分配”,把该成员的部门设置NULL
         //deptMemberService.updateDeptById(null,deptId);
@@ -111,18 +108,54 @@ public class FileCabinetServiceImpl implements FileCabinetService {
         return 0;
     }
 
+
+
     //更新文件柜
     @Override
-    public Boolean updateByPrimaryKeySelective(String deptName,Integer maxSpace,Integer deptId) {
+    public Boolean updateByPrimaryKeySelective(Object... param) {
 
         FileCabinet fileCabinet = new FileCabinet();
-        fileCabinet.setFcId(deptId);
-        fileCabinet.setFcName(deptName);
-        fileCabinet.setMaxSpace(maxSpace);
+        fileCabinet.setFcId((Integer) param[0]);
+        fileCabinet.setFcName((String) param[1]);
+        fileCabinet.setMaxSpace((BigInteger) param[2]);
+        fileCabinet.setUsedSpace((BigInteger) param[3]);
+        fileCabinet.setDirId((Integer) param[4]);
 
         if(fileCabinetDao.updateByPrimaryKeySelective(fileCabinet) == 0) return false;
 
         return true;
     }
+
+    //编辑文成员时更新文件柜
+    @Override
+    public Boolean updateWhenEditMember(FileCabinet fileCabinet, DeptMember member,BigInteger maxSpace) {
+        BigInteger count = fileCabinet.getUsedSpace().subtract(member.getMaxSpace()).add(maxSpace);
+        if(count.compareTo(fileCabinet.getMaxSpace()) > 0) return false;
+        fileCabinet.setUsedSpace(count);
+        fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
+        return true;
+    }
+
+
+    //添加成员时更新文件柜
+    @Override
+    public Boolean updateWhenNewMember(FileCabinet fileCabinet) {
+        BigInteger increment = UnitChange.TranslateMBtoByte(500);
+        BigInteger count = fileCabinet.getUsedSpace().add(increment);
+        if(count.compareTo(fileCabinet.getMaxSpace()) > 0) return false;
+        fileCabinet.setUsedSpace(count);
+        fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
+        return true;
+    }
+
+    //移除成员时更新文件柜
+    @Override
+    public Boolean updateWhenDeleteMember(FileCabinet fileCabinet, DeptMember member) {
+        BigInteger count = fileCabinet.getUsedSpace().subtract(member.getMaxSpace().subtract(member.getUsedSpace()));
+        fileCabinet.setUsedSpace(count);
+        fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
+        return true;
+    }
+
 
 }

@@ -4,6 +4,7 @@ import com.example.demo.dao.DirInfDao;
 import com.example.demo.dao.FileCabinetDao;
 import com.example.demo.dao.UserInfDao;
 import com.example.demo.entity.Department;
+import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.Team;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.FileCabinetService;
@@ -13,6 +14,7 @@ import com.example.demo.service.UserInfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -38,9 +40,18 @@ public class UserInfServiceImpl implements UserInfService {
     @Autowired
     TeamService teamService;
 
+
+
+    //判断用户空间
+    @Override
+    public Boolean judgeSpace(UserInf userInf) {
+        if (userInf.getUsedSpace().compareTo(userInf.getMaxSpace()) > 0) return false;
+        return true;
+    }
+
     /*
-    验证登录
-    */
+        验证登录
+        */
     @Override
     public UserInf verifyLogin(String username, String password) {
         UserInf userInf = userInfDao.selectByUsername(username);
@@ -69,38 +80,14 @@ public class UserInfServiceImpl implements UserInfService {
     */
     @Override
     public UserInf insertSelective(UserInf userInf) {
-
         //注册时间
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
         //封装数据
         userInf.setRegisterTime(date);
         userInf.setStatus(1);
         //调用dao,插入用户表
         int sign = userInfDao.insertSelective(userInf);
-
-
-        //新建用户根文件夹
-//        if(sign != 0) {
-//           int sign2 =  dirInfService.insertSelective(phone.toString(), null, userInf);
-//           if(sign2 == 0)
-//               sign = 0;
-//        }
-
-
-
-
-        //团队用户创建团队
-//        if(userType == 2){
-//            if(teamName != null){
-//                Team team = new Team();
-//                team.setTeamName(teamName);
-//                team.setUserId(userInf.getUserId());
-//                if(teamService.insertSelective(team) == 0) System.err.println("团队创建失败");
-//            }
-//        }
-
         return userInf;
     }
 
@@ -137,8 +124,36 @@ public class UserInfServiceImpl implements UserInfService {
         return userInfList;
     }
 
+
+
     @Override
     public int updateByPrimaryKeySelective(UserInf record) {
+        int result = userInfDao.updateByPrimaryKeySelective(record);
+        return result;
+    }
+
+    @Override
+    public int updateSpaceWhenNewDept(UserInf record) {
+        //usedSpace + 1G
+        Long increment = Long.valueOf(1024*1024*1024);
+        BigInteger count = record.getUsedSpace().add(new BigInteger(increment.toString()));
+        record.setUsedSpace(count);
+        int result = userInfDao.updateByPrimaryKeySelective(record);
+        return result;
+    }
+
+    @Override
+    public int updateSpaceWhenDeleteDept(UserInf record,FileCabinet fileCabinet) {
+        BigInteger count = record.getUsedSpace().subtract(fileCabinet.getMaxSpace());
+        record.setUsedSpace(count);
+        return userInfDao.updateByPrimaryKeySelective(record);
+    }
+
+    @Override
+    public int updateSpaceWhenEditDept(UserInf record,FileCabinet fileCabinet,BigInteger maxSpace) {
+        //usedSpace - dept_maxSpace + maxSpace
+        BigInteger count = record.getUsedSpace().subtract(fileCabinet.getMaxSpace()).add(maxSpace);
+        record.setUsedSpace(count);
         int result = userInfDao.updateByPrimaryKeySelective(record);
         return result;
     }

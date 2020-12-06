@@ -61,14 +61,30 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentList;
     }
 
+    @Override
+    public Department selectByFileCabinetId(Integer fcId) {
+        Department department = departmentDao.selectByFileCabinetId(fcId);
+        return department;
+    }
+
+    @Override
+    public List<Department> selectByTeamId(Integer teamId) {
+        List<Department> departmentList =  departmentDao.selectByTeamId(teamId);
+        return departmentList;
+    }
 
 
     /*
     * 更新
     * */
     @Override
-    public int updateByPrimaryKeySelective(Department record) {
-        return 0;
+    public int updateByPrimaryKeySelective(Object... param) {
+        Department department = new Department();
+        department.setDeptId((Integer) param[0]);
+        department.setDeptName((String) param[1]);
+        department.setFcId((Integer) param[2]);
+        department.setTeamId((Integer) param[3]);
+        return departmentDao.updateByPrimaryKeySelective(department);
     }
 
     @Override

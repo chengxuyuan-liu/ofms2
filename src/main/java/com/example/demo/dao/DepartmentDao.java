@@ -19,6 +19,8 @@ public interface DepartmentDao {
 
     Department selectByPrimaryKey(Integer deptId);
     List<Department> selectDeptListByUserId(Integer userId);
+    Department selectByFileCabinetId(Integer fcId);
+    List<Department> selectByTeamId(Integer teamId);
 
     int updateByPrimaryKeySelective(Department record);
 

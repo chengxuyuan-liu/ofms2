@@ -2,6 +2,7 @@ package com.example.demo.vo;
 
 import com.example.demo.entity.DeptMember;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 public class Member extends DeptMember {
@@ -13,9 +14,9 @@ public class Member extends DeptMember {
 
     private String phone;
 
-    private Integer usedSpace;
+    private BigInteger usedSpace;
 
-    private Integer maxSpace;
+    private BigInteger maxSpace;
 
     private Date recent;
 
@@ -48,5 +49,6 @@ public class Member extends DeptMember {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
 
 }

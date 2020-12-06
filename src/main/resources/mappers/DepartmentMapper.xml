@@ -14,11 +14,26 @@
 
 
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from department
     where dept_id = #{deptId,jdbcType=INTEGER}
   </select>
+
+  <select id="selectByTeamId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from department
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByFileCabinetId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from department
+    where fc_id = #{fcId,jdbcType=INTEGER}
+  </select>
+
   <select id="selectDeptListByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         CALL selectDept(#{userId,jdbcType=INTEGER});
   </select>

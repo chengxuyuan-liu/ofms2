@@ -56,48 +56,39 @@
   <!--查询部门成员-->
   <select id="selectToBeAssignedMemberListByUserId" parameterType="java.lang.Integer" resultMap="MemberResultMap">
 
-      select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+      select t2.id,t1.username,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
       from user_inf as t1 join (
-          SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          SELECT t3.id,t3.user_id,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
           FROM user_dept AS t3 JOIN (
-            SELECT dept_id,dept_name
-            FROM department
-			WHERE team_id in(
 				SELECT team_id
                 FROM team
-                WHERE	user_id = #{userId})
-				)AS t4 ON t4.dept_id = t3.dept_id
+                WHERE	user_id = #{userId}
+				)AS t4 ON t4.team_id = t3.team_id
 					WHERE t3.m_status = 0
 				) as t2 on t1.user_id = t2.user_id
-      WHERE t1.username = #{userName}
+
   </select>
 
   <select id="selectToBeAssignedMemberByUserName"  resultMap="MemberResultMap">
-      select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+      select t2.id,t1.username,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
       from user_inf as t1 join (
-          SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          SELECT t3.id,t3.user_id,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
           FROM user_dept AS t3 JOIN (
-            SELECT dept_id,dept_name
-            FROM department
-			WHERE team_id in(
 				SELECT team_id
                 FROM team
-                WHERE	user_id = #{userId}))AS t4 ON t4.dept_id = t3.dept_id
+                WHERE	user_id = #{userId})AS t4 ON t4.team_id = t3.team_id
           WHERE t3.m_status = 0) as t2 on t1.user_id = t2.user_id
       where t1.username = #{userName}
   </select>
 
   <select id="selectToBeAssignedMemberByPhone"  resultMap="MemberResultMap">
-      select t2.id,t1.username,t2.dept_name,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
+      select t2.id,t1.username,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
       from user_inf as t1 join (
-          SELECT t3.id,t3.user_id,t3.dept_id,t4.dept_name,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          SELECT t3.id,t3.user_id,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
           FROM user_dept AS t3 JOIN (
-            SELECT dept_id,dept_name
-            FROM department
-			WHERE team_id in(
 				SELECT team_id
                 FROM team
-                WHERE	user_id = #{userId}))AS t4 ON t4.dept_id = t3.dept_id
+                WHERE	user_id = #{userId})AS t4 ON t4.team_id = t3.team_id
           WHERE t3.m_status = 0) as t2 on t1.user_id = t2.user_id
       where t1.user_phone = #{phone}
   </select>
@@ -147,6 +138,9 @@
       <if test="deptId != null">
         dept_id,
       </if>
+      <if test="teamId != null">
+        team_id,
+      </if>
       <if test="usedSpace != null">
         used_space,
       </if>
@@ -175,6 +169,9 @@
       </if>
       <if test="deptId != null">
         #{deptId,jdbcType=INTEGER},
+      </if>
+      <if test="teamId != null">
+        #{teamId,jdbcType=INTEGER},
       </if>
       <if test="usedSpace != null">
         #{usedSpace,jdbcType=INTEGER},
@@ -259,6 +256,10 @@
         and  dept_id = #{deptId,jdbcType=INTEGER}
       </if>
     </where>
+  </update>
+
+  <update id="updateMemberByDeptId" parameterType="java.lang.Integer">
+    update user_dept set m_status = 0,dept_id = null where dept_id = #{deptId,jdbcType=INTEGER}
   </update>
 
 </mapper>

@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.Department;
 import com.example.demo.entity.DeptMember;
+import com.example.demo.entity.UserInf;
 import com.example.demo.vo.Member;
 
 import java.util.List;
@@ -16,8 +18,9 @@ public interface DeptMemberService {
     int deleteByPrimaryKey(Integer id);
     int deleteByDeptId(Integer deptId);
 
-    Boolean insertSelective(Integer deptId,String userPhone);
+    Boolean insertSelective(Integer deptId,String userPhone, UserInf userInf);
 
     Boolean updateDeptById(Integer id,Integer deptId);  //更新
     Boolean updateByPrimaryKeySelective(DeptMember record);
+    Boolean dissolveMemberToBeAssigned(Integer deptId);
 }

@@ -95,8 +95,8 @@ public class LoginAndRegisterController {
         //创建我的文件，文件柜
         fileCabinetService.newFileCabinet(myDir,userInf);
 
-        //如果是团队账号，调用创建团队服务，创建团队
-        teamService.insertSelective(team,userInf);
+        //如果是团队账号，创建团队
+        if(userInf.getUserType() == 2)  teamService.insertSelective(team,userInf);
 
         return "OK";
     }

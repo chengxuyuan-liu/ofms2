@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.math.BigInteger;
 import java.util.List;
 
 @Controller
@@ -66,11 +67,11 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping("/editUser")
-    public String editUser(Integer userId,Integer maxSpace,HttpSession session){
+    public String editUser(Integer userId,String maxSpace,HttpSession session){
         System.out.println(userId+"-----"+maxSpace);
         UserInf userInf = new UserInf();
         userInf.setUserId(userId);
-        userInf.setMaxSpace(maxSpace);
+        userInf.setMaxSpace(new BigInteger(maxSpace));
         int result = userInfService.updateByPrimaryKeySelective(userInf);
         return result != 0? "OK" : "FALSE";
     }

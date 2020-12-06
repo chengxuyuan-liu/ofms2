@@ -73,10 +73,10 @@
                 <td>
                     [[${member.userName}]]
                 </td>
-                <td class="used_space"  th:text="${(#numbers.formatDecimal((((member.usedSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'">
+                <td class="used_space"  th:attr="data-space=${member.usedSpace}">
 
                 </td>
-                <td class="max_space"  th:text="${(#numbers.formatDecimal((((member.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'">
+                <td class="max_space"  th:attr="data-space=${member.maxSpace}">
 
                 </td>
                 <td>
@@ -91,10 +91,10 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                            data-target="#modal-container-edit"  th:onclick="|get_member_mes(${member.id},${member.maxSpace},${member.pUpload},${member.pDown},${member.pPreview})|">编辑
+                            data-target="#modal-container-edit"  th:onclick="|get_member_mes(${member.id},${member.usedSpace},${member.maxSpace},${member.pUpload},${member.pDown},${member.pPreview})|">编辑
                     </button>
                     <button type="button" class="btn btn-default btn-primary" id="app"
-                            th:onclick="|removeMember(${member.id},null)|">移除
+                            th:onclick="|removeMember(${member.id},${member.getDeptId()})|">移除
                     </button>
                 </td>
             </tr>
@@ -153,21 +153,23 @@
                     </div>
                     <div class="modal-body">
                         <form class="form-horizontal" role="form" id="edit_member">
-                            <input type="hidden" id="edit_memberId" name="id" >
+                            <input type="hidden" id="edit_memberId" name="id"
+                            th:attr="data-fcmaxspace=${fileCabinet.getMaxSpace()},
+                                     data-fcusedspace=${fileCabinet.getUsedSpace()}">
                             <div class="form-group">
                                 <label for="edit_maxSpace" class="col-sm-2 control-label"
                                        style="padding-top:3px;">可用总空间:</label>
                                 <div class="col-sm-10">
-                                    <input type="number" id="edit_maxSpace" style="width:50px;" name="maxSpace">GB
+                                    <input type="number" id="edit_maxSpace" style="width:80px;" name="maxSpace"> MB
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="edit_p_upload" class="col-sm-2 control-label" style="padding-top:0;">
                                     用户权限:</label>
                                 <div class="col-sm-10">
-                                    <input type="checkbox" id="edit_p_upload" name="pUpload" onclick="setCheck1()" value="0">上传 &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <input type="checkbox" id="edit_p_down" name="pDown" onclick="setCheck2()" value="0">&nbsp;下载 &nbsp;&nbsp;&nbsp;
-                                    <input type="checkbox" id="edit_p_preview" name="pPreview" onclick="setCheck3()" value="0">&nbsp;预览 &nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" id="edit_p_upload" name="pUpload" onclick="setCheck1()" value="0"/>上传 &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" id="edit_p_down" name="pDown" onclick="setCheck2()" value="0"/>&nbsp;下载 &nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" id="edit_p_preview" name="pPreview" onclick="setCheck3()" value="0"/>&nbsp;预览 &nbsp;&nbsp;&nbsp;
                                 </div>
                             </div>
                         </form>
@@ -197,7 +199,12 @@
                     </div>
                     <div class="modal-body">
                         <form class="form-horizontal" role="form" id="edit_dept">
-                            <input type="hidden" name="deptId" id="edit_deptId" th:value="${fileCabinet.fcId}">
+                            <input type="hidden" name="deptId" id="edit_deptId" th:value="${deptId}"
+                             th:attr="data-usermp=${session.USER_SESSION.getMaxSpace()},
+                             data-userup=${session.USER_SESSION.getUsedSpace()},
+                             data-maxspace=${fileCabinet.getMaxSpace()},
+                             data-usedspace=${fileCabinet.getUsedSpace()}">
+
                             <div class="form-group">
                                 <label for="edit_dept_name" class="col-sm-2 control-label" style="padding-top:3px;">部门名称:</label>
                                 <div class="col-sm-10">
@@ -208,13 +215,13 @@
                                 <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
                                     部门总空间:</label>
                                 <div class="col-sm-10">
-                                    <input type="number" name="maxSpace" style="width:50px;" id="edit_dept_maxSpace" th:value="${fileCabinet.maxSpace}">GB
+                                    <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace" th:value="${(#numbers.formatDecimal((((fileCabinet.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',0,'POINT'))}">&nbsp;GB
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" th:onclick="|delete_dept(${fileCabinet.fcId})|">解散部门</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:onclick="|delete_dept(${deptId})|">解散部门</button>
                         <button type="button" class="btn btn-primary" th:onclick="editDept()">保存</button>
                     </div>
                 </div>
@@ -223,7 +230,7 @@
         </div>
     </div>
 </div>
-</div>
+
 
 <!--========================js=========================-->
 
@@ -267,9 +274,44 @@
     /*
     模态窗口获取成员信息
     */
-    function get_member_mes(id,maxSpace,pUpload,pDown,pPreview){
-        $("#edit_memberId").prop("value",id);
-        $("#edit_maxSpace").prop("value",(maxSpace/1024/1024/1024).toFixed(0));
+
+    function get_member_mes(memberId,usedSpace,maxSpace,pUpload,pDown,pPreview){
+        $("#edit_memberId").prop("value",memberId);
+        $("#edit_maxSpace").prop("value",(maxSpace/1024/1024).toFixed(0));
+
+
+        // let unit = 1;
+        //
+        // //单位下拉框改变事件
+        // $('#unit').change(function () {
+        //     unit = $('#unit').val();
+        //     console.log('单位改变：'+unit)
+        // })
+        //输入框失去焦点事件
+        $('#edit_maxSpace').blur(function () {
+            let inputSpace;
+            inputSpace = $('#edit_maxSpace').val()*1024*1024;   //分配的空间
+
+            let fcMaxSpace = $('#edit_memberId').attr('data-fcmaxspace')      //文件柜最大空间
+            let fcUsedSpace = $('#edit_memberId').attr('data-fcusedspace')    //文件柜已使用空间
+            let surplus = parseInt(fcMaxSpace) - parseInt(fcUsedSpace);                 //剩余空间
+
+
+            //如果分配的空间小于已使用空间
+            if(inputSpace<usedSpace){
+                let minSpace;
+                minSpace = Math.ceil(usedSpace/1024/1024);
+                $('#edit_maxSpace').prop('value',minSpace);
+            }
+
+            //如果分配的空间大于用户剩余空间
+            if (inputSpace>surplus){
+                let maxSpace;
+                 maxSpace = (surplus/1024/1024).toFixed(0);
+                $('#edit_maxSpace').prop('value',maxSpace);
+            }
+        })
+
 
         if(pUpload == 1){ $("#edit_p_upload").prop({checked:true,value:pUpload}) } ;
         if(pDown == 1)  $("#edit_p_down").prop({checked:true,value:pDown});
@@ -312,10 +354,14 @@
     添加新成员
     */
     function add_member() {
-        $.post("/addMember", $("#add_member_from").serialize(), function (date) {
-            if (date == "OK") {
+        $.post("/addMember", $("#add_member_from").serialize(), function (data) {
+            if (data == "OK") {
                 alert("添加成功");
                 window.location.reload();
+            }else if(data == 'MEMBER_EXIST') {
+                alert("该用户已被分配或已存在’待分配‘中");
+            }else if(data == 'FILE_CABINET_FULL'){
+                alert("部门空间已满，请对部门空间进行扩容");
             } else {
                 alert("添加失败");
             }
@@ -387,12 +433,15 @@
             "pUpload":$("#edit_p_upload").prop("value"),
             "pDown":$("#edit_p_down").prop("value"),
             "pPreview":$("#edit_p_preview").prop("value")
-        }, function (date) {
-            if (date == "OK") {
-                alert("保存成功");
-                window.location.reload();
-            } else {
-                alert("保存失败");
+        }, function (data) {
+            if (data == "OK") {
+                alert("保存成功！");
+                window.parent.location.reload();
+            }else if(data == 'FILE_CABINET_FULL'){
+                alert("空间已满，请为部门扩容再进行分配！")
+            }
+            else {
+                alert("保存失败！");
             }
         });
 
@@ -401,10 +450,70 @@
 
     }
 
-    $(function () {
+    //单位转换显示-----------
+    window.onload = count2();
+    function count2(){
+        let used_space = $('.used_space');
+        let max_space = $('.max_space');
+
+        //已使用空间
+        for (let i=0; i<used_space.length ;i++) {
+            let space = used_space.eq(i).attr('data-space')/1024/1024;
+            let unit = 'MB';
+            if(space>1024){
+                space = space/1022
+                unit = 'GB';
+            }
+            used_space.eq(i).text(space.toFixed(2)+unit);
+        }
+
+        //最大空间
+        for (let i=0; i<max_space.length ;i++) {
+            let space = max_space.eq(i).attr('data-space')/1024/1024;
+            let unit = 'MB';
+            if(space>1024){
+                space = space/1022
+                unit = 'GB';
+            }
+            max_space.eq(i).text(space.toFixed(0)+unit);
+        }
+    }
 
 
-    });
+    //限制输入
+    $('#edit_dept_maxSpace,#edit_maxSpace').keydown(function (e) {
+        var code = parseInt(e.keyCode);
+        if (code >= 96 && code <= 105 || code >= 48 && code <= 57 || code == 8) {
+            return true;
+        } else {
+            return false;
+        }
+    })
+
+    //分配文件柜空间
+    $('#edit_dept_maxSpace').blur(function () {
+        let userUsedSpace = $('#edit_deptId').attr('data-userup')   //用户最大空间
+        let userMaxSpace = $('#edit_deptId').attr('data-usermp')    //用户最小空间
+        let surplus = parseInt(userMaxSpace) - parseInt(userUsedSpace);                 //剩余空间
+        let maxSpace = $('#edit_deptId').attr('data-maxspace')      //文件柜最大空间
+        let usedSpace = $('#edit_deptId').attr('data-usedspace')    //文件柜已使用空间
+        let inputSpace = $('#edit_dept_maxSpace').val()*1024*1024*1024;     //分配的空间
+        //如果分配的空间小于已使用空间
+        if(inputSpace<usedSpace){
+            usedSpace = Math.ceil(usedSpace/1024/1024/1024);
+            $('#edit_dept_maxSpace').prop('value',usedSpace);
+        }
+
+        //如果分配的空间大于用户剩余空间
+        if (inputSpace>surplus+parseInt(maxSpace)){
+            let count = ((surplus+parseInt(maxSpace))/1024/1024/1024).toFixed(0);
+            $('#edit_dept_maxSpace').prop('value',count);
+        }
+    })
+
+
+
+
 
 </script>
 </body>

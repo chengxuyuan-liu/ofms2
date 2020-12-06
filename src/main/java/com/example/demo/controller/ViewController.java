@@ -28,6 +28,8 @@ public class ViewController {
     UserInfService userInfService;
     @Autowired
     DepartmentService departmentService;
+    @Autowired
+    TeamService teamService;
 
     /**
      * 跳转到菜单页面
@@ -71,7 +73,7 @@ public class ViewController {
 
             fileCabinet  = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
             //获得文件id为dirId文件夹下的文件夹、文件
-            dirInfList = dirInfService.selectDirListByDirId(dirId);
+            dirInfList = dirInfService.selectDirListByParentDirId(dirId);
             fileInfList = fileInfServive.selectFileListByFolderId(dirId);
 
         }
@@ -82,7 +84,7 @@ public class ViewController {
             dirId = rootDir.getDirId();
             fileCabinet  = fileCabinetService.selectByDirId(rootDir.getDirId());
             //获得根文件夹下的文件夹
-            dirInfList = dirInfService.selectDirListByDirId(rootDir.getDirId());
+            dirInfList = dirInfService.selectDirListByParentDirId(rootDir.getDirId());
             //获得根文件夹下的文件
             fileInfList = fileInfServive.selectFileListByFolderId(rootDir.getDirId());
             //导航路径
@@ -138,7 +140,7 @@ public class ViewController {
         //通过部门Id获得部门成员List
         List<Member> memberList = deptMemberService.selectListByDeptKey(deptId);
         //部门文件柜
-        FileCabinet fileCabinet = fileCabinetService.selectByPrimaryKey(deptId);
+        FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
 
         //返回
         map.put("fileCabinet", fileCabinet);
@@ -161,8 +163,19 @@ public class ViewController {
 
         List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
 
+
+        Team team = teamService.selectByUserId(userInf);
+        List<Department> department = departmentService.selectByTeamId(team.getTeamId());
+
+        List<FileCabinet> fileCabinetList = new ArrayList<>();
+        for (Department department1 : department) {
+            fileCabinetList.add( fileCabinetService.selectByDeptId(department1.getDeptId()));
+        }
+
+
         map.put("memberList",memberList);
         map.put("deptInfList", departmentList);
+        map.put("fileCabinetList", fileCabinetList);
         return "to_be_assigned";
     }
 

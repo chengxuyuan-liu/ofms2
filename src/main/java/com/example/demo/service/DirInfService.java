@@ -13,7 +13,7 @@ public interface DirInfService {
     DirInf selectByPrimaryKey(Integer dirId);
     DirInf selectDirByFileId(Integer fileId);
     List<DirInf> selectByDirName(String dirName,Integer dirId);
-    List<DirInf> selectDirListByDirId(Integer dirId);
+    List<DirInf> selectDirListByParentDirId(Integer dirId);
     List<DirInf> selectParentDirByDirId(Integer dirId);
     List<DirInf> selectChildrenDirByDirId(Integer dirId);
     DirInf selectDirByDirName(String dirName,Integer parentId);

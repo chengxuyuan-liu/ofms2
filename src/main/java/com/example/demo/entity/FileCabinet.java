@@ -1,13 +1,15 @@
 package com.example.demo.entity;
 
+import java.math.BigInteger;
+
 public class FileCabinet {
     private Integer fcId;
 
     private String fcName;
 
-    private Integer maxSpace;
+    private BigInteger maxSpace;
 
-    private Integer usedSpace;
+    private BigInteger usedSpace;
     
     private Integer dirId;
 
@@ -27,19 +29,19 @@ public class FileCabinet {
         this.fcName = fcName == null ? null : fcName.trim();
     }
 
-    public Integer getMaxSpace() {
+    public BigInteger getMaxSpace() {
         return maxSpace;
     }
 
-    public void setMaxSpace(Integer maxSpace) {
+    public void setMaxSpace(BigInteger maxSpace) {
         this.maxSpace = maxSpace;
     }
 
-    public Integer getUsedSpace() {
+    public BigInteger getUsedSpace() {
         return usedSpace;
     }
 
-    public void setUsedSpace(Integer usedSpace) {
+    public void setUsedSpace(BigInteger usedSpace) {
         this.usedSpace = usedSpace;
     }
 

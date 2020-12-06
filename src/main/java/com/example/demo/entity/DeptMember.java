@@ -10,6 +10,8 @@ public class DeptMember {
 
     private Integer deptId;
 
+    private Integer teamId;
+
     private Integer mStatus;
 
     private BigInteger usedSpace;
@@ -99,4 +101,12 @@ public class DeptMember {
     public Integer getmStatus() { return mStatus; }
 
     public void setmStatus(Integer mStatus) { this.mStatus = mStatus; }
+
+    public Integer getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(Integer teamId) {
+        this.teamId = teamId;
+    }
 }
