@@ -192,6 +192,16 @@ public class DirInfServiceImpl implements DirInfService {
         return result;
     }
 
+    @Override
+    public int updateByPrimaryKeySelective(Integer dirId,Integer parentId) {
+
+        DirInf dirInf = new DirInf();
+        dirInf.setDirId(dirId);
+        dirInf.setParentDir(parentId);
+        int result = dirInfDao.updateByPrimaryKeySelective(dirInf);
+        return result;
+    }
+
     /*
     下载文件夹
     */

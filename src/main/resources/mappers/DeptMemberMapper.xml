@@ -6,6 +6,7 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="dept_id" jdbcType="INTEGER" property="deptId" />
+    <result column="team_id" jdbcType="INTEGER" property="teamId" />
     <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
     <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
     <result column="recent" jdbcType="TIMESTAMP" property="recent" />
@@ -31,7 +32,7 @@
 
 
   <sql id="Base_Column_List">
-    id, user_id, dept_id, used_space, max_space, recent, p_upload, p_down, p_preview
+    id, user_id, dept_id,team_id, used_space, max_space, recent, p_upload, p_down, p_preview
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -247,7 +248,7 @@
   </update>
 
   <update id="updateDeptById" parameterType="java.lang.Integer">
-    update user_dept set m_status = 0
+    update user_dept set m_status = 0,dept_id = null
     <where>
       <if test="id !=null and id !='' ">
         id = #{id,jdbcType=INTEGER}

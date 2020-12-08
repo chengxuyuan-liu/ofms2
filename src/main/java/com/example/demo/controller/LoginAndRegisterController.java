@@ -41,8 +41,6 @@ public class LoginAndRegisterController {
         if(user != null){
             // 将用户对象添加到Session
             session.setAttribute("USER_SESSION", user);
-            //跳转到管理页面
-            if(user.getUserType() == 0) return "redirect:/adminstrationMenu";
             // 跳转到主页面
             return "redirect:/menu";
         }
@@ -54,7 +52,7 @@ public class LoginAndRegisterController {
     }
 
     /*
- 登录
+      管理员登录
  */
     @RequestMapping(value = "/adminstrationLogin",method = RequestMethod.POST)
     public String adminstrationLogin(String username,String password, Model model, HttpSession session) {

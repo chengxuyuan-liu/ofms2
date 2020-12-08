@@ -31,7 +31,8 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Team selectByPrimaryKey(Integer teamId) {
-        return null;
+        Team team = teamDao.selectByPrimaryKey(teamId);
+        return team;
     }
 
     @Override

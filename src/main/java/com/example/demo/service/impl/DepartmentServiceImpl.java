@@ -52,7 +52,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     * */
     @Override
     public Department selectByPrimaryKey(Integer deptId) {
-        return null;
+        Department department = departmentDao.selectByPrimaryKey(deptId);
+        return department;
     }
 
     @Override

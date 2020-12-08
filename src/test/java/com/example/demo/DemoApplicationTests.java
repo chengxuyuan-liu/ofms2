@@ -8,6 +8,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.mail.MessagingException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @SpringBootTest
@@ -23,5 +25,6 @@ class DemoApplicationTests {
         message.setSubject("这是标题");
         message.setText("这是内容");
         javaMailSender.send(message);
+        List<Object> t = new ArrayList<Object>();
     }
 }

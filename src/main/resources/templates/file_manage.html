@@ -6,6 +6,10 @@
     <script src="/js/libs/jquery-2.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+
+
+    <link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="/js/libs/jquery.ztree.core.min.js"></script>
     <style>
         body {
             overflow: hidden hidden;
@@ -53,11 +57,43 @@
 
         }
 
+
+        p {
+            margin-top: 200px;
+        }
+
+        ul li {
+            list-style-type: none;
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        #menu {
+            border: 1px solid #ccc;
+            background: #eee;
+            position: absolute;
+            width: 100px;
+            display: none;
+            position: absolute;
+            z-index: 5;
+        }
+
+
+
     </style>
 </head>
 <body>
 <!--========================内容=========================-->
-
+<div id="menu">
+    <ul>
+        <li><a href="#" rel="external nofollow">打开</a></li>
+        <li><a href="#" rel="external nofollow">下载</a></li>
+        <li><a href="#" rel="external nofollow">移动到</a></li>
+    </ul>
+</div>
 
 <div id="no_fix">
     <!--部门概况-->
@@ -66,10 +102,13 @@
             [[${accessPath.get(0).dirName}]]
         </h4>
         <div th:if="${fileCabinet} != null">
-            <span  th:attr="data-usedspace=${fileCabinet.getUsedSpace()}" id="used_space"></span>/
-            <span th:attr="data-maxspace=${fileCabinet.getMaxSpace()}" id="max_space"></span>
+            已用：<span th:attr="data-usedspace=${fileCabinet.getUsedSpace()}" id="used_space"></span>/
+            共：<span th:attr="data-maxspace=${fileCabinet.getMaxSpace()}" id="max_space"></span>
         </div>
-
+        <div th:if="${deptMember} != null">
+            已上传：<span th:attr="data-usedspace=${deptMember.getUsedSpace()}" id="memberUsed_space"></span>/
+            可上传共：<span th:attr="data-maxspace=${deptMember.getMaxSpace()}" id="memberMax_space"></span>
+        </div>
     </div>
 
     <ul class="breadcrumb">
@@ -144,7 +183,7 @@
             <tbody>
             <!--循环输出文件夹-->
             <tr th:each="dir:${dirList}" class="success">
-                <td><a th:href="@{/main(dirId=${dir.dirId})}">[[${dir.dirName}]]</a></td>
+                <td><a id="dir-link" th:href="@{/main(dirId=${dir.dirId})}">[[${dir.dirName}]]</a></td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
@@ -154,6 +193,11 @@
                     <button type="button" class="btn btn-default btn-primary"
                             th:onclick="|delete_dir(${dir.dirId})|">
                         删除
+                    </button>
+                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+                            data-target="#modal-container-move"
+                            th:onclick="|move_file(${dir.dirId},${accessPath.get(0).getDirId()})|">
+                        移动到
                     </button>
                 </td>
             </tr>
@@ -173,8 +217,12 @@
                     <button type="button" class="btn btn-default btn-primary"
                             th:onclick="|delete_file(${file.fileId})|">删除
                     </button>
-                    <a type="button" class="btn btn-default btn-primary"
+                    <a type="button" class="btn btn-default btn-primary" id="file-link"
                        th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
+                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+                            data-target="#modal-container-move"
+                            th:onclick="|move_file(${file.fileId},${accessPath.get(0).getDirId()})|">移动到
+                    </button>
                 </td>
             </tr>
 
@@ -276,6 +324,42 @@
     </div>
 </div>
 
+
+<!--移动文件夹模态窗口-->
+<div class="row clearfix modals">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-container-move" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="move">
+                            移动文件
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="move_dir_id">
+                        <!-- -------------------------------------------------------------------------- -->
+                        <div class="content_wrap">
+                            <div class="zTreeDemoBackground left">
+                                <ul id="treeDemo" class="ztree"></ul>
+                            </div>
+                        </div>
+                        <!-- -------------------------------------------------------------------------- -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="ack_move_dir()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!--========================js=========================-->
 
 <script>
@@ -287,7 +371,7 @@
         $.post("/newDir", $("#newDir").serialize(), function (date) {
             if (date == "OK") {
                 alert("创建成功");
-                window.opener.location.reload();
+                window.location.reload();
             } else {
                 alert("创建失败，请联系客服");
             }
@@ -366,6 +450,10 @@
         $('#max_space').text(count($('#max_space').attr('data-maxspace')));
         $('#used_space').text(count($('#used_space').attr('data-usedspace')));
 
+
+        $('#memberMax_space').text(count($('#memberMax_space').attr('data-maxspace')));
+        $('#memberUsed_space').text(count($('#memberUsed_space').attr('data-usedspace')));
+
         let td = $('.file-size');
 
         for (let i = 0; i < td.length; i++) {
@@ -398,6 +486,64 @@
         return space + unit;
     }
 
+
+
+    function move_file(dirId,parentId){
+
+        $('#move_dir_id').prop('value',dirId)
+        $.post('/getDirListAadMove',{'dirId':parentId},function (data) {
+            console.log(data)
+            var setting = {
+                view: {
+                    showLine: false,
+                    showIcon: true
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                async: {
+                    enable: false
+                }
+            }
+            $(document).ready(function () {
+                $.fn.zTree.init($("#treeDemo"), setting, JSON.parse(data));
+            });
+        });
+    }
+
+    //移动文件到
+    function ack_move_dir(){
+        let treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        let nodeArray = treeObj.getSelectedNodes(true);
+        let parentId = nodeArray[0].id
+        let dirId =  $('#move_dir_id').attr('value');
+        //移动文件
+        $.post('/moveDirTo',{'dirId':dirId,'parentId':parentId},function (data){
+            if(data=='OK'){
+                alert("保存成功")
+            }else{
+                alert("保存失败")
+            }
+        });
+    }
+
+    //移动文件夹到
+    function ack_move_file(){
+        let treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        let nodeArray = treeObj.getSelectedNodes(true);
+        let parentId = nodeArray[0].id
+        let dirId =  $('#move_dir_id').attr('value');
+        //移动文件
+        $.post('/moveFileTo',{'dirId':dirId,'parentId':parentId},function (data){
+            if(data=='OK'){
+                alert("保存成功")
+            }else{
+                alert("保存失败")
+            }
+        });
+    }
 
 </script>
 

@@ -10,8 +10,11 @@
 
     <style>
         body{
-            background: #cccccc;
+            background: url("/images/main.jpg");
             overflow-y: hidden;
+        }
+        .container{
+            width: 100%;
         }
         .col-md-10{
             padding-left: 0;
@@ -39,11 +42,13 @@
         .navbar-brand:hover{
             background: #d8d8d8;
         }
-        #user-space{
+        #user-space,#user-status{
             position: absolute;
             bottom: 17px;
             left: 197px;
         }
+
+
 
     </style>
     <script>
@@ -56,9 +61,13 @@
                 $('.panel-body').css({background:'#ffffff'});
                 $(this).css({background:'#d8d8d8',color:'#ffffff'});
             });
-
-
         });
+
+
+
+
+
+
 
     </script>
 </head>
@@ -71,10 +80,14 @@
             <nav class="navbar navbar-default" role="navigation">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">天涯办公文件管理系统</a>
-                    <div id="user-space">
+                    <div id="user-space" th:if="${session.USER_SESSION.getUserType() eq 2}">
                         用户总空间:
                         已分配：<span  th:attr="data-usedspace=${session.USER_SESSION.getUsedSpace()}" id="used_space"></span>/
                         共：<span th:attr="data-maxspace=${session.USER_SESSION.getMaxSpace()}" id="max_space"></span>
+                    </div>
+                    <div id="user-status" th:if="${session.USER_SESSION.getUserType() eq 1}">
+                        所属团队：<span  th:text="${team.getTeamName()}" id="user-team"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        所属部门：<span th:if="${department} == null" >无</span><span th:if="${department} != null" th:text="${department.getDeptName()}" id="user-dept"></span>
                     </div>
 
                 </div>

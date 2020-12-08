@@ -86,6 +86,9 @@ public class UserInfServiceImpl implements UserInfService {
         //封装数据
         userInf.setRegisterTime(date);
         userInf.setStatus(1);
+        if(userInf.getUserType() == 1){
+            userInf.setMaxSpace(new BigInteger("0"));
+        }
         //调用dao,插入用户表
         int sign = userInfDao.insertSelective(userInf);
         return userInf;

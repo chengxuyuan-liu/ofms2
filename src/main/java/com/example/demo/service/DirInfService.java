@@ -24,4 +24,7 @@ public interface DirInfService {
     //删除
     Boolean deleteByPrimaryKey(Integer dirId);
     int deleteByUserId(Integer userId);
+
+    //更新
+    int updateByPrimaryKeySelective(Integer dirId,Integer parentId);
 }

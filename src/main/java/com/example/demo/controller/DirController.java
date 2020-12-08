@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPObject;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class DirController {
@@ -54,6 +59,48 @@ public class DirController {
         if(result) return "OK";
         return "FALSE";
     }
+
+    @RequestMapping("/getDirListAadMove")
+    @ResponseBody
+    public String getDirListAadMove(Map<String,Object> map,Integer dirId){
+        JSONArray tree = new JSONArray();
+        List<DirInf> list = dirInfService.selectChildrenDirByDirId(dirId);
+        JSONObject obj;
+        for(DirInf resOwner : list){
+            obj = new JSONObject();
+            obj.put("id", resOwner.getDirId());
+            obj.put("isParent", true);
+            obj.put("pId", resOwner.getParentDir());
+            obj.put("name", resOwner.getDirName().length() > 24?resOwner.getDirName().substring(0,24)+"...":resOwner.getDirName());
+           //obj.put("icon", "/images/zTreeStandard.png");
+            tree.add(obj);
+        }
+        map.put("success", new Boolean(true));
+        map.put("data", tree);
+
+
+        return tree.toJSONString();
+    }
+
+    @RequestMapping("/moveFileTo")
+    @ResponseBody
+    public String moveFileTo(Map<String,Object> map,Integer dirId,Integer parentId){
+
+        //dirInfService.updateByPrimaryKeySelective(dirId,parentId);
+
+        return "OK";
+    }
+
+    @RequestMapping("/moveDirTo")
+    @ResponseBody
+    public String moveDirTo(Map<String,Object> map,Integer dirId,Integer parentId){
+
+        dirInfService.updateByPrimaryKeySelective(dirId,parentId);
+
+        return "OK";
+    }
+
+
 
 
 }

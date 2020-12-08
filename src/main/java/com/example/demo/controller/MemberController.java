@@ -104,16 +104,22 @@ public class MemberController {
     @ResponseBody
     @RequestMapping("/editToBeAssignedMember")
     public String editToBeAssignedMember(DeptMember record) {
-
+        //单位转换
+        BigInteger count = UnitChange.TranslateMBtoByte(record.getMaxSpace().intValue());
         //更新文件柜
+        FileCabinet fileCabinet = fileCabinetService.selectByDeptId(record.getDeptId());
+        System.out.println(fileCabinet.getFcName());
+        BigInteger countFC = fileCabinet.getUsedSpace().add(count);
+        System.out.println(countFC);
+        fileCabinetService.updateByPrimaryKeySelective(fileCabinet.getFcId(),null,null,countFC,null);
 
 
+        //更新部门成员
         record.setmStatus(1);
         record.setpUpload(1);
         record.setpPreview(1);
         record.setpDown(1);
 
-        BigInteger count = UnitChange.TranslateMBtoByte(record.getMaxSpace().intValue());
         record.setMaxSpace(count);
         if (deptMemberService.updateByPrimaryKeySelective(record)) return "OK";
         return "FALSE";

@@ -215,7 +215,7 @@
                                 <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
                                     部门总空间:</label>
                                 <div class="col-sm-10">
-                                    <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace" th:value="${(#numbers.formatDecimal((((fileCabinet.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',0,'POINT'))}">&nbsp;GB
+                                    <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace" th:value="${(#numbers.formatDecimal((((fileCabinet.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',0,'POINT'))}" min="0">&nbsp;GB
                                 </div>
                             </div>
                         </form>
@@ -361,7 +361,7 @@
             }else if(data == 'MEMBER_EXIST') {
                 alert("该用户已被分配或已存在’待分配‘中");
             }else if(data == 'FILE_CABINET_FULL'){
-                alert("部门空间已满，请对部门空间进行扩容");
+                alert("部门空间不足，请对部门空间进行扩容");
             } else {
                 alert("添加失败");
             }
@@ -438,7 +438,7 @@
                 alert("保存成功！");
                 window.parent.location.reload();
             }else if(data == 'FILE_CABINET_FULL'){
-                alert("空间已满，请为部门扩容再进行分配！")
+                alert("空间不足，请为部门扩容再进行分配！")
             }
             else {
                 alert("保存失败！");
@@ -507,6 +507,7 @@
         //如果分配的空间大于用户剩余空间
         if (inputSpace>surplus+parseInt(maxSpace)){
             let count = ((surplus+parseInt(maxSpace))/1024/1024/1024).toFixed(0);
+
             $('#edit_dept_maxSpace').prop('value',count);
         }
     })

@@ -45,6 +45,16 @@ public class ViewController {
             List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
             map.put("deptList", departmentList);
         }
+
+        //如果是个人账号--》团队、部门
+        if(userInf.getUserType() == 1){
+            DeptMember deptMember=deptMemberService.selectByUserKey(userInf.getUserId()); //用户的成员信息
+            Team team = teamService.selectByPrimaryKey(deptMember.getTeamId());  //用户所属团队
+            Department department = departmentService.selectByPrimaryKey(deptMember.getDeptId()); //用户所属部门
+            map.put("team",team);
+            map.put("department", department);
+
+        }
         map.put("fileCabinetList", fileCabinetList);
 
         return "menu";
@@ -61,6 +71,7 @@ public class ViewController {
         List<DirInf> dirInfList;          //文件夹List
         List<FileInf> fileInfList;         //文件List
         List<DirInf> accessPath = null;     //访问路径
+        DeptMember deptMember = null;
 
         FileCabinet fileCabinet;//当前文件的文件柜
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
@@ -70,8 +81,15 @@ public class ViewController {
         {
             //导航路径
             accessPath = dirInfService.selectParentDirByDirId(dirId);
+            DirInf dirInf = dirInfService.selectByPrimaryKey(dirId);
+            if(userInf.getUserId() == dirInf.getUserId() ) {
+                fileCabinet = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
+                map.put("fileCabinet", fileCabinet);
+            }else{
+                deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
+                map.put("deptMember", deptMember);
+            }
 
-            fileCabinet  = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
             //获得文件id为dirId文件夹下的文件夹、文件
             dirInfList = dirInfService.selectDirListByParentDirId(dirId);
             fileInfList = fileInfServive.selectFileListByFolderId(dirId);
@@ -92,7 +110,8 @@ public class ViewController {
 
         }
         //返回
-        map.put("fileCabinet", fileCabinet);
+
+
         map.put("dirId",dirId);
         map.put("fileList",fileInfList);
         map.put("dirList",dirInfList);
@@ -100,6 +119,9 @@ public class ViewController {
         return "file_manage";
 
     }
+
+
+
 
     /**
      * 查询结果
