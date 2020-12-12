@@ -165,4 +165,7 @@ public class UserInfServiceImpl implements UserInfService {
     public int updateByPrimaryKey(UserInf record) {
         return 0;
     }
+
+
+
 }

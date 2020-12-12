@@ -14,6 +14,8 @@ public class Member extends DeptMember {
 
     private String phone;
 
+    private String email;
+
     private BigInteger usedSpace;
 
     private BigInteger maxSpace;
@@ -50,5 +52,11 @@ public class Member extends DeptMember {
         this.phone = phone;
     }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

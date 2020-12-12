@@ -7,15 +7,12 @@
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
 
-
     <link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
     <script type="text/javascript" src="/js/libs/jquery.ztree.core.min.js"></script>
     <style>
         body {
             overflow: hidden hidden;
         }
-
-
         #no_fix {
             /*position: fixed;*/
             /*z-index: 2;*/
@@ -24,8 +21,8 @@
 
         .test {
             width: 101%;
-            height: 430px;
-            top: 250px;
+            height: 467px;
+            top: 182px;
             position: absolute;
             overflow: auto;
         }
@@ -97,7 +94,7 @@
 
 <div id="no_fix">
     <!--部门概况-->
-    <div class="alert  alert-info">
+    <div class="alert  alert-info" style="margin-bottom: 0px;border-radius:0px">
         <h4>
             [[${accessPath.get(0).dirName}]]
         </h4>
@@ -111,7 +108,7 @@
         </div>
     </div>
 
-    <ul class="breadcrumb">
+    <ul class="breadcrumb" style="margin-bottom: 0px">
         <li th:each="ap : ${accessPath}">
             <a th:href="@{/main(dirId = ${ap.dirId})}">[[${ap.dirName}]]</a>
         </li>
@@ -126,7 +123,6 @@
                 data-target="#modal-container-new-dir" th:if="${not #strings.isEmpty(dirId)}"> 新建文件夹
         </button>
         <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/query">
-
             <div class="form-group">
                 <input type="text" class="form-control" name="queryName"/>
             </div>
@@ -196,7 +192,7 @@
                     </button>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
                             data-target="#modal-container-move"
-                            th:onclick="|move_file(${dir.dirId},${accessPath.get(0).getDirId()})|">
+                            th:onclick="|move_file(${dir.dirId},null,${accessPath.get(0).getDirId()})|">
                         移动到
                     </button>
                 </td>
@@ -221,7 +217,7 @@
                        th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
                             data-target="#modal-container-move"
-                            th:onclick="|move_file(${file.fileId},${accessPath.get(0).getDirId()})|">移动到
+                            th:onclick="|move_file(null,${file.fileId},${accessPath.get(0).getDirId()})|">移动到
                     </button>
                 </td>
             </tr>
@@ -341,6 +337,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="move_dir_id">
+                        <input type="hidden" id="move_file_id">
                         <!-- -------------------------------------------------------------------------- -->
                         <div class="content_wrap">
                             <div class="zTreeDemoBackground left">
@@ -488,9 +485,10 @@
 
 
 
-    function move_file(dirId,parentId){
+    function move_file(dirId,fileId,parentId){
 
         $('#move_dir_id').prop('value',dirId)
+        $('#move_file_id').prop('value',fileId)
         $.post('/getDirListAadMove',{'dirId':parentId},function (data) {
             console.log(data)
             var setting = {
@@ -519,31 +517,20 @@
         let nodeArray = treeObj.getSelectedNodes(true);
         let parentId = nodeArray[0].id
         let dirId =  $('#move_dir_id').attr('value');
+        let fileId =  $('#move_file_id').attr('value');
         //移动文件
-        $.post('/moveDirTo',{'dirId':dirId,'parentId':parentId},function (data){
+        $.post('/moveDirTo',{'dirId':dirId,'fileId':fileId,'parentId':parentId},function (data){
             if(data=='OK'){
                 alert("保存成功")
+                window.location.reload();
             }else{
                 alert("保存失败")
+                window.location.reload();
             }
         });
     }
 
-    //移动文件夹到
-    function ack_move_file(){
-        let treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-        let nodeArray = treeObj.getSelectedNodes(true);
-        let parentId = nodeArray[0].id
-        let dirId =  $('#move_dir_id').attr('value');
-        //移动文件
-        $.post('/moveFileTo',{'dirId':dirId,'parentId':parentId},function (data){
-            if(data=='OK'){
-                alert("保存成功")
-            }else{
-                alert("保存失败")
-            }
-        });
-    }
+
 
 </script>
 

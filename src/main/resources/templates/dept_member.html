@@ -8,7 +8,13 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
     <style>
         body{overflow-x:hidden;overflow-y:auto;}
+
+        tbody td{
+            padding: 20px 0px;
+        }
     </style>
+
+
 </head>
 <body>
 
@@ -19,7 +25,8 @@
         [[${fileCabinet.fcName}]]
         <button class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit">编辑</button>
     </h4>
-    已用:0B/总共:1TB
+    已用：<span th:attr="data-usedspace=${fileCabinet.getUsedSpace()}" id="used_space"></span>/
+    共：<span th:attr="data-maxspace=${fileCabinet.getMaxSpace()}" id="max_space"></span>
 </div>
 <!--添加成员、搜索-->
 <div class="btn-group">
@@ -52,7 +59,7 @@
                    剩余空间
                 </th>
                 <th>
-                    邮箱/手机号
+                    邮箱-手机号
                 </th>
                 <th>
                     所属部门
@@ -80,14 +87,15 @@
 
                 </td>
                 <td>
-                    [[${member.phone}]]
+                    <p>-[[${member.email}]]</p>
+                    <p>-[[${member.phone}]]</p>
                 </td>
                 <td>
                     [[${member.deptName}]]
                 </td>
                 <td>
                     最近访问：
-                    [[${member.recent}]]
+                    <p>[[${#dates.format(member.recent, 'yyyy-MM-dd HH:mm:ss')}]]</p>
                 </td>
                 <td>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
@@ -513,9 +521,18 @@
     })
 
 
+    $('#max_space').text(count($('#max_space').attr('data-maxspace')));
+    $('#used_space').text(count($('#used_space').attr('data-usedspace')));
 
-
-
+    /*
+    下载文件
+    */
+    function count(space) {
+        let unit = '';
+        unit = 'GB'
+        space = (space / 1024 / 1024 / 1024).toFixed(2);
+        return space + unit;
+    }
 </script>
 </body>
 </html>

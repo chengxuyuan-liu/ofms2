@@ -39,4 +39,8 @@ public interface FileInfServive {
    */
     String preview(Integer fileId, HttpServletResponse response);
 
+    //更新文件
+    int updateByPrimaryKeySelective(Integer fileId,Integer parentId);
+
+
 }

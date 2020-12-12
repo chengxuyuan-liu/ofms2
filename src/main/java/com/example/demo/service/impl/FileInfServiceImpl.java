@@ -192,19 +192,17 @@ public class FileInfServiceImpl implements FileInfServive {
             //插入文件信息
             fileInf.setFileName(fileName);
             if (fileInfDao.insertSelective(fileInf) == 0) return "inset false";
-
             //更新已使用空间
             int count;
-
             if(dirInf.getUserId() != userInf.getUserId()){
                 //部门成员更新空间
                 BigInteger n = deptMember.getUsedSpace().add(new BigInteger(fileInf.getFileSize().toString()));
                 System.out.println("使用空间："+n);
                 deptMember.setUsedSpace(n);
+                deptMember.setRecent(DateUtil.getNowDate());
                 deptMemberDao.updateByPrimaryKeySelective(deptMember);
             }else {
                 //用户更新空间
-
                 BigInteger updateSpcae = fileCabinet.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString()));
                 fileCabinet.setUsedSpace(updateSpcae);
                 //当前文件柜的used_space增加
@@ -332,6 +330,15 @@ public class FileInfServiceImpl implements FileInfServive {
             e.printStackTrace();
         }
         return "OK";
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(Integer fileId,Integer parentId) {
+        FileInf fileInf = new FileInf();
+        fileInf.setFileId(fileId);
+        fileInf.setDirId(parentId);
+        int result = fileInfDao.updateByPrimaryKeySelective(fileInf);
+        return result;
     }
 
 

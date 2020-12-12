@@ -107,6 +107,7 @@ public class DeptMemberServiceImpl implements DeptMemberService {
 
     @Override
     public Boolean updateByPrimaryKeySelective(DeptMember record) {
+        record.setUsedSpace(new BigInteger("0"));
         if(deptMemberDao.updateByPrimaryKeySelective(record) == 0) return false;
         return true;
     }

@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPObject;
 import com.example.demo.entity.DirInf;
+import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
+import com.example.demo.service.FileInfServive;
 import com.example.demo.service.UserInfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
@@ -24,6 +26,8 @@ public class DirController {
     DirInfService dirInfService;
     @Autowired
     UserInfService userInfService;
+    @Autowired
+    FileInfServive fileInfServive;
 
     /*
     新建文件夹
@@ -82,23 +86,20 @@ public class DirController {
         return tree.toJSONString();
     }
 
-    @RequestMapping("/moveFileTo")
-    @ResponseBody
-    public String moveFileTo(Map<String,Object> map,Integer dirId,Integer parentId){
-
-        //dirInfService.updateByPrimaryKeySelective(dirId,parentId);
-
-        return "OK";
-    }
-
     @RequestMapping("/moveDirTo")
     @ResponseBody
-    public String moveDirTo(Map<String,Object> map,Integer dirId,Integer parentId){
-
-        dirInfService.updateByPrimaryKeySelective(dirId,parentId);
+    public String moveTo(Integer dirId,Integer fileId,Integer parentId,Map<String,Object> map){
+        //
+        if(dirId != null){
+            dirInfService.updateByPrimaryKeySelective(dirId,parentId);
+        }
+        if(fileId != null){
+           fileInfServive.updateByPrimaryKeySelective(fileId,parentId);
+        }
 
         return "OK";
     }
+
 
 
 

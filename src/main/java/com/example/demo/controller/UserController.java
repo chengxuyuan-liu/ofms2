@@ -87,7 +87,7 @@ public class UserController {
             message.setFrom("2919586256@qq.com");
             message.setTo(userInf.getEmail());
             message.setSubject("办公文件管理系统----找回密码");
-            message.setText("账号："+userInf.getEmail()+"       "+"密码:"+userInf.getPassword());
+            message.setText("账号："+userInf.getEmail()+"     "+"密码:"+userInf.getPassword());
             javaMailSender.send(message);
             return "OK";
         }

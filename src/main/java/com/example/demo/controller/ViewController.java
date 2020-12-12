@@ -101,6 +101,7 @@ public class ViewController {
             DirInf rootDir= dirInfService.selectRootChildrenDirByUserId(userInf.getUserId(),"我的文件");
             dirId = rootDir.getDirId();
             fileCabinet  = fileCabinetService.selectByDirId(rootDir.getDirId());
+            map.put("fileCabinet", fileCabinet);
             //获得根文件夹下的文件夹
             dirInfList = dirInfService.selectDirListByParentDirId(rootDir.getDirId());
             //获得根文件夹下的文件
