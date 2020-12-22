@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.FileCabinet;
+import com.example.demo.entity.PageRequest;
+import com.example.demo.entity.PageResult;
 import com.example.demo.entity.UserInf;
 
 import javax.jws.soap.SOAPBinding;
@@ -13,11 +15,13 @@ public interface UserInfService {
     //判断
     Boolean judgeSpace(UserInf userInf);
     //
-    UserInf verifyLogin(String username, String password);
+    UserInf verifyLogin(String email, String password);
     UserInf selectByPrimaryKey(Integer userId);
     UserInf selectByUserPhone(String userPhone);
     List<UserInf> selectListByUserName(String userName);
     UserInf selectByEmail(String email);
+    UserInf selectByUserName(String username);
+    PageResult findPage(PageRequest pageRequest);
 
     //
     List<UserInf> selectAll();

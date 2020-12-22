@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.aop.ArchivesLog;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.Team;
 import com.example.demo.entity.UserInf;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 
 @Controller
@@ -31,23 +33,23 @@ public class LoginAndRegisterController {
     /*
      登录
      */
-    @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public String login(String username,String password, Model model, HttpSession session) {
+    @RequestMapping(value = "/userLogin",method = RequestMethod.POST)
+    @ArchivesLog(operteContent = "登录系统")
+    public String login(String email, String password, Map<String,Object> map, HttpSession session) {
         // 通过账号和密码查询用户
-        UserInf user = userInfService.verifyLogin(username,password);//验证登录信息
+        UserInf user = userInfService.verifyLogin(email,password);//验证登录信息
 
-        System.out.println("账号："+user);
         //验证用户
         if(user != null){
             // 将用户对象添加到Session
             session.setAttribute("USER_SESSION", user);
+            System.out.println("登录成功！");
             // 跳转到主页面
             return "redirect:/menu";
         }
         //验证失败
-        model.addAttribute("msg", "账号或密码错误，请重新输入！");
-        // 返回到登录页面
-        System.out.println(username+"----"+password);
+        String msg =  "账号或密码错误，请重新输入";
+        map.put("msg",msg);
         return "login";
     }
 
@@ -57,11 +59,11 @@ public class LoginAndRegisterController {
     @RequestMapping(value = "/adminstrationLogin",method = RequestMethod.POST)
     public String adminstrationLogin(String username,String password, Model model, HttpSession session) {
         // 通过账号和密码查询用户
-        UserInf user = userInfService.verifyLogin(username,password);//验证登录信息
+        UserInf user = userInfService.selectByUserName(username);//验证登录信息
 
         System.out.println("账号："+user);
         //验证用户
-        if(user != null && user.getUserType() == 0){
+        if(user != null & user.getUserType() == 0 & user.getPassword().equals(password)){
             // 将用户对象添加到Session
             session.setAttribute("USER_SESSION", user);
             //跳转到管理页面
@@ -69,8 +71,6 @@ public class LoginAndRegisterController {
         }
         //验证失败
         model.addAttribute("msg", "账号或密码错误，请重新确认！");
-        // 返回到登录页面
-        System.out.println(username+"----"+password);
         return "adminstration_login";
     }
 

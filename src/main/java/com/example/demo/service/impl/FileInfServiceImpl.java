@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.DeptMemberDao;
 import com.example.demo.dao.FileCabinetDao;
 import com.example.demo.dao.FileInfDao;
+import com.example.demo.dao.UserInfDao;
 import com.example.demo.entity.*;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.DirInfService;
@@ -45,6 +46,8 @@ public class FileInfServiceImpl implements FileInfServive {
     DeptMemberDao deptMemberDao;
     @Autowired
     FileCabinetDao fileCabinetDao;
+    @Autowired
+    UserInfDao userInfDao;
 
     /*
     查询
@@ -104,6 +107,12 @@ public class FileInfServiceImpl implements FileInfServive {
 
         //数据库删除记录
         int result = fileInfDao.deleteByPrimaryKey(fileId);
+        //更新文件柜空间
+        FileCabinet fileCabinet = fileCabinetDao.selectByDirId(dirInf.getDirId());
+        BigInteger count = fileCabinet.getUsedSpace().subtract(fileInf.getFileSize());
+        fileCabinet.setUsedSpace(count);
+        fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
+
         if (result != 0) return true;
         return false;
     }

@@ -39,12 +39,7 @@
 					
 				});
 				
-				//获得成员id
-				$('#edit_btn').click(function(){
-					let id = $('#edit_btn').attr('data-memberid');
-					$('#edit_memberId').prop('value',id);
-					
-				});
+
 				
 
 				$('#sid').change(function () {
@@ -132,7 +127,7 @@
 		                </td>
 		                <td>
 		                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" id="edit_btn"
-		                            data-target="#modal-container-edit"  th:attr="data-memberid=${member.id}">编辑
+		                            data-target="#modal-container-edit"  th:onclick="|getMemberId(${member.id})|">编辑
 		                    </button>
 		                    <button type="button" class="btn btn-default btn-primary" id="delete_forever" th:onclick= |deleteMember(${member.id})|>删除</button>
 
@@ -337,7 +332,12 @@
 					$('#edit_maxSpace').prop('value',count);
 				}
 			});
-		
+
+			//获得成员id
+			function getMemberId(id){
+				$('#edit_memberId').prop('value',id);
+
+			}
 		</script>
 	</body>
 </html>

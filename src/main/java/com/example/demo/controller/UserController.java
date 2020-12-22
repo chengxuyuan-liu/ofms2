@@ -5,10 +5,12 @@ import com.example.demo.entity.Department;
 import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.*;
+import com.example.demo.util.UnitChange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -38,40 +40,31 @@ public class UserController {
     //删除用户
     @ResponseBody
     @RequestMapping("/deleteUser")
-    public String deleteUser(Integer userId, HttpSession session){
-        System.out.println("test");
+    public String deleteUser(String[] userId, HttpSession session){
+
 
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //删除用户部门和部门成员
-        List<Department> departmentList = departmentService.selectDeptListByUserId(userId);
-
-        if(departmentList.size()>0) {
-            for (Department department : departmentList) {
-                System.out.println("删除成员");
-                deptMemberService.deleteByDeptId(department.getDeptId());
-            }
+        for (int i = 0; i < userId.length; i++) {
+            userInfService.deleteByPrimaryKey(Integer.parseInt(userId[i])); //删除用户
         }
-        //deptMemberService.
 
 
-        //删除用户文件和文件夹
-        fileInfServive.deleteByUserId(userId);  //删除文件
-        dirInfService.deleteByUserId(userId);   //删除文件夹
-
-        int result = userInfService.deleteByPrimaryKey(userId); //删除用户
-
-        return result != 0? "OK" : "FALSE";
+        return "OK";
 
     }
 
 
+
+    /*
+    * 编辑用户
+    * */
     @ResponseBody
     @RequestMapping("/editUser")
-    public String editUser(Integer userId,String maxSpace,HttpSession session){
-        System.out.println(userId+"-----"+maxSpace);
+    public String editUser(Integer userId,Integer maxSpace,HttpSession session){
         UserInf userInf = new UserInf();
         userInf.setUserId(userId);
-        userInf.setMaxSpace(new BigInteger(maxSpace));
+        userInf.setMaxSpace(UnitChange.TranslateGBtoByte(maxSpace));
         int result = userInfService.updateByPrimaryKeySelective(userInf);
         return result != 0? "OK" : "FALSE";
     }
@@ -100,6 +93,23 @@ public class UserController {
         //通过邮箱查询用户信息
         UserInf userInf = userInfService.selectByEmail(email);
         if(userInf != null){
+            return "OK";
+        }
+        return "FALSE";
+
+    }
+
+    @ResponseBody
+    @RequestMapping("/changePassword")
+    public String changePassword(String password,HttpSession session) {
+
+        UserInf nowUser = (UserInf) session.getAttribute("USER_SESSION");
+        //通过邮箱查询用户信息
+        UserInf userInf = new UserInf();
+        userInf.setUserId(nowUser.getUserId());
+        userInf.setPassword(password);
+        int result = userInfService.updateByPrimaryKeySelective(userInf);
+        if(result != 0){
             return "OK";
         }
         return "FALSE";

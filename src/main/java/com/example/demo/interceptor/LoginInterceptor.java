@@ -22,6 +22,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 		String url = request.getRequestURI();
 		// URL:除了登录请求外，其他的URL都进行拦截控
 		if (url.indexOf("/tologin") >= 0 || url.indexOf("/toregister") >= 0) {
+			System.out.println(request.getRequestURI()+"允许通过！");
+
 			return true;
 		}
 		// 获取Session
@@ -33,7 +35,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 		}
 		// 不符合条件的给出提示信息，并转发到登录页
 		request.setAttribute("msg", "您还没有登录，请先登录！");
-		request.getRequestDispatcher("/tologin").forward(request, response);
+		System.out.println(request.getRequestURI()+"不许通过，跳转到登录！");
+		response.sendRedirect("/tologin");
 		return false;
 	}
 	@Override

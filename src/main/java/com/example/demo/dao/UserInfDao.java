@@ -2,6 +2,7 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.UserInf;
+import com.example.demo.entity.UserLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -11,13 +12,17 @@ import java.util.List;
 @Mapper
 public interface UserInfDao {
 
-
-    UserInf selectByUsername(String username);
+    UserInf selectByUserName(String username);
     List<UserInf> selectListByUsername(String username);
     UserInf selectByPrimaryKey(Integer userId);
     UserInf selectByUserPhone(String userPhone);
     List<UserInf> selectAll();
     UserInf selectByEmail(String email);
+    /*
+     * 查找分页
+     * */
+    List<UserInf> seletePage();
+
 
     int deleteByPrimaryKey(Integer userId);
 

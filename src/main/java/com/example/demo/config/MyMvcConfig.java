@@ -19,16 +19,22 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addViewController("adminstrationUser").setViewName("adminstration_user");
         registry.addViewController("adminstration_login").setViewName("adminstration_login");
         registry.addViewController("forgot_password").setViewName("forgot_password");
+        registry.addViewController("permission").setViewName("permission");
+        registry.addViewController("adminstration_log").setViewName("adminstration_log");
+        registry.addViewController("preview_error").setViewName("preview_error");
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/login",
+        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/userLogin",
+                                                                                                    "login",
+                                                                                                    "/error",
                                                                                                     "/register",
                                                                                                     "/adminstration_login",
                                                                                                     "/forGotPassword",
                                                                                                     "/forgot_password",
                                                                                                     "/adminstrationLogin",
+                                                                                                    "/permission",
                                                                                                     "/checkEmail",
                                                                                                     "/**/*.js",
                                                                                                     "/**/*.css",

@@ -14,6 +14,7 @@
 			
 			body{
 				background: #E9ECEF;
+				background: url("/images/155113cfa3a4d191b55fe274b1bd32f8.jpg");
 			}
 			#app{
 				
@@ -41,7 +42,10 @@
 				background: #0069D9;
 				color: #FFFFFF;
 			}
-			
+			.error-tip{
+				color: red;
+				/*display: none;*/
+			}
 
 		</style>
 		
@@ -80,18 +84,20 @@
 								<div class="tab-pane  active" id="panel-965523">
 									<p>
 										<!--个人账号注册-->
-										<form class="form-horizontal" action="/register" id="register_form" method="post">
+										<form class="form-horizontal"  id="register_form" method="post">
 											<input type="hidden" id="type1" name="userType" value="1">
 											<div class="form-group">
 												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">账号名</label>
 												<div class="col-sm-8">
 													<input type="text" class="form-control" id="user-name-label" placeholder="" name="username" />
+													<span id="personal-user-error" class="error-tip"></span>
 												</div>
 											</div>
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">邮箱</label>
 												<div class="col-sm-8">
-													<input type="email" name="email" class="form-control" id="inputEmail3" />
+													<input type="email" name="email" class="form-control" id="personal-email" />
+													<span id="personal-email-error" class="error-tip"></span>
 												</div>
 											</div>
 
@@ -99,6 +105,7 @@
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
 												<div class="col-sm-8">
 													<input type="text" name="userPhone" class="form-control" id="userPhone" />
+													<span id="personal-userPhone-error" class="error-tip"></span>
 												</div>
 											</div>
 											
@@ -107,6 +114,7 @@
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">密码</label>
 												<div class="col-sm-8">
 													<input type="password" name="password" class="form-control" id="inputPassword3" placeholder="至少6位" />
+													<span id="personal-password-error" class="error-tip"></span>
 												</div>
 											</div>
 
@@ -114,17 +122,10 @@
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">确认密码</label>
 												<div class="col-sm-8">
 													<input type="password" class="form-control" id="inputPassword3_again" />
+													<span id="personal-checkPassword-error" class="error-tip"></span>
 												</div>
 											</div>
 
-
-											<div class="form-group">
-												<div class="col-sm-offset-2 col-sm-10">
-													<div class="checkbox">
-														<label><input type="checkbox" />同意XXXX</label>
-													</div>
-												</div>
-											</div>
 											<div class="form-group">
 												<div class="col-sm-offset-2 col-sm-10">
 													<button type="button" class="btn btn-default" onclick="register()">提交</button>
@@ -137,24 +138,29 @@
 								<div class="tab-pane" id="panel-182379">
 									<p>
 										<!--团队账号注册-->
-										<form class="form-horizontal" action="/register" id="register_form2" method="post">
+										<form class="form-horizontal" action="/register" id="register_form2" method="post" onsubmit="return check()">
 											<input type="hidden" id="type2" name="userType" value="2">
 											<div class="form-group">
-												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">团队名</label>
+												<label for="team-name" class="col-sm-2 control-label" style="width: 96px;">团队名</label>
 												<div class="col-sm-8">
-													<input type="text" class="form-control" id="user-name-label2" placeholder="" name="teamName" />
+													<input type="text" class="form-control" id="team-name" placeholder="" name="teamName" />
+													<span id="error-team-name" class="error-tip"></span>
 												</div>
+
 											</div>
+
 											<div class="form-group">
-												<label for="inputEmail3" class="col-sm-2 control-label" style="width: 96px;">账号名</label>
+												<label for="team-username" class="col-sm-2 control-label" style="width: 96px;">账号名</label>
 												<div class="col-sm-8">
-													<input type="text" class="form-control" id="user-name-label3" placeholder="" name="username" />
+													<input type="text" class="form-control" id="team-username" placeholder="" name="username" />
+													<span id="error-team-username" class="error-tip"></span>
 												</div>
 											</div>
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">邮箱</label>
 												<div class="col-sm-8">
-													<input type="email" name="email" class="form-control" id="inputEmail32" />
+													<input type="email" name="email" class="form-control" id="team-email" />
+													<span id="error-team-email" class="error-tip"></span>
 												</div>
 											</div>
 											
@@ -163,33 +169,28 @@
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">手机号码</label>
 												<div class="col-sm-8">
-													<input type="text" name="userPhone" class="form-control" id="phone2" />
+													<input type="text" name="userPhone" class="form-control" id="team-phone" />
+													<span id="error-team-phone" class="error-tip"></span>
 												</div>
 											</div>
 
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">密码</label>
 												<div class="col-sm-8">
-													<input type="password" name="password" class="form-control" id="inputPassword2" placeholder="至少6位" />
+													<input type="password" name="password" class="form-control" id="team-password" placeholder="至少6位" />
+													<span id="error-team-password" class="error-tip"></span>
 												</div>
 											</div>
 
 											<div class="form-group">
 												<label for="inputPassword3" class="col-sm-2 control-label" style="width: 96px;">确认密码</label>
 												<div class="col-sm-8">
-													<input type="password" class="form-control" id="inputPassword3_again2" />
+													<input type="password" class="form-control" id="team-check-password" />
+													<span id="error-team-check-password" class="error-tip"></span>
 												</div>
 											</div>
 
-		
 
-											<div class="form-group">
-												<div class="col-sm-offset-2 col-sm-10">
-													<div class="checkbox">
-														<label><input type="checkbox" />同意XXXX</label>
-													</div>
-												</div>
-											</div>
 											<div class="form-group">
 												<div class="col-sm-offset-2 col-sm-10">
 													<button type="button" class="btn btn-default" onclick="register2()">提交</button>
@@ -209,6 +210,7 @@
 				<script>
 					//注册
 					function register() {
+						if(!personalCheck()) return false
 						$.post("/register", $("#register_form").serialize(), function(date) {
 							if (date == "OK") {
 								alert("注册成功");
@@ -220,6 +222,7 @@
 					}
 
 					function register2() {
+						if(!teamCheck()) return false
 						$.post("/register", $("#register_form2").serialize(), function(date) {
 							if (date == "OK") {
 								alert("注册成功");
@@ -229,6 +232,71 @@
 							}
 						});
 					}
+
+					//写成动态的check() ,参数传值+appendTo()
+					function personalCheck(){
+						let len = 6;
+						let teamName = $('#user-name');
+						let username = $('#user-username');
+						let password = $('#team-password');
+						let checkPassword = $('#team-check-password');
+						let email = $('#team-email');
+						let phone = $('#team-phone');
+
+						let reg = /^[0-9a-zA-Z_]+$/
+
+						if (teamName.val() =="") {$('#personal-user-error').text("请填写团队名称");}
+						if (username.val() =="") {$('#personal-user-error').text("请填写用户名");}
+						if (email.val() =="") {$('#personal-email-error').text("请填写邮箱");}
+						if(phone.val().length != 11){$('#personal-userPhone-error').text("请输入11位的手机号码");}
+						if (password.val()== ""){
+							$('#personal-password-error').text("请填写密码");
+							// $('.error-tip').css({
+							// 	display:'block'
+							// });
+							return false
+						}
+						else if (password.val().length< len){$('#personal-password-error').text("密码至少为6位");return false}
+						else if (!reg.test(username.val())){ $('#personal-user-error').text("用户名只能由数字、字母或下划线组成");return false}
+						else if (!reg.test(password.val())){$('#personal-password-error').text("密码只能由数字、字母或下划线组成");return false}
+						else if (password.val() != checkPassword.val()){$('#personal-checkPassword-error').text("密码不一致，请检查密码");return false}
+						else return true
+					}
+
+					function teamCheck(){
+						let len = 6;
+						let teamName = $('#team-name');
+						let username = $('#team-username');
+						let password = $('#team-password');
+						let checkPassword = $('#team-check-password');
+						let email = $('#team-email');
+						let phone = $('#team-phone');
+
+						let reg = /^[0-9a-zA-Z_]+$/
+
+						if (teamName.val() =="") {$('#error-team-name').text("请填写团队名称");}
+						if (username.val() =="") {$('#error-team-username').text("请填写用户名");}
+						if (email.val() =="") {$('#error-team-email').text("请填写邮箱");}
+						if(phone.val().length != 11){$('#error-team-phone').text("请输入11位的手机号码");}
+						if (password.val()== ""){
+							$('#error-team-password').text("请填写密码");
+							// $('.error-tip').css({
+							// 	display:'block'
+							// });
+							return false
+						}
+						else if (password.val().length< len){$('#error-team-password').text("密码至少为6位");return false}
+						else if (!reg.test(username.val())){ $('#error-team-username').text("用户名只能由数字、字母或下划线组成");return false}
+						else if (!reg.test(password.val())){$('#error-team-password').text("密码只能由数字、字母或下划线组成");return false}
+						else if (password.val() != checkPassword.val()){$('#error-team-check-password').text("密码不一致，请检查密码");return false}
+						else return true
+					}
+
+
+					$('.form-control').focus(function (){
+						$(this).siblings().text('');
+					});
+
 				</script>
 
 			</div>

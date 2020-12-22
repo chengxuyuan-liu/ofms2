@@ -4,8 +4,10 @@ package com.example.demo.controller;
 import com.example.demo.entity.*;
 import com.example.demo.service.*;
 import com.example.demo.vo.Member;
+import com.example.demo.vo.PermissionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -30,6 +32,10 @@ public class ViewController {
     DepartmentService departmentService;
     @Autowired
     TeamService teamService;
+    @Autowired
+    PermissionService permissionService;
+    @Autowired
+    UserLogService userLogService;
 
     /**
      * 跳转到菜单页面
@@ -54,6 +60,18 @@ public class ViewController {
             map.put("team",team);
             map.put("department", department);
 
+            Permission permission = permissionService.selectByMemberId(deptMember.getId());
+            if(permission != null){
+                if(permission.getpAddDept() == 1 || permission.getpEditDept() ==1){
+                    List<Department> departmentList = departmentService.selectByTeamId(team.getTeamId());
+                    map.put("deptList", departmentList);        //获得团队所有部门
+
+                }else{
+                    map.put("deptList", departmentService.selectByPrimaryKey(deptMember.getDeptId()));
+                }
+            }
+            //获取权限信息
+           map.put("permission", permission);
         }
         map.put("fileCabinetList", fileCabinetList);
 
@@ -159,17 +177,44 @@ public class ViewController {
     @RequestMapping("/deptMemberView")
     public String deptMember(Integer deptId , Map<String,Object> map , HttpSession session) {
 
-
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        if(userInf.getUserType() == 1) {
+            DeptMember deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
+            Permission permission = permissionService.selectByMemberId(deptMember.getId());
+            map.put("permission", permission);
+        }
         //通过部门Id获得部门成员List
         List<Member> memberList = deptMemberService.selectListByDeptKey(deptId);
         //部门文件柜
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
 
         //返回
-        map.put("fileCabinet", fileCabinet);
+        map.put("fileCabinet",fileCabinet);
         map.put("memberList",memberList);
-        map.put("deptId", deptId);
+        map.put("deptId",deptId);
 
+        return "dept_member";
+    }
+
+
+    /**
+     * 成员管理搜索
+     **/
+    @RequestMapping("/searchMember")
+    public String searchMember(String userPhone , Map<String,Object> map , HttpSession session) {
+
+        Member member = deptMemberService.selectListByPhone(userPhone);
+        List<Member> memberList = new ArrayList<>();
+        memberList.add(member);
+
+        //部门文件柜
+        FileCabinet fileCabinet = fileCabinetService.selectByDeptId(member.getDeptId());
+
+        //返回
+        map.put("fileCabinet",fileCabinet);
+
+        map.put("memberList",memberList);
+        //返回
         return "dept_member";
     }
 
@@ -180,19 +225,25 @@ public class ViewController {
     @RequestMapping("/toBeAssigned")
     public String toBeAssigned(Map<String,Object> map ,HttpSession session) {
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-
-
-        List<Member> memberList = deptMemberService.selectToBeAssignedMemberListByUserId(userInf.getUserId());
-
-        List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
-
-
         Team team = teamService.selectByUserId(userInf);
+
+        //如果是个人账号
+        if(userInf.getUserType() == 1){
+            DeptMember deptMember = deptMemberService.selectByUserKey(userInf.getUserId());//通过成员信息获取团队id
+            team = teamService.selectByPrimaryKey(deptMember.getTeamId()); //通过团队信息获取用户id
+        }
+
+        List<Member> memberList = deptMemberService.selectToBeAssignedMemberListByUserId(team.getUserId());  //获取所有待分配成员
+
+        List<Department> departmentList = departmentService.selectDeptListByUserId(team.getUserId());    //获取所有部门，用于编辑时是使用
+
+
+
         List<Department> department = departmentService.selectByTeamId(team.getTeamId());
 
         List<FileCabinet> fileCabinetList = new ArrayList<>();
         for (Department department1 : department) {
-            fileCabinetList.add( fileCabinetService.selectByDeptId(department1.getDeptId()));
+            fileCabinetList.add( fileCabinetService.selectByDeptId(department1.getDeptId()));//获取所有文件柜，用于编辑时是使用
         }
 
 
@@ -226,15 +277,96 @@ public class ViewController {
      * 管理用户界面
      **/
     @RequestMapping("/toAdminstrationUser")
-    public String toAdminstrationUser(Map<String,Object> map ,HttpSession session) {
+    public String toAdminstrationUser(PageRequest pageRequest,Map<String,Object> map ,HttpSession session) {
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        List<UserInf> userInfList = userInfService.selectAll();
+//        List<UserInf> userInfList = userInfService.selectAll();
+//        map.put("userInfList",userInfList);
+
+        PageResult pageResult = userInfService.findPage(pageRequest);
+
+        map.put("pageResult",pageResult);
+        return "adminstration_user";
+    }
+
+
+    /**
+     * 权限管理界面
+     **/
+    @RequestMapping("/permission")
+    public String toPermission(HttpSession session,Map<String,Object> map ) {
+
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        List<PermissionVO> permissionVOS = permissionService.selectByUserId(userInf.getUserId());
+        List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
+
+        map.put("department",departmentList);
+        map.put("permission",permissionVOS);
+        return "permission";
+    }
+
+
+    /**
+     * 权限管理界面---搜索
+     **/
+    @RequestMapping("/permissionSearch")
+    public String permissionSearch(String phone,HttpSession session,Map<String,Object> map ) {
+
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        List<PermissionVO> permissionVOS = permissionService.selectByPhone(phone);
+        List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
+
+        map.put("department",departmentList);
+        map.put("permission",permissionVOS);
+        return "permission";
+    }
+
+
+
+
+
+
+
+
+
+    /**
+     * 管理员用户搜索
+     **/
+    @RequestMapping("/userSearch")
+    public String userSearch(Integer searchType,String userName,String phone,Map<String,Object> map,HttpSession session) {
+
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        List<UserInf> userInfList = new ArrayList<>();
+        if(searchType==1){
+            System.out.println("用户名："+userName);
+            userInfList = userInfService.selectListByUserName(userName);
+        }else{
+            System.out.println("手机号码："+phone);
+            UserInf userInf1 = userInfService.selectByUserPhone(phone);
+            userInfList.add(userInf1);
+        }
         map.put("userInfList",userInfList);
         return "adminstration_user";
     }
 
 
+    @RequestMapping("/toAdminstrationLog")
+    public Object  toAdminstrationLog() {
+        return "redirect:/userLog?pageNum=1&pageSize=10";
+    }
 
+
+
+    /**
+     * 查看日志
+     **/
+    @RequestMapping("/userLog")
+    public Object  userLog(PageRequest pageQuery,Map<String,Object> map) {
+        //获得所有日志
+        PageResult pageResult = userLogService.findPage(pageQuery);
+        List<UserLog> userLogs = (List<UserLog>) pageResult.getContent();
+        map.put("pageRsult",pageResult);
+        return "adminstration_log";
+    }
 
 
 }

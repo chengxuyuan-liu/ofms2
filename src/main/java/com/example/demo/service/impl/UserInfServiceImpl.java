@@ -3,14 +3,14 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.DirInfDao;
 import com.example.demo.dao.FileCabinetDao;
 import com.example.demo.dao.UserInfDao;
-import com.example.demo.entity.Department;
-import com.example.demo.entity.FileCabinet;
-import com.example.demo.entity.Team;
-import com.example.demo.entity.UserInf;
+import com.example.demo.entity.*;
 import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.TeamService;
 import com.example.demo.service.UserInfService;
+import com.example.demo.util.PageUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,8 +53,8 @@ public class UserInfServiceImpl implements UserInfService {
         验证登录
         */
     @Override
-    public UserInf verifyLogin(String username, String password) {
-        UserInf userInf = userInfDao.selectByUsername(username);
+    public UserInf verifyLogin(String email, String password) {
+        UserInf userInf = userInfDao.selectByEmail(email);
         if (userInf != null) {
             if (password.equals(userInf.getPassword())) {
                 return userInf;
@@ -120,6 +120,24 @@ public class UserInfServiceImpl implements UserInfService {
         return userInf;
     }
 
+    @Override
+    public UserInf selectByUserName(String username) {
+        UserInf userInf = userInfDao.selectByUserName(username);
+        return userInf;
+    }
+
+    @Override
+    public PageResult findPage(PageRequest pageRequest) {
+        return PageUtils.getPageResult(pageRequest, getPageInfo(pageRequest));
+    }
+
+    private PageInfo<UserInf> getPageInfo(PageRequest pageRequest) {
+        int pageNum = pageRequest.getPageNum();
+        int pageSize = pageRequest.getPageSize();
+        PageHelper.startPage(pageNum, pageSize);
+        List<UserInf> userInfs = userInfDao.seletePage();
+        return new PageInfo<UserInf>(userInfs);
+    }
 
     @Override
     public List<UserInf> selectAll() {

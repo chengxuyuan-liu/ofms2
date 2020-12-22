@@ -6,7 +6,6 @@
     <script src="/js/libs/jquery-2.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
-
     <link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
     <script type="text/javascript" src="/js/libs/jquery.ztree.core.min.js"></script>
     <style>
@@ -76,9 +75,12 @@
             display: none;
             position: absolute;
             z-index: 5;
+
         }
-
-
+        .access-path{color: black}
+        .access-path:hover{
+            color: #4c9aff;
+        }
 
     </style>
 </head>
@@ -110,7 +112,7 @@
 
     <ul class="breadcrumb" style="margin-bottom: 0px">
         <li th:each="ap : ${accessPath}">
-            <a th:href="@{/main(dirId = ${ap.dirId})}">[[${ap.dirName}]]</a>
+            <a th:href="@{/main(dirId = ${ap.dirId})}" class="access-path">[[${ap.dirName}]]</a>
         </li>
     </ul>
 
@@ -124,7 +126,7 @@
         </button>
         <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/query">
             <div class="form-group">
-                <input type="text" class="form-control" name="queryName"/>
+                <input type="text" class="form-control" name="queryName"placeholder="输入文件名或者文件类型"/>
             </div>
             <button type="submit" class="btn btn-default btn-primary">搜索</button>
         </form>
@@ -157,29 +159,10 @@
     <div class="col-md-12 column">
 
         <table style="table-layout: fixed" class="table table-hover">
-            <!--            <thead>-->
-            <!--            <tr>-->
-            <!--                <th>-->
-            <!--                    文件-->
-            <!--                </th>-->
-            <!--                <th>-->
-            <!--                    文件类型-->
-            <!--                </th>-->
-            <!--                <th>-->
-            <!--                    修改时间-->
-            <!--                </th>-->
-            <!--                <th>-->
-            <!--                    大小-->
-            <!--                </th>-->
-            <!--                <th>-->
-            <!--                    操作-->
-            <!--                </th>-->
-            <!--            </tr>-->
-            <!--            </thead>-->
             <tbody>
             <!--循环输出文件夹-->
-            <tr th:each="dir:${dirList}" class="success">
-                <td><a id="dir-link" th:href="@{/main(dirId=${dir.dirId})}">[[${dir.dirName}]]</a></td>
+            <tr th:each="dir:${dirList}" >
+                <td><a class="dir-link" th:href="@{/main(dirId=${dir.dirId})}" style="color:#000000;"><img src="/images/dir.png">&nbsp;&nbsp;&nbsp;[[${dir.dirName}]]</a></td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
@@ -201,7 +184,9 @@
             <!--循环输出文件-->
             <tr th:each="file:${fileList}">
                 <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;" th:title="${file.fileName}">
-                    [[${file.fileName}]]
+                    <a th:href="@{/preview(fileId=${file.fileId})}" target="_blank" style="color:black" disabled="true" class="file-link">
+                    <img th:src="@{'/images/'+${file.getFileType()}+'.png'}" onerror="javascript:this.src='/images/winter.png';" >
+                    &nbsp;&nbsp;&nbsp;[[${file.fileName}]]</a>
                 </td>
                 <td>[[${file.fileType}]]</td>
                 <td th:text="${#dates.format(file.fileUploadTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
@@ -213,7 +198,7 @@
                     <button type="button" class="btn btn-default btn-primary"
                             th:onclick="|delete_file(${file.fileId})|">删除
                     </button>
-                    <a type="button" class="btn btn-default btn-primary" id="file-link"
+                    <a type="button" class="btn btn-default btn-primary"
                        th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
                             data-target="#modal-container-move"
@@ -530,7 +515,17 @@
         });
     }
 
-
+    $('.dir-link,.file-link').mouseenter(function(){
+        console.log('test')
+        $(this).css({
+            color:'#4c9aff'
+        });
+        $('.dir-link,.file-link').mouseleave(function () {
+            $(this).css({
+                color:'black'
+            });
+        })
+    });
 
 </script>
 

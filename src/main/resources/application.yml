@@ -37,8 +37,10 @@ jodconverter:
     port-numbers: 8100
 
 
-#系统参数
-system_space : {} #系统总空间
-system_used_space : {} #系统已用空间
-system_available_space : {} #系统已用空间
 
+#分页
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql

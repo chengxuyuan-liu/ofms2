@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.DeptMember;
 import com.example.demo.entity.FileCabinet;
@@ -8,6 +9,7 @@ import com.example.demo.service.DepartmentService;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.FileCabinetService;
 import com.example.demo.util.UnitChange;
+import com.example.demo.vo.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class MemberController {
@@ -38,14 +42,16 @@ public class MemberController {
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //更新文件柜空间
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
-        if(!fileCabinetService.updateWhenNewMember(fileCabinet)) return "FILE_CABINET_FULL";
         //添加新成员
-       try {
-           Boolean result = deptMemberService.insertSelective(deptId,userPhone,userInf);
-           return "OK";
-       }catch (Exception e){
-           return "MEMBER_EXIST";
-       }
+        try {
+            Boolean result = deptMemberService.insertSelective(deptId,userPhone,userInf);
+            if(!fileCabinetService.updateWhenNewMember(fileCabinet)) return "FILE_CABINET_FULL";
+            return "OK";
+        }catch (Exception e){
+            return "MEMBER_EXIST";
+        }
+
+
 
     }
 
@@ -135,6 +141,17 @@ public class MemberController {
         Department department = departmentService.selectByFileCabinetId(deptId);
         System.out.println(department.getDeptId());
         return department.getDeptId().toString();
+    }
+
+    /*
+     * 获取成员
+     * */
+    @ResponseBody
+    @RequestMapping("/getMember")
+    public String getMember(Map<String,Object> map, Integer deptId) {
+        List<Member> members = deptMemberService.selectListByDeptKey(deptId);
+        String str = JSONArray.toJSONString(members);
+        return str;
     }
 
 

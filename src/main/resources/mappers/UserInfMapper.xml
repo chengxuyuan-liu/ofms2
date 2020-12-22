@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.dao.UserInfDao">
   <resultMap id="BaseResultMap" type="UserInf">
@@ -28,6 +27,13 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
 
+  <select id="selectByUserName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_inf
+    where username = #{username,jdbcType=INTEGER}
+  </select>
+
   <select id="selectByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -42,14 +48,6 @@
     where user_type != 0
   </select>
 
-  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from user_inf
-    where username = #{username}
-  </select>
-
-
   <select id="selectListByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -60,12 +58,16 @@
   <select id="selectByUserPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
     select *
     from user_inf
-    where user_phone = #{userPhone,jdbcType=VARCHAR} and user_type = 1
+    where user_phone = #{userPhone,jdbcType=VARCHAR} /*and user_type = 1*/
   </select>
 
+    <select id="seletePage" resultType="com.example.demo.entity.UserInf">
+      select  <include refid="Base_Column_List" />
+      from user_inf
+    </select>
 
 
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from user_inf
     where user_id = #{userId,jdbcType=INTEGER}
   </delete>

@@ -40,22 +40,32 @@ public class DepartmentContoller {
         //当前用户
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
 
+        Team team;
+        if(userInf.getUserType() == 2) {
+            //调用创建部门service
+            team = teamService.selectByUserId(userInf);
+        }else{
+            DeptMember deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
+            team =  teamService.selectByPrimaryKey(deptMember.getTeamId());
+        }
+
+        UserInf teamUser = userInfService.selectByPrimaryKey(team.getUserId()); //获得团队所属人
+
         //判断空间是否足够
-        if(!userInfService.judgeSpace(userInf)) return "SPACE_FULL";
+        if(!userInfService.judgeSpace(teamUser)) return "SPACE_FULL";
 
         //调用创建文件夹service
-        DirInf dirInf = dirInfService.selectRootDirByUserId(userInf.getUserId()); //获得根目录
-        DirInf newDeptDir = dirInfService.insertSelective(dept.getDeptName(),dirInf.getDirId(),userInf); //创建文件夹
+        DirInf dirInf = dirInfService.selectRootDirByUserId(teamUser.getUserId()); //获得根目录
+        DirInf newDeptDir = dirInfService.insertSelective(dept.getDeptName(),dirInf.getDirId(),teamUser); //创建文件夹
 
         //调用创建文件柜service
-        FileCabinet fileCabinet = fileCabinetService.newFileCabinet(dept,userInf,newDeptDir);
+        FileCabinet fileCabinet = fileCabinetService.newFileCabinet(dept,teamUser,newDeptDir);
 
-        //调用创建部门service
-        Team team = teamService.selectByUserId(userInf);
+
         departmentService.insertSelective(fileCabinet,team);
 
         //更新用户空间
-        userInfService.updateSpaceWhenNewDept(userInf);
+        userInfService.updateSpaceWhenNewDept(teamUser);
 
         return "OK";
     }

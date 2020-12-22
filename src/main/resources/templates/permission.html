@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="/js/libs/jquery-2.1.1.min.js"></script>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="/js/libs/jquery.ztree.core.min.js"></script>
+
+    <style>
+        body {
+            overflow: hidden hidden;
+        }
+
+        #no_fix {
+            /*position: fixed;*/
+            /*z-index: 2;*/
+            background: #ffffff;
+        }
+
+        .test {
+            width: 101%;
+            height: 467px;
+            top: 182px;
+            position: absolute;
+            overflow: auto;
+        }
+
+        .scrollbar {
+            width: 1px;
+            height: 800px;
+            position: absolute;
+        }
+
+        .test::-webkit-scrollbar { /*滚动条整体样式*/
+            width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
+            height: 1px;
+        }
+
+        .test::-webkit-scrollbar-thumb { /*滚动条里面小方块*/
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 5px rgb(153, 154, 156);
+            background: #aeb0b2;
+        }
+
+        .test::-webkit-scrollbar-track { /*滚动条里面轨道*/
+            -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            background: #EDEDED;
+            display: none;
+
+        }
+
+
+        ul li {
+            list-style-type: none;
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        #menu {
+            border: 1px solid #ccc;
+            background: #eee;
+            position: absolute;
+            width: 100px;
+            display: none;
+            position: absolute;
+            z-index: 5;
+        }
+
+        select {
+            height: 32px;
+            box-sizing: border-box;
+            padding-top: 1px;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+<!--========================内容=========================-->
+<!--部门概况-->
+<div class="alert  alert-info">
+    <h4>
+        角色和权限
+    </h4>
+
+</div>
+<!--添加成员、搜索-->
+<div class="btn-group">
+    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+            data-target="#modal-container-new-member">添加角色
+    </button>
+    <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/permissionSearch">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="请输入手机号" name="phone"/>
+        </div>
+        <button type="submit" class="btn btn-default btn-primary">搜索</button>
+    </form>
+</div>
+<!--成员信息-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" onchange="allCheck()" id="all_check">
+                </th>
+                <th>
+                    职位
+                </th>
+                <th>
+                    用户
+                </th>
+                <th>
+                    邮箱
+                </th>
+                <th>
+                    手机号
+                </th>
+                <th>
+                    所属部门
+                </th>
+                <th>
+                    状态
+                </th>
+                <th>
+                    操作
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pem : ${permission}">
+                <td>
+                    <input type="checkbox" class="all_check_button"/><img src="/images/manage.png" style="width: 15px;
+    position: absolute;
+    margin-left: 10px;
+    height: 17px;">
+                </td>
+                <td th:text="${pem.getRole()}">
+                </td>
+                <td th:text="${pem.getUserName()}">
+                </td>
+                <td>
+                    <p th:text="${pem.getEmail()}"></p>
+                </td>
+                <td>
+                    <p th:text="${pem.getPhone()}"></p>
+                </td>
+                <td th:text="${pem.getDeptName()}">
+                    开发部
+                </td>
+                <td>
+                    最近访问：
+                    <p th:text="${pem.getRecent()}"></p>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
+                            data-target="#modal-container-edit" th:onclick="|getEditMsg(${pem.getPsiId()})|">编辑
+                    </button>
+                    <button type="button" class="btn btn-default btn-primary" id="app"  th:onclick="|deleteRole(${pem.getPsiId()})|">移除
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--========================各种模态窗口=========================-->
+
+<!--添加角色模态窗口-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-container-new-member" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="new_member">
+                            添加角色
+                        </h4>
+                    </div>
+                    <br class="modal-body">
+                    <br id="add_member_from">
+                    <form class="form-horizontal" role="form"  id="new_role">
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label" style="padding-top:0;">
+                            职位：
+                        </label>
+                        <input type="text" name="role"/></br>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label" style="padding-top:0;">
+                            部门:
+                        </label>
+                        <select id="add_dept" name="deptId">
+                            <option>-请选择-</option>
+                            <option th:each="department:${department}" th:value="${department.getDeptId()}" th:text="${department.getDeptName()}">用户名</option>
+                        </select></br>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" style="padding-top:0;">
+                            成员：
+                        </label>
+                        <select id="add_member" name="memberId">
+                            <option value="1">-请选择-</option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label" style="padding-top:0;">
+                            团队权限:
+                        </label>
+                        <div class="col-sm-10">
+                             <span>新建部门：</span><input type="checkbox" name="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                            <span> 编辑部门：</span><input type="checkbox" name="pEditDept" class="checkbox_role" value="0"/>
+                        </div>
+                    </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label" style="padding-top:0;">
+                                部门权限:
+                            </label>
+                            <div class="col-sm-10">
+                                <span>添加成员：</span><input type="checkbox" name="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                                <span>编辑成员：</span><input type="checkbox" name="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                                <span>删除成员：</span><input type="checkbox" name="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="newRole()" >确定</button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!--成员编辑模态窗口-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-container-edit" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="edit">
+                            编辑
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form" id="edit_role">
+                            <input type="hidden" id="edit_role_id" name="psiId">
+<!--                            <div class="form-group">-->
+<!--                                <label for="edit_role_username" class="col-sm-2 control-label"-->
+<!--                                       style="padding-top:3px;">用户：</label>-->
+<!--                                <div class="col-sm-10">-->
+<!--                                    <input type="text" id="edit_role_username" style="width:80px;" name="userName">-->
+<!--                                </div>-->
+<!--                            </div>-->
+                            <div class="form-group">
+                                <label for="edit_role_position" class="col-sm-2 control-label"
+                                       style="padding-top:3px;">角色名称:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" id="edit_role_position" style="width:80px;" name="role">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label  class="col-sm-2 control-label" style="padding-top:0;">
+                                    团队权限:
+                                </label>
+                                <div class="col-sm-10">
+                                    <span>新建部门：</span><input type="checkbox" id="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                                    <span> 编辑部门：</span><input type="checkbox" id="pEditDept" class="checkbox_role" value="0"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label  class="col-sm-2 control-label" style="padding-top:0;">
+                                    部门权限:
+                                </label>
+                                <div class="col-sm-10">
+                                    <span>添加成员：</span><input type="checkbox" id="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                                    <span>编辑成员：</span><input type="checkbox" id="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                                    <span>删除成员：</span><input type="checkbox" id="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="editRole()">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--部门编辑模态窗口-->
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <!--toggle and tagget-->
+        <div class="modal fade" id="modal-dept-edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="dept_edit">
+                            编辑
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form" id="edit_dept">
+                            <input type="hidden" name="deptId" id="edit_deptId">
+
+                            <div class="form-group">
+                                <label for="edit_dept_name" class="col-sm-2 control-label" style="padding-top:3px;">部门名称:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="deptName" id="edit_dept_name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
+                                    部门总空间:</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace"
+                                           min="0">&nbsp;GB
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">解散部门</button>
+                        <button type="button" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--========================js=========================-->
+
+
+<script>
+
+
+    /*
+    全选
+    */
+    function allCheck() {
+        var check = document.getElementById("all_check").checked;
+
+        if (check == true) {
+            $(".all_check_button").prop("checked", true);
+            console.log("true");
+        } else {
+            $(".all_check_button").prop("checked", false);
+            console.log("false");
+        }
+    }
+
+    /*
+    删除成员
+    */
+    function deleteRole(id) {
+        if (confirm("确定要删除该成员吗")) {
+            $.post("/deleteRole", {"psiId": id}, function (date) {
+                if (date == "OK") {
+                    alert("删除成功");
+                    window.location.reload();
+                } else {
+                    alert("删除失败");
+                }
+            });
+        }
+    }
+
+    $('.checkbox_role').change(function () {
+        if($(this).prop("checked")){
+            $(this).prop("value",1);
+        }else{
+            $(this).prop("value",0);
+        }
+    })
+
+    $("#add_dept").change(function () {
+        let deptId = $("#add_dept").prop('value');
+        $.post('/getMember',{'deptId':deptId},function (data){
+            $('#add_member').empty();
+            let member = JSON.parse(data);
+            for (let i = 0; i < member.length; i++) {
+                $('<option value="'+member[i].id+'">'+member[i].userName+'</>').appendTo('#add_member');
+            }
+        });
+
+    })
+
+
+    function newRole(){
+        $.post('/newRole',$('#new_role').serialize(),function (data) {
+            if(data == 'OK'){
+                alert('保存成功');
+                window.location.reload();
+            }
+        });
+    }
+
+    function getEditMsg(id){
+        $.post('/getRole',{'psiId':id},function (data) {
+
+            let role = JSON.parse(data);
+            $('#edit_role_id').prop('value',role.psiId)
+            $('#edit_role_username').prop('value',role.userName)
+            $('#edit_role_position').prop('value',role.role)
+            $('#pAddDept').prop('value',role.pAddDept).prop('checked',role.pAddDept==1?true:false);
+            $('#pEditDept').prop('value',role.pEditDept).prop('checked',role.pEditDept==1?true:false)
+            $('#pAddMember').prop('value',role.pAddMember).prop('checked',role.pAddMember==1?true:false)
+            $('#pEditMember').prop('value',role.pEditMember).prop('checked',role.pEditMember==1?true:false)
+            $('#pDelMember').prop('value',role.pDelMember).prop('checked',role.pDelMember==1?true:false)
+        })
+    }
+    function editRole(){
+        $.post('/editRole',{
+            'psiId':$('#edit_role_id').prop('value'),
+            'role':$('#edit_role_position').prop('value'),
+            'pAddDept':$('#pAddDept').prop('value'),
+            'pEditDept':$('#pEditDept').prop('value'),
+            'pAddMember':$('#pAddMember').prop('value'),
+            'pEditMember':$('#pEditMember').prop('value'),
+            'pDelMember':$('#pDelMember').prop('value'),
+            },function (data){
+                if(data == 'OK'){
+                    alert('保存成功');
+                    window.location.reload();
+                }
+        });
+    }
+
+
+
+
+</script>
+</body>
+</html>

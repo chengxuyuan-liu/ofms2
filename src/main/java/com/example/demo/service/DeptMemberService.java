@@ -14,6 +14,8 @@ public interface DeptMemberService {
     List<Member> selectToBeAssignedMemberListByUserId(Integer userId);
     List<Member> selectToBeAssignedMemberByUserName(Integer userId,String userName);
     List<Member> selectToBeAssignedMemberByPhone(Integer userId,String phone);
+    List<Member> selectListByUserId(Integer userId);
+    Member selectListByPhone(String phone);
 
     int deleteByPrimaryKey(Integer id);
     int deleteByDeptId(Integer deptId);

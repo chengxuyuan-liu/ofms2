@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.aop.ArchivesLog;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
@@ -101,7 +102,7 @@ public class FileInfController {
     /*文件预览实现：
         文件id、文件夹id->获取文件的绝对路径->...
     */
-    @ResponseBody
+    //@ResponseBody
     @RequestMapping("preview")
     public String toPdfFile(Integer fileId, HttpServletResponse response, HttpSession session) throws IOException {
 
@@ -113,7 +114,7 @@ public class FileInfController {
 
         //检查预览权限，
         if(dirInf.getUserId() != userInf.getUserId()){
-            //检查上传权限，如果返回为false；
+            //检查预览权限，如果返回为false；
             if(checkPermissionsService.checkPreviewPremission(userInf))
                     return fileInfServive.preview(fileId,response);
             //return "No Access"
