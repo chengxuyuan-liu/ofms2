@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.PermissionDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Permission">
+    <id column="psi_id" jdbcType="INTEGER" property="psiId" />
+    <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="p_add_dept" jdbcType="INTEGER" property="pAddDept" />
+    <result column="p_edit_dept" jdbcType="INTEGER" property="pEditDept" />
+    <result column="p_add_member" jdbcType="INTEGER" property="pAddMember" />
+    <result column="p_edit_member" jdbcType="INTEGER" property="pEditMember" />
+    <result column="p_del_member" jdbcType="INTEGER" property="pDelMember" />
+    <result column="member_id" jdbcType="INTEGER" property="memberId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    psi_id, role, p_add_dept, p_edit_dept, p_add_member, p_edit_member, p_del_member, 
+    member_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from permission
+    where psi_id = #{psiId,jdbcType=INTEGER}
+  </select>
+
+
+
+
+
+
+  <select id="selectByMemberId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from permission
+    where member_id = #{memberId,jdbcType=INTEGER}
+  </select>
+
+
+
+
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from permission
+    where psi_id = #{psiId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.Permission">
+    insert into permission (psi_id, role, p_add_dept, 
+      p_edit_dept, p_add_member, p_edit_member, 
+      p_del_member, member_id)
+    values (#{psiId,jdbcType=INTEGER}, #{role,jdbcType=VARCHAR}, #{pAddDept,jdbcType=INTEGER}, 
+      #{pEditDept,jdbcType=INTEGER}, #{pAddMember,jdbcType=INTEGER}, #{pEditMember,jdbcType=INTEGER}, 
+      #{pDelMember,jdbcType=INTEGER}, #{memberId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Permission">
+    insert into permission
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="psiId != null">
+        psi_id,
+      </if>
+      <if test="role != null">
+        role,
+      </if>
+      <if test="pAddDept != null">
+        p_add_dept,
+      </if>
+      <if test="pEditDept != null">
+        p_edit_dept,
+      </if>
+      <if test="pAddMember != null">
+        p_add_member,
+      </if>
+      <if test="pEditMember != null">
+        p_edit_member,
+      </if>
+      <if test="pDelMember != null">
+        p_del_member,
+      </if>
+      <if test="memberId != null">
+        member_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="psiId != null">
+        #{psiId,jdbcType=INTEGER},
+      </if>
+      <if test="role != null">
+        #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="pAddDept != null">
+        #{pAddDept,jdbcType=INTEGER},
+      </if>
+      <if test="pEditDept != null">
+        #{pEditDept,jdbcType=INTEGER},
+      </if>
+      <if test="pAddMember != null">
+        #{pAddMember,jdbcType=INTEGER},
+      </if>
+      <if test="pEditMember != null">
+        #{pEditMember,jdbcType=INTEGER},
+      </if>
+      <if test="pDelMember != null">
+        #{pDelMember,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null">
+        #{memberId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.Permission">
+    update permission
+    <set>
+      <if test="role != null">
+        role = #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="pAddDept != null">
+        p_add_dept = #{pAddDept,jdbcType=INTEGER},
+      </if>
+      <if test="pEditDept != null">
+        p_edit_dept = #{pEditDept,jdbcType=INTEGER},
+      </if>
+      <if test="pAddMember != null">
+        p_add_member = #{pAddMember,jdbcType=INTEGER},
+      </if>
+      <if test="pEditMember != null">
+        p_edit_member = #{pEditMember,jdbcType=INTEGER},
+      </if>
+      <if test="pDelMember != null">
+        p_del_member = #{pDelMember,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null">
+        member_id = #{memberId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where psi_id = #{psiId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.Permission">
+    update permission
+    set role = #{role,jdbcType=VARCHAR},
+      p_add_dept = #{pAddDept,jdbcType=INTEGER},
+      p_edit_dept = #{pEditDept,jdbcType=INTEGER},
+      p_add_member = #{pAddMember,jdbcType=INTEGER},
+      p_edit_member = #{pEditMember,jdbcType=INTEGER},
+      p_del_member = #{pDelMember,jdbcType=INTEGER},
+      member_id = #{memberId,jdbcType=INTEGER}
+    where psi_id = #{psiId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserLogDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.UserLog">
+    <id column="log_id" jdbcType="INTEGER" property="logId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="user_ip" jdbcType="VARCHAR" property="userIp" />
+    <result column="operate_date" jdbcType="TIMESTAMP" property="operateDate" />
+    <result column="operate_content" jdbcType="VARCHAR" property="operateContent" />
+  </resultMap>
+
+
+
+
+  <sql id="Base_Column_List">
+    log_id, user_id, username, user_ip, operate_date, operate_content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_log
+    where log_id = #{logId,jdbcType=INTEGER}
+  </select>
+    <select id="seleteAll" resultType="com.example.demo.entity.UserLog">
+    </select>
+
+  <select id="seletePage" resultType="com.example.demo.entity.UserLog">
+    select <include refid="Base_Column_List" />
+    from user_log
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_log
+    where log_id = #{logId,jdbcType=INTEGER}
+  </delete>
+
+
+
+
+
+
+
+
+  <insert id="insert" parameterType="com.example.demo.entity.UserLog">
+    insert into user_log (log_id, user_id, username, 
+      user_ip, operate_date, operate_content
+      )
+    values (#{logId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, 
+      #{userIp,jdbcType=VARCHAR}, #{operateDate,jdbcType=TIMESTAMP}, #{operateContent,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.UserLog">
+    insert into user_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="logId != null">
+        log_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="userIp != null">
+        user_ip,
+      </if>
+      <if test="operateDate != null">
+        operate_date,
+      </if>
+      <if test="operateContent != null">
+        operate_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="logId != null">
+        #{logId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userIp != null">
+        #{userIp,jdbcType=VARCHAR},
+      </if>
+      <if test="operateDate != null">
+        #{operateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operateContent != null">
+        #{operateContent,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+
+
+
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.UserLog">
+    update user_log
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userIp != null">
+        user_ip = #{userIp,jdbcType=VARCHAR},
+      </if>
+      <if test="operateDate != null">
+        operate_date = #{operateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operateContent != null">
+        operate_content = #{operateContent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where log_id = #{logId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.UserLog">
+    update user_log
+    set user_id = #{userId,jdbcType=INTEGER},
+      username = #{username,jdbcType=VARCHAR},
+      user_ip = #{userIp,jdbcType=VARCHAR},
+      operate_date = #{operateDate,jdbcType=TIMESTAMP},
+      operate_content = #{operateContent,jdbcType=VARCHAR}
+    where log_id = #{logId,jdbcType=INTEGER}
+  </update>
+</mapper>
