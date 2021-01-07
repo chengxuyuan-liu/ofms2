@@ -41,6 +41,7 @@ public interface FileInfServive {
 
     //更新文件
     int updateByPrimaryKeySelective(Integer fileId,Integer parentId);
+    int updateFileName(Integer fileId,String fileName);
 
-
+    List<FileInf> selectByFileType(List<String> type,Integer userId,Integer dirId);
 }

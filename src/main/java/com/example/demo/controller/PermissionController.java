@@ -71,6 +71,20 @@ public class PermissionController {
         return str;
     }
 
+    /*
+     * 获得角色
+     * */
+    @ResponseBody
+    @RequestMapping("/deleteBatchPermission")
+    public String deleteBatchPermission(String[] psnId){
+        if (psnId != null) {
+            for (int i = 0; i < psnId.length; i++) {
+                permissionService.deleteByPrimaryKey(Integer.parseInt(psnId[i]));
+            }
+        }
+        return "OK";
+    }
+
 
 
 }

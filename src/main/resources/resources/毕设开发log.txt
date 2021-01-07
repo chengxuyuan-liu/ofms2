@@ -224,8 +224,8 @@
 4.完善系统空间分配机制
 3.完善成员最近访问时间
 
-th:text="${(#numbers.formatDecimal((((member.usedSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'"
-th:text="${(#numbers.formatDecimal((((member.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'"
+th:text="${(#numbers.formatDecimal((((memberVO.usedSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'"
+th:text="${(#numbers.formatDecimal((((memberVO.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',2,'POINT'))}+'GB'"
 
 
     文件剩余空间不足1024MB

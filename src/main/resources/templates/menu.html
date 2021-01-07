@@ -11,7 +11,7 @@
     <style>
         body {
             background: url("/images/main.jpg");
-            overflow-y: hidden;
+            /*overflow-x: hidden;*/
         }
 
         .container {
@@ -62,7 +62,7 @@
                 $('.panel-body').css({background: '#ffffff'});
                 $(this).css({background: '#d8d8d8', color: '#ffffff'});
             });
-            $('.member').click(function () {
+            $('.memberVO').click(function () {
                 $('.panel-body').css({background: '#ffffff'});
                 $(this).css({background: '#d8d8d8', color: '#ffffff'});
             });
@@ -76,10 +76,10 @@
 
     <!-- 头部导航-->
     <div class="row clearfix">
-        <div class="col-md-12 column" style="width: 1536px">
+        <div class="col-md-12 column" style="width: 1536px; position: fixed;z-index: 1000;">
             <nav class="navbar navbar-default" role="navigation">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">天涯办公文件管理系统</a>
+                    <a class="navbar-brand" href="#">办公文件管理系统</a>
                     <div id="user-space" th:if="${session.USER_SESSION.getUserType() eq 2}">
                         用户总空间:
                         已分配：<span th:attr="data-usedspace=${session.USER_SESSION.getUsedSpace()}"
@@ -87,7 +87,7 @@
                         共：<span th:attr="data-maxspace=${session.USER_SESSION.getMaxSpace()}" id="max_space"></span>
                     </div>
                     <div id="user-status" th:if="${session.USER_SESSION.getUserType() eq 1}">
-                        -所属团队：<span th:text="${team.getTeamName()}" id="user-team"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        -所属团队：<span th:if="${team} == null">无</span><span th:if="${team} != null" th:text="${team.getTeamName()}" id="user-team"></span>&nbsp;&nbsp;&nbsp;&nbsp;
                         -所属部门：<span th:if="${department} == null">无</span><span th:if="${department} != null"
                                                                                 th:text="${department.getDeptName()}"
                                                                                 id="user-dept"></span>
@@ -101,9 +101,9 @@
 
 
                     <ul class="nav navbar-nav navbar-right">
-                        <!--                        <li>-->
-                        <!--                            <a href="#">控制台</a>-->
-                        <!--                        </li>-->
+                        <li>
+                            <a href="#">空间套餐</a>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">用户<strong class="caret"></strong></a>
                             <ul class="dropdown-menu">
@@ -129,7 +129,7 @@
     </div>
 
     <!-- 菜单和内容-->
-    <div class="row clearfix">
+    <div class="row clearfix" style="margin-top: 60px;">
         <!--菜单-->
         <div class="col-md-2 column" style="width: 230px">
             <div class="panel-group" id="panel-924077">
@@ -159,11 +159,11 @@
                             <a href="#" style="color: white" class="btn" data-toggle="modal"
                                data-target="#modal-container-new-department">+新建部门</a>
                         </div>
-                        <div class="panel-body member" th:each="dept:${deptList}">
+                        <div class="panel-body memberVO" th:each="dept:${deptList}">
                             <a href="#"
                                th:attr="_link=@{/deptMemberView(deptId=${dept.deptId})}">[[${dept.deptName}]]</a>
                         </div>
-                        <div class="panel-body member">
+                        <div class="panel-body memberVO">
                             <a href="#" _link="/toBeAssigned">待分配</a>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                            href="#panel-element-78316">权限管理</a>
                     </div>
                     <div id="panel-element-78316" class="panel-collapse collapse in">
-                        <div class="panel-body member">
+                        <div class="panel-body memberVO">
                             <a href="#" th:attr="_link=@{/permission}">角色和权限</a>
                         </div>
                     </div>

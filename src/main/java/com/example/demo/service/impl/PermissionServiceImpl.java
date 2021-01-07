@@ -3,9 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.*;
 import com.example.demo.entity.*;
 import com.example.demo.service.PermissionService;
-import com.example.demo.service.TeamService;
-import com.example.demo.service.UserInfService;
-import com.example.demo.vo.Member;
+import com.example.demo.vo.MemberVO;
 import com.example.demo.vo.PermissionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +30,12 @@ public class PermissionServiceImpl implements PermissionService {
     public int deleteByPrimaryKey(Integer psiId) {
         int reulst = permissionDao.deleteByPrimaryKey(psiId);
         return reulst;
+    }
+
+    @Override
+    public int deleteByMemberId(Integer memberId) {
+        int result = permissionDao.deleteByMemberId(memberId);
+        return result;
     }
 
     //插入
@@ -61,20 +65,20 @@ public class PermissionServiceImpl implements PermissionService {
         //
         Team team = teamDao.selectByUserId(userId);
         //查询成员表
-        List<Member> members = deptMemberDao.selectListByTeamId(team.getTeamId());
+        List<MemberVO> memberVOS = deptMemberDao.selectListByTeamId(team.getTeamId());
         //封装
         List<PermissionVO> permissions= new ArrayList<PermissionVO>();
-        for (Member member : members) {
+        for (MemberVO memberVO : memberVOS) {
             PermissionVO permissionVO = new PermissionVO();
-            Permission permission1 = permissionDao.selectByMemberId(member.getId());
+            Permission permission1 = permissionDao.selectByMemberId(memberVO.getId());
             if(permission1 == null) continue;
             permissionVO.setPsiId(permission1.getPsiId());
             permissionVO.setRole(permission1.getRole());
-            permissionVO.setUserName(member.getUserName());
-            permissionVO.setEmail(member.getEmail());
-            permissionVO.setPhone(member.getPhone());
-            permissionVO.setDeptName(member.getDeptName());
-            permissionVO.setRecent(member.getRecent());
+            permissionVO.setUserName(memberVO.getUserName());
+            permissionVO.setEmail(memberVO.getEmail());
+            permissionVO.setPhone(memberVO.getPhone());
+            permissionVO.setDeptName(memberVO.getDeptName());
+            permissionVO.setRecent(memberVO.getRecent());
             permissions.add(permissionVO);
         }
         return permissions;
@@ -107,6 +111,12 @@ public class PermissionServiceImpl implements PermissionService {
         permissionVO.setDeptName(department.getDeptName());
         permissions.add(permissionVO);
 
+        return permissions;
+    }
+
+    @Override
+    public List<PermissionVO> selectByUsername(String username,Integer userId) {
+        List<PermissionVO> permissions = permissionDao.selectByUsername(username,userId);
         return permissions;
     }
 

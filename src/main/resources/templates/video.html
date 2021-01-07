@@ -1,0 +1,99 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" >
+<title>jQuery多功能媒体视频播放器特效插件jsmodern</title>
+	
+<!--封装好的视频布局样式-->
+<link rel="stylesheet" href="/css/jsmodern-4.1.4.min.css">
+<style>
+body{background-color: #212121}
+#video {
+	padding-top: 50px;
+	width: 970px;
+	height: 594px;
+	margin: 0 auto;
+	position: relative;
+}
+
+#video video {
+	width: 100%;
+	height: 100%;
+	object-fit: fill;
+}
+
+.VideoBtn {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	display: block;
+	width: 70px;
+	height: 70px;
+	margin-left: -35px;
+	margin-top: -35px;
+	cursor: pointer;
+	z-index: 10;
+}	
+</style>
+<script src="/js/libs/jquery-2.1.1.min.js"></script>
+<!--mp4视频插件-->
+<script src="/js/libs/jsmodern-4.1.4.min.js"></script>
+	
+</head>
+
+<body>
+	
+	<div id="video">
+	<video src="D:\graduation project\ofms\2919586256@qq.com\开发二部\1 java基本类型.mp4" id="videoShow"></video>
+</div>
+	
+<!--视频插件调用方法-->
+<script>
+$(function () {
+	//视频
+	jsModern.video("#video");
+	//播放视频
+	$(".VideoBtn").click(function () {
+		var video = document.getElementById("videoShow");
+		video.play();
+		$('.VideoBtn').hide();
+	})
+	//监听视频的播放状态
+	var video = document.getElementById("videoShow");
+	video.oncanplay = function () {
+		$(".VideoBtn").show();
+		//$("#video").attr("poster","");
+	}
+	//视频播放事件
+	video.onplay = function () {
+		$("#videoShow").attr("poster", "");
+		$(".VideoBtn").hide();
+	};
+	video.onplaying = function () {
+		$(".VideoBtn").hide();
+	};
+
+	//视频暂停事件
+	video.onpause = function () {
+		$(".VideoBtn").show();
+	};
+	//点击视频周围暂停播放图片出现
+	video.onclick = function () {
+		if (video.paused) {
+			$(".VideoBtn").hide();
+			$(".jmn-video-center").hide();
+			$(".jmn-video-play").hide();
+			$(".jmn-video-pause").show();
+			video.play();
+		} else {
+			$(".VideoBtn").show();
+			$(".jmn-video-center").show();
+			$(".jmn-video-play").show();
+			$(".jmn-video-pause").hide();
+			video.pause();
+		}
+	};
+})
+</script>	
+</body>
+</html>

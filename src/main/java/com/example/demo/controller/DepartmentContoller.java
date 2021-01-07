@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.entity.*;
 import com.example.demo.service.*;
 import com.example.demo.util.UnitChange;
+import com.example.demo.vo.MemberVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,8 @@ public class DepartmentContoller {
     DeptMemberService deptMemberService;
     @Autowired
     FileInfServive fileInfServive;
+    @Autowired
+    PermissionService permissionService;
 
     /*
     * 新建部门
@@ -67,6 +70,9 @@ public class DepartmentContoller {
         //更新用户空间
         userInfService.updateSpaceWhenNewDept(teamUser);
 
+        UserInf newUser = userInfService.selectByPrimaryKey(userInf.getUserId());
+
+        session.setAttribute("USER_SESSION",newUser);
         return "OK";
     }
 
@@ -80,6 +86,19 @@ public class DepartmentContoller {
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //解散成员
         deptMemberService.dissolveMemberToBeAssigned(deptId);
+
+        List<MemberVO> memberVOS = deptMemberService.selectListByUserId(deptId);
+
+        //删除角色
+        for (MemberVO memberVO : memberVOS) {
+            Permission permission = permissionService.selectByMemberId(memberVO.getId());
+            if(permission != null){
+                permissionService.deleteByPrimaryKey(permission.getPsiId());
+            }
+        }
+        //permissionService.deleteByMemberId()
+
+
         //删除部门
         departmentService.deleteByPrimaryKey(deptId);
         //删除文件夹,级联删除文件柜和文件
@@ -87,6 +106,9 @@ public class DepartmentContoller {
         dirInfService.deleteByPrimaryKey(fileCabinet.getDirId());
         //改变用户总空间
         userInfService.updateSpaceWhenDeleteDept(userInf,fileCabinet);
+
+        UserInf newUser = userInfService.selectByPrimaryKey(userInf.getUserId());
+        session.setAttribute("USER_SESSION",newUser);
         return "OK";
     }
 

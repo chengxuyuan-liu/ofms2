@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 @Controller
-public class UserLogServiceController {
+public class UserLogController {
 
     @Autowired
     UserLogService userLogService;

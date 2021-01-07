@@ -39,6 +39,15 @@
         WHERE file_name=#{fileName} and dir_id = #{dirId}
   </select>
 
+  <select id="selectByFileType"  resultMap="BaseResultMap">
+    SELECT  <include refid="Base_Column_List" />
+    FROM file_inf
+    WHERE
+    <trim prefix="(" suffix=")" suffixOverrides="or">
+    <foreach  collection="list" item="type">file_name LIKE "%${type}%" or </foreach>
+     </trim>
+    AND user_id = #{userId} AND dir_id=#{dirId};
+  </select>
 
   <!-- 删除-->
  <!-- 通过主键删除-->

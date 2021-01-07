@@ -3,7 +3,7 @@
 <mapper namespace="com.example.demo.dao.UserLogDao">
   <resultMap id="BaseResultMap" type="com.example.demo.entity.UserLog">
     <id column="log_id" jdbcType="INTEGER" property="logId" />
-    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="user_ip" jdbcType="VARCHAR" property="userIp" />
     <result column="operate_date" jdbcType="TIMESTAMP" property="operateDate" />
@@ -14,7 +14,7 @@
 
 
   <sql id="Base_Column_List">
-    log_id, user_id, username, user_ip, operate_date, operate_content
+    log_id, email, username, user_ip, operate_date, operate_content
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -58,7 +58,7 @@
         log_id,
       </if>
       <if test="userId != null">
-        user_id,
+        email,
       </if>
       <if test="username != null">
         username,
@@ -78,7 +78,7 @@
         #{logId,jdbcType=INTEGER},
       </if>
       <if test="userId != null">
-        #{userId,jdbcType=INTEGER},
+        #{email,jdbcType=VARCHAR},
       </if>
       <if test="username != null">
         #{username,jdbcType=VARCHAR},
@@ -104,7 +104,7 @@
     update user_log
     <set>
       <if test="userId != null">
-        user_id = #{userId,jdbcType=INTEGER},
+        email = #{userId,jdbcType=VARCHAR},
       </if>
       <if test="username != null">
         username = #{username,jdbcType=VARCHAR},
@@ -123,7 +123,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.UserLog">
     update user_log
-    set user_id = #{userId,jdbcType=INTEGER},
+    set email = #{email,jdbcType=VARCHAR},
       username = #{username,jdbcType=VARCHAR},
       user_ip = #{userIp,jdbcType=VARCHAR},
       operate_date = #{operateDate,jdbcType=TIMESTAMP},

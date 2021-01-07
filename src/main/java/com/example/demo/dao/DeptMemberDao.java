@@ -2,7 +2,7 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.DeptMember;
-import com.example.demo.vo.Member;
+import com.example.demo.vo.MemberVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -29,12 +29,13 @@ public interface DeptMemberDao {
     查询
     */
     DeptMember selectByPrimaryKey(Integer id);
-    List<Member> selectListByDeptKey(Integer id);
+    List<MemberVO> selectListByDeptKey(Integer id);
     DeptMember selectByUserKey(Integer userId);
-    List<Member> selectToBeAssignedMemberListByUserId(Integer userId);
-    List<Member> selectToBeAssignedMemberByUserName(@Param("userId")Integer userId,@Param("userName")String userName);
-    List<Member> selectToBeAssignedMemberByPhone(@Param("userId")Integer userId,@Param("phone")String phone);
-    List<Member> selectListByTeamId(Integer teamId);
+    List<MemberVO> selectToBeAssignedMemberListByUserId(Integer userId);
+    List<MemberVO> selectToBeAssignedMemberByUserName(@Param("userId")Integer userId, @Param("userName")String userName);
+    List<MemberVO> selectToBeAssignedMemberByPhone(@Param("userId")Integer userId, @Param("phone")String phone);
+    List<MemberVO> selectListByTeamId(Integer teamId);
+    List<MemberVO> selectByUserName(@Param("userId")Integer userId, @Param("userName")String userName);
 
 
     /*

@@ -156,6 +156,7 @@ public class UserInfServiceImpl implements UserInfService {
     @Override
     public int updateSpaceWhenNewDept(UserInf record) {
         //usedSpace + 1G
+        System.out.println("增加空間！！！");
         Long increment = Long.valueOf(1024*1024*1024);
         BigInteger count = record.getUsedSpace().add(new BigInteger(increment.toString()));
         record.setUsedSpace(count);

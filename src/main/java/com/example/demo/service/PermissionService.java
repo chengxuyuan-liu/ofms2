@@ -8,16 +8,19 @@ import java.util.List;
 
 public interface PermissionService {
     int deleteByPrimaryKey(Integer psiId);
+    int deleteByMemberId(Integer memberId);
+
 
     int insert(Permission record);
 
     int insertSelective(Permission record);
 
     Permission selectByPrimaryKey(Integer psiId);
-    public List<PermissionVO> selectByUserId(Integer userId);
-    public PermissionVO selectByPsiId(Integer psiId);
+    List<PermissionVO> selectByUserId(Integer userId);
+    PermissionVO selectByPsiId(Integer psiId);
     Permission selectByMemberId(Integer memberId);
-    public List<PermissionVO> selectByPhone(String phone);
+    List<PermissionVO> selectByPhone(String phone);
+    List<PermissionVO> selectByUsername(String username,Integer userId);
 
 
     int updateByPrimaryKeySelective(Permission record);

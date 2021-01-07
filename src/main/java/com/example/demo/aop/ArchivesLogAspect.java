@@ -45,7 +45,7 @@ public class ArchivesLogAspect {
         //用户日志
         UserLog userLog = new UserLog();
         if(userInf != null) {
-            userLog.setUserId(userInf.getUserId());
+            userLog.setUserId(userInf.getEmail());
             userLog.setUsername(userInf.getUsername());
             userLog.setUserIp(getIpAddr(req));
             userLog.setOperateContent(getMethodDesc(joinPoint));

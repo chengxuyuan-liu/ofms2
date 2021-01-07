@@ -19,12 +19,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class FileInfController {
@@ -102,9 +107,8 @@ public class FileInfController {
     /*文件预览实现：
         文件id、文件夹id->获取文件的绝对路径->...
     */
-    //@ResponseBody
     @RequestMapping("preview")
-    public String toPdfFile(Integer fileId, HttpServletResponse response, HttpSession session) throws IOException {
+    public String toPdfFile(Integer fileId, HttpServletResponse response, HttpSession session,Map<String,Object>map) throws IOException {
 
 
         //获取实例
@@ -129,5 +133,58 @@ public class FileInfController {
 
         return fileInfServive.preview(fileId,response);
     }
+
+
+    //批量删除文件和文件夹
+    @RequestMapping("/deleteFileAndDir")
+    @ResponseBody
+    public String deleteFileAndDir(String[] fileId,String[] dirId) {
+
+        if (fileId != null) {
+            for (int i = 0; i < fileId.length; i++) {
+                fileInfServive.deleteByPrimaryKey(Integer.parseInt(fileId[i]));
+            }
+        }
+        if (dirId != null) {
+            for (int i = 0; i < dirId.length; i++) {
+                dirInfService.deleteByPrimaryKey(Integer.parseInt(dirId[i]));
+            }
+        }
+
+        return "OK";
+    }
+
+    /*
+    修改该文件名
+    */
+    @ResponseBody
+    @RequestMapping("/fileRename")
+    public String fileRename(Integer fileId,String fileName){
+
+        //数据库修改文件名
+        int result = fileInfServive.updateFileName(fileId,fileName);
+
+        switch (result){
+            case 1:return "OK";
+            case 2:
+                System.out.println("文件已存在"); return "EXIST";
+            default:return "FALSE";
+        }
+
+
+//        DirInf dirInf = dirInfService.selectByPrimaryKey(dirId);
+//        if(dirInf.getUserId() != userInf.getUserId()){
+//            //检查上传权限，如果返回为false；
+//            if(checkPermissionsService.checkUploadPremission(userInf))
+//                return fileInfServive.fileUpload(uploadfile,dirId,userInf);
+//            return "No Access";
+//        }
+
+
+
+    }
+
+
+
 
 }

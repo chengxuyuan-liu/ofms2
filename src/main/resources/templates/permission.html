@@ -80,6 +80,10 @@
             padding-top: 1px;
             width: 150px;
         }
+        #all-delete {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
@@ -92,15 +96,22 @@
 
 </div>
 <!--添加成员、搜索-->
-<div class="btn-group">
+<div class="btn-group" style="margin-left: 7px;">
     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-            data-target="#modal-container-new-member">添加角色
+            data-target="#modal-container-new-memberVO">添加角色
     </button>
     <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/permissionSearch">
+        <select  id="sid"  name="searchType" style="width: 80px">
+            <option value="1">用户名</option>
+            <option value="2">手机号码</option>
+        </select><h2 style="display: inline;">:</h2>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="请输入手机号" name="phone"/>
+            <input type="text" class="form-control" id="search_content" placeholder="请输入用户名" name="username"/>
         </div>
         <button type="submit" class="btn btn-default btn-primary">搜索</button>
+        <span style="display: inline-block">
+            <button type="button" class="btn btn-default btn-primary" id="all-delete">删除选中角色</button>
+        </span>
     </form>
 </div>
 <!--成员信息-->
@@ -110,7 +121,7 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox" onchange="allCheck()" id="all_check">
+                    <input type="checkbox" id="all_check" th:attr="data-type=3">
                 </th>
                 <th>
                     职位
@@ -138,7 +149,7 @@
             <tbody>
             <tr th:each="pem : ${permission}">
                 <td>
-                    <input type="checkbox" class="all_check_button"/><img src="/images/manage.png" style="width: 15px;
+                    <input type="checkbox" class="all_check_button" th:attr="data-type=2,data-psn-id=${pem.getPsiId()}"/><img src="/images/manage.png" style="width: 15px;
     position: absolute;
     margin-left: 10px;
     height: 17px;">
@@ -147,7 +158,7 @@
                 </td>
                 <td th:text="${pem.getUserName()}">
                 </td>
-                <td>
+                <td style="width: 180px">
                     <p th:text="${pem.getEmail()}"></p>
                 </td>
                 <td>
@@ -158,7 +169,7 @@
                 </td>
                 <td>
                     最近访问：
-                    <p th:text="${pem.getRecent()}"></p>
+                    <p th:text="${#dates.format(pem.getRecent(), 'yyyy-MM-dd HH:mm:ss')}" style="display: inline-block"></p>
                 </td>
                 <td>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
@@ -178,7 +189,7 @@
 <div class="row clearfix">
     <div class="col-md-12 column">
         <!--toggle and tagget-->
-        <div class="modal fade" id="modal-container-new-member" role="dialog" aria-labelledby="myModalLabel"
+        <div class="modal fade" id="modal-container-new-memberVO" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -380,7 +391,7 @@
     删除成员
     */
     function deleteRole(id) {
-        if (confirm("确定要删除该成员吗")) {
+        if (confirm("确定要删除该角色吗")) {
             $.post("/deleteRole", {"psiId": id}, function (date) {
                 if (date == "OK") {
                     alert("删除成功");
@@ -404,9 +415,9 @@
         let deptId = $("#add_dept").prop('value');
         $.post('/getMember',{'deptId':deptId},function (data){
             $('#add_member').empty();
-            let member = JSON.parse(data);
-            for (let i = 0; i < member.length; i++) {
-                $('<option value="'+member[i].id+'">'+member[i].userName+'</>').appendTo('#add_member');
+            let memberVO = JSON.parse(data);
+            for (let i = 0; i < memberVO.length; i++) {
+                $('<option value="'+memberVO[i].id+'">'+memberVO[i].userName+'</>').appendTo('#add_member');
             }
         });
 
@@ -455,6 +466,86 @@
 
 
 
+    /*
+   * 批量删除文件
+   * */
+    $('.all_check_button,#all_check').change(function () {
+
+        //全选复选框绑定事件
+        if ($(this).attr('data-type') == 3) {
+            var check = document.getElementById("all_check").checked; //获取全选复选框的状态
+            if (check == true) {
+                $(".all_check_button").prop("checked", true);  //设置所有复选框的为选中状态
+                $('#all-delete').css({
+                    display: 'block',
+                });
+            } else {
+                $(".all_check_button").prop("checked", false); //设置所有复选框的为不选中状态
+                $('#all-delete').css({
+                    display: 'none',
+                });
+            }
+        }
+
+
+
+        let idList = $('.all_check_button');       //记录复选框
+        let psnId = [];                         //成员id
+        let flag = false;                          //判断是否存在选中复选框
+
+
+        //获得成员id
+        for (let i = 0; i < idList.length; i++) {
+            if (idList.eq(i).prop('checked')) {
+                psnId.push(idList.eq(i).attr('data-psn-id'))
+                flag = true;
+            }
+        }
+
+
+        //根据flag判断是否还有被选中记录
+        if (flag) {
+            $('#all-delete').css({
+                display: 'block',
+            });
+
+        } else {
+            $('#all-delete').css({
+                display: 'none',
+            });
+        }
+
+        //取消绑定事件
+        $('#all-delete').unbind('click')
+
+        //提交请求到服务器
+        $('#all-delete').click(function () {
+            if (confirm("确定要删除这些角色吗？")) {
+                $.ajax({
+                    url: '/deleteBatchPermission',
+                    type: 'post',
+                    data: {psnId: psnId},
+                    traditional: true,
+                    success: function (data) {
+                        if (data == 'OK') {
+                            alert('删除成功')
+                            window.location.reload();
+                        }
+                    }
+                })
+            }
+        })
+    });
+
+    $('#sid').change(function () {
+        if($('#sid').val() == 1){
+            $('#search_content').prop('name','userName');
+            $('#search_content').prop('placeholder','请输入用户名');
+        }else{
+            $('#search_content').prop('name','userPhone');
+            $('#search_content').prop('placeholder','请输入手机号');
+        }
+    });
 
 </script>
 </body>

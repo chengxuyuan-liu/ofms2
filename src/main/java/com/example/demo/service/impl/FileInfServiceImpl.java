@@ -1,9 +1,6 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dao.DeptMemberDao;
-import com.example.demo.dao.FileCabinetDao;
-import com.example.demo.dao.FileInfDao;
-import com.example.demo.dao.UserInfDao;
+import com.example.demo.dao.*;
 import com.example.demo.entity.*;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.DirInfService;
@@ -34,14 +31,13 @@ public class FileInfServiceImpl implements FileInfServive {
     @Autowired
     FileInfDao fileInfDao;
     @Autowired
-    DirInfService dirInfService;
+    DirInfDao dirInfDao;
     @Autowired
     FileInfServive fileInfServive;
     @Autowired
     private DocumentConverter converter;
     @Autowired
     UserInfService userInfService;
-
     @Autowired
     DeptMemberDao deptMemberDao;
     @Autowired
@@ -92,7 +88,7 @@ public class FileInfServiceImpl implements FileInfServive {
         //外存删除相应文件
         //获得获得文件的存储路径
         String systemPath = "D:\\graduation project\\ofms\\";
-        DirInf dirInf = dirInfService.selectDirByFileId(fileId);
+        DirInf dirInf = dirInfDao.selectDirByFileId(fileId);
         FileInf fileInf = fileInfDao.selectByPrimaryKey(fileId);
         String filePath = systemPath+ dirInf.getDirPath()+dirInf.getDirName();
 
@@ -129,9 +125,9 @@ public class FileInfServiceImpl implements FileInfServive {
     @Override
     public String fileUpload(MultipartFile file, Integer dirId, UserInf userInf) {
 
-        DirInf dirInf = dirInfService.selectByPrimaryKey(dirId); //获取目标文件夹
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId); //获取目标文件夹
         DeptMember deptMember=null;
-        List<DirInf> dirInfList = dirInfService.selectParentDirByDirId(dirId);
+        List<DirInf> dirInfList = dirInfDao.selectParentDirByDirId(dirId);
         FileCabinet fileCabinet = fileCabinetDao.selectByDirId(dirInfList.get(0).getDirId());
 
 
@@ -170,7 +166,7 @@ public class FileInfServiceImpl implements FileInfServive {
         fileInf.setFileType(fileType);//设置文件的类型
         fileInf.setFileUploadTime(DateUtil.getNowDate());//设置上传时间
         fileInf.setDirId(dirId);//文件夹id
-        fileInf.setUserId(userInf.getUserId());//用户id
+        fileInf.setUserId(dirInf.getUserId());//用户id
 
 
 
@@ -247,7 +243,7 @@ public class FileInfServiceImpl implements FileInfServive {
     public void download(Integer fileId, Integer dirId, HttpServletResponse response, HttpSession session) {
 
         String systemPath = "D:\\graduation project\\ofms";  //文件保存系统路径
-        DirInf dirInf = dirInfService.selectByPrimaryKey(dirId); //文件夹信息
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId); //文件夹信息
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION"); //用户信息
 
         //输入流
@@ -296,14 +292,21 @@ public class FileInfServiceImpl implements FileInfServive {
     public String preview(Integer fileId, HttpServletResponse response) {
         String systemPath = "D:\\graduation project\\ofms"; //文件保存系统路径
         FileInf fileInf = fileInfServive.selectByPrimaryKey(fileId);//文件信息
-        DirInf dirInf = dirInfService.selectByPrimaryKey(fileInf.getDirId());//文件夹
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(fileInf.getDirId());//文件夹
+
+
         //判断该文件是否可预览
         if(!PreviewUtil.check(fileInf.getFileName())) return "preview_error";
         //获取绝对路径
         String fileRealPath = systemPath+dirInf.getDirPath()+ dirInf.getDirName()+ "\\" +fileInf.getFileName();
         //获取文件名
         String fileName = fileInf.getFileName();
-        //文件类型
+        //判断文件类型
+
+        //判断是否是视频
+        if(fileName.indexOf(".mp4") >= 0) {
+            return systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\"+fileInf.getFileName();
+        }
         //判断文件的类型是否是excel表格
         if(fileName.indexOf(".xlsx") >= 0) {
             //如果是excel表格，统一将其缩放再转换
@@ -350,5 +353,36 @@ public class FileInfServiceImpl implements FileInfServive {
         return result;
     }
 
+    @Override
+    public int updateFileName(Integer fileId,String fileName) {
+        String systemPath = "D:\\graduation project\\ofms";
+        //修改硬盘文件名
+        FileInf fileInf1 = fileInfDao.selectByPrimaryKey(fileId); //原文件
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(fileInf1.getDirId()); //原文件所在文件夹
+        String dirPhat = systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\";
+        File file = new File(dirPhat+fileInf1.getFileName()); //原文件文件类
+        File newFile = new File(dirPhat+fileName);
+        //校验新文件名是否在硬盘中是否存在，存在则返回对应信息
+        if(newFile.exists()){
+            System.out.println("文件已存在");
+            return 2;       //文件已存在
+        }
+        //改名
+        if(!file.renameTo(new File(systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\"+fileName))){
+            return 0;
+        }
+
+        //数据库修改文件名
+        FileInf fileInf = new FileInf();
+        fileInf.setFileId(fileId);
+        fileInf.setFileName(fileName);
+        return fileInfDao.updateByPrimaryKeySelective(fileInf);   //修改
+    }
+
+    @Override
+    public List<FileInf> selectByFileType(List<String> type,Integer userId,Integer dirId) {
+        List<FileInf> fileInfList = fileInfDao.selectByFileType(type,userId,dirId);
+        return fileInfList;
+    }
 
 }

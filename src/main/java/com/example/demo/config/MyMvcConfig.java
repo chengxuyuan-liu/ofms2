@@ -22,6 +22,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addViewController("permission").setViewName("permission");
         registry.addViewController("adminstration_log").setViewName("adminstration_log");
         registry.addViewController("preview_error").setViewName("preview_error");
+        registry.addViewController("video").setViewName("video");
     }
 
     @Override

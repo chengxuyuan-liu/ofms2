@@ -5,8 +5,7 @@ import com.example.demo.dao.DeptMemberDao;
 import com.example.demo.dao.TeamDao;
 import com.example.demo.dao.UserInfDao;
 import com.example.demo.entity.*;
-import com.example.demo.service.TeamService;
-import com.example.demo.vo.Member;
+import com.example.demo.vo.MemberVO;
 import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.UserInfService;
@@ -40,9 +39,9 @@ public class DeptMemberServiceImpl implements DeptMemberService {
 
     @Override
 
-    public List<Member> selectListByDeptKey(Integer deptId) {
-        List<Member> memberList = deptMemberDao.selectListByDeptKey(deptId);
-        return memberList;
+    public List<MemberVO> selectListByDeptKey(Integer deptId) {
+        List<MemberVO> memberVOList = deptMemberDao.selectListByDeptKey(deptId);
+        return memberVOList;
     }
 
     @Override
@@ -52,50 +51,61 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     }
 
     @Override
-    public List<Member> selectToBeAssignedMemberListByUserId(Integer userId) {
-        List<Member> list = deptMemberDao.selectToBeAssignedMemberListByUserId(userId);
+    public List<MemberVO> selectToBeAssignedMemberListByUserId(Integer userId) {
+        List<MemberVO> list = deptMemberDao.selectToBeAssignedMemberListByUserId(userId);
         return list;
     }
 
     @Override
-    public List<Member> selectToBeAssignedMemberByUserName(Integer userId,String userName) {
-        List<Member> member = deptMemberDao.selectToBeAssignedMemberByUserName(userId,userName);
-        return member;
+    public List<MemberVO> selectToBeAssignedMemberByUserName(Integer userId, String userName) {
+        List<MemberVO> memberVO = deptMemberDao.selectToBeAssignedMemberByUserName(userId,userName);
+        return memberVO;
     }
 
     @Override
-    public List<Member> selectToBeAssignedMemberByPhone(Integer userId,String phone) {
-        List<Member> member = deptMemberDao.selectToBeAssignedMemberByPhone(userId,phone);
-        return member;
+    public List<MemberVO> selectToBeAssignedMemberByPhone(Integer userId, String phone) {
+        List<MemberVO> memberVO = deptMemberDao.selectToBeAssignedMemberByPhone(userId,phone);
+        return memberVO;
     }
 
     @Override
-    public List<Member> selectListByUserId(Integer teamId) {
-        List<Member> member = deptMemberDao.selectListByTeamId(teamId);
-        return member;
+    public List<MemberVO> selectListByUserId(Integer teamId) {
+        List<MemberVO> memberVO = deptMemberDao.selectListByTeamId(teamId);
+        return memberVO;
     }
 
     @Override
-    public Member selectListByPhone(String phone) {
+    public MemberVO selectListByPhone(String phone,Integer deptId) {
         UserInf userInf = userInfDao.selectByUserPhone(phone);
-        DeptMember deptMember = deptMemberDao.selectByUserKey(userInf.getUserId());
-        Department department = departmentDao.selectByPrimaryKey(deptMember.getDeptId());
-        Member member = new Member();
-        member.setId(deptMember.getId());
-        member.setUserName(userInf.getUsername());
-        member.setDeptName(department.getDeptName());
-        member.setEmail(userInf.getEmail());
-        member.setPhone(userInf.getUserPhone());
-        member.setUsedSpace(deptMember.getUsedSpace());
-        member.setMaxSpace(deptMember.getMaxSpace());
-        member.setTeamId(deptMember.getTeamId());
-        member.setRecent(deptMember.getRecent());
-        member.setpPreview(deptMember.getpPreview());
-        member.setpUpload(deptMember.getpUpload());
-        member.setpDown(deptMember.getpDown());
-        member.setmStatus(deptMember.getmStatus());
-        member.setDeptId(deptMember.getDeptId());
-        return member;
+        if(userInf != null){
+            DeptMember deptMember = deptMemberDao.selectByUserKey(userInf.getUserId());
+            if(deptMember != null && deptMember.getDeptId().equals(deptId)) {
+                Department department = departmentDao.selectByPrimaryKey(deptMember.getDeptId());
+                MemberVO memberVO = new MemberVO();
+                memberVO.setId(deptMember.getId());
+                memberVO.setUserName(userInf.getUsername());
+                memberVO.setDeptName(department.getDeptName());
+                memberVO.setEmail(userInf.getEmail());
+                memberVO.setPhone(userInf.getUserPhone());
+                memberVO.setUsedSpace(deptMember.getUsedSpace());
+                memberVO.setMaxSpace(deptMember.getMaxSpace());
+                memberVO.setTeamId(deptMember.getTeamId());
+                memberVO.setRecent(deptMember.getRecent());
+                memberVO.setpPreview(deptMember.getpPreview());
+                memberVO.setpUpload(deptMember.getpUpload());
+                memberVO.setpDown(deptMember.getpDown());
+                memberVO.setmStatus(deptMember.getmStatus());
+                memberVO.setDeptId(deptMember.getDeptId());
+                return memberVO;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<MemberVO> selectByUserName(Integer userId, String userName) {
+        List<MemberVO> memberVO = deptMemberDao.selectByUserName(userId,userName);
+        return memberVO;
     }
 
     @Override

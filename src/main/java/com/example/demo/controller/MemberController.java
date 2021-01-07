@@ -1,15 +1,13 @@
 package com.example.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
-import com.example.demo.entity.Department;
-import com.example.demo.entity.DeptMember;
-import com.example.demo.entity.FileCabinet;
-import com.example.demo.entity.UserInf;
+import com.example.demo.entity.*;
 import com.example.demo.service.DepartmentService;
 import com.example.demo.service.DeptMemberService;
 import com.example.demo.service.FileCabinetService;
+import com.example.demo.service.PermissionService;
 import com.example.demo.util.UnitChange;
-import com.example.demo.vo.Member;
+import com.example.demo.vo.MemberVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +29,8 @@ public class MemberController {
     DepartmentService departmentService;
     @Autowired
     FileCabinetService fileCabinetService;
+    @Autowired
+    PermissionService permissionService;
 
     /*
     添加成员
@@ -62,13 +62,25 @@ public class MemberController {
     @RequestMapping("/removeMember")
     public String removeMember(Integer id,Integer deptId,HttpSession session){
 
+
+
         //更新文件柜
         DeptMember deptMember = deptMemberService.selectByPrimaryKey(id);
+
+        System.out.println(deptMember.getId());
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptMember.getDeptId());
         fileCabinetService.updateWhenDeleteMember(fileCabinet,deptMember);
+        //移除角色
+        Permission permission = permissionService.selectByMemberId(deptMember.getId());
+        if(permission != null){
+            permissionService.deleteByMemberId(deptMember.getId());
+        }
 
         //移除成员
         Boolean result = deptMemberService.updateDeptById(id,deptId);
+
+
+
         if(result) return "OK";
         return "FALSE";
     }
@@ -82,6 +94,20 @@ public class MemberController {
         int result = deptMemberService.deleteByPrimaryKey(id);
         if(result != 0) return "OK";
         return "FALSE";
+    }
+
+    /*
+    * 批量删除成员
+    * */
+    @ResponseBody
+    @RequestMapping("/deleteBatchMember")
+    public String deleteBatchMember(String[] memberId){
+        if (memberId != null) {
+            for (int i = 0; i < memberId.length; i++) {
+                deptMemberService.deleteByPrimaryKey(Integer.parseInt(memberId[i]));
+            }
+        }
+        return "OK";
     }
 
     /*
@@ -149,10 +175,47 @@ public class MemberController {
     @ResponseBody
     @RequestMapping("/getMember")
     public String getMember(Map<String,Object> map, Integer deptId) {
-        List<Member> members = deptMemberService.selectListByDeptKey(deptId);
-        String str = JSONArray.toJSONString(members);
+        List<MemberVO> memberVOS = deptMemberService.selectListByDeptKey(deptId);
+        String str = JSONArray.toJSONString(memberVOS);
         return str;
     }
+
+
+    /*
+     * 批量移除成员
+     * */
+    @ResponseBody
+    @RequestMapping("/removeBatchMember")
+    public String removeBatchMember(String[] memberId,Map<String,Object> map) {
+
+        System.out.println("批量删除");
+        //批量删除
+        if (memberId != null) {
+            for (int i = 0; i < memberId.length; i++) {
+                //更新文件柜
+                DeptMember deptMember = deptMemberService.selectByPrimaryKey(Integer.parseInt(memberId[i]));
+
+                System.out.println(deptMember.getId());
+                FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptMember.getDeptId());
+                fileCabinetService.updateWhenDeleteMember(fileCabinet,deptMember);
+                //移除角色
+                Permission permission = permissionService.selectByMemberId(deptMember.getId());
+                if(permission != null){
+                    permissionService.deleteByMemberId(deptMember.getId());
+                }
+                //移除成员
+                Boolean result = deptMemberService.updateDeptById(Integer.parseInt(memberId[i]),null);
+
+            }
+        }
+
+
+
+
+
+        return "OK";
+    }
+
 
 
 

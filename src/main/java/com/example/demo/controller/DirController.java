@@ -9,6 +9,7 @@ import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.FileInfServive;
 import com.example.demo.service.UserInfService;
+import com.mysql.cj.protocol.x.ReusableInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.rmi.Remote;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -64,19 +67,42 @@ public class DirController {
         return "FALSE";
     }
 
+
+    /*
+    * 获得文件夹目录
+    * */
     @RequestMapping("/getDirListAadMove")
     @ResponseBody
-    public String getDirListAadMove(Map<String,Object> map,Integer dirId){
-        JSONArray tree = new JSONArray();
-        List<DirInf> list = dirInfService.selectChildrenDirByDirId(dirId);
+    public String getDirListAadMove(Map<String,Object> map,Integer dirId,Integer parentId){
+        JSONArray tree = new JSONArray();   //json数组
+
+        List<DirInf> list = dirInfService.selectChildrenDirByDirId(parentId);  //所有子文件夹
+        List<DirInf> list2 = dirInfService.selectChildrenDirByDirId(dirId);  //所有子文件夹
+        Iterator<DirInf> di = list.iterator();
+
+        while (di.hasNext()){
+            DirInf dirInf = di.next();
+            for (DirInf Inf : list2) {
+                //
+                if (dirInf.getDirId().equals(Inf.getDirId())) {
+                    di.remove();
+                }
+            }
+        }
+
+
+
+
+
+
         JSONObject obj;
         for(DirInf resOwner : list){
             obj = new JSONObject();
             obj.put("id", resOwner.getDirId());
             obj.put("isParent", true);
             obj.put("pId", resOwner.getParentDir());
-            obj.put("name", resOwner.getDirName().length() > 24?resOwner.getDirName().substring(0,24)+"...":resOwner.getDirName());
-           //obj.put("icon", "/images/zTreeStandard.png");
+            obj.put("name", resOwner.getDirName());
+
             tree.add(obj);
         }
         map.put("success", new Boolean(true));
@@ -86,22 +112,37 @@ public class DirController {
         return tree.toJSONString();
     }
 
+
+    /*
+    * 移动文件夹
+    * */
     @RequestMapping("/moveDirTo")
     @ResponseBody
     public String moveTo(Integer dirId,Integer fileId,Integer parentId,Map<String,Object> map){
         //
         if(dirId != null){
-            dirInfService.updateByPrimaryKeySelective(dirId,parentId);
+            dirInfService.updateByPrimaryKeySelective(dirId,parentId);  //移动文件夹
         }
         if(fileId != null){
-           fileInfServive.updateByPrimaryKeySelective(fileId,parentId);
+           fileInfServive.updateByPrimaryKeySelective(fileId,parentId); //移动文件
         }
-
         return "OK";
     }
 
+    /*
+    * 修改该文件夹名
+    * */
+    @RequestMapping("/dirRename")
+    @ResponseBody
+    public String dirRename(Integer dirId,String dirName) {
+        int result = dirInfService.updateDirName(dirId,dirName);
 
-
+        switch (result){
+            case 1:return "OK";
+            case 2:return "EXIST";
+            default:return "FALSE";
+        }
+    }
 
 
 }

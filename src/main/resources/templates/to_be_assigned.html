@@ -16,7 +16,9 @@
 				box-sizing: border-box;
 				padding-top: 1px;
 			}
-
+			#all-delete {
+				display: none;
+			}
 			
 		</style>
 		<script>
@@ -68,7 +70,7 @@
 		    </h4>
 		</div>
 		<!--添加成员、搜索-->
-		<div class="btn-group">
+		<div class="btn-group" style="margin-left: -6px;">
 
 		    <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/toBeAssignedSearch">
 				
@@ -82,6 +84,9 @@
 		            <input type="text" class="form-control" id="search_content" name="userName"/>
 		        </div>
 		        <button type="submit" class="btn btn-default btn-primary" id="search">搜索</button>
+				<span style="display: inline-block">
+            		<button type="button" class="btn btn-default btn-primary" id="all-delete">移除选中成员</button>
+        		</span>
 		    </form>
 		</div>
 		<!--成员信息-->
@@ -92,7 +97,7 @@
 		            <thead>
 		            <tr>
 		                <th>
-		                    <input type="checkbox" onchange="allCheck()" id="all_check">
+		                    <input type="checkbox" id="all_check" th:attr="data-type=3">
 		                </th>
 		                <th>
 		                    用户
@@ -111,25 +116,25 @@
 					
 		            <tbody >
 						
-		            <tr th:each="member:${memberList}">
+		            <tr th:each="memberVO:${memberList}">
 		                <td>
-		                    <input type="checkbox" class="all_check_button"/>
+		                    <input type="checkbox" class="all_check_button" th:attr="data-type=2,data-member-id=${memberVO.getId()}"/>
 		                </td>
 		                <td>
-		                    [[${member.userName}]]
+		                    [[${memberVO.userName}]]
 		                </td>
 		                <td>
-		                    [[${member.phone}]]
+		                    [[${memberVO.phone}]]
 		                </td>
 		                <td>
 		                    最近访问：
-		                    [[${member.recent}]]
+		                    [[${memberVO.recent}]]
 		                </td>
 		                <td>
 		                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" id="edit_btn"
-		                            data-target="#modal-container-edit"  th:onclick="|getMemberId(${member.id})|">编辑
+		                            data-target="#modal-container-edit"  th:onclick="|getMemberId(${memberVO.id})|">分配
 		                    </button>
-		                    <button type="button" class="btn btn-default btn-primary" id="delete_forever" th:onclick= |deleteMember(${member.id})|>删除</button>
+		                    <button type="button" class="btn btn-default btn-primary" id="delete_forever" th:onclick= |deleteMember(${memberVO.id})|>删除</button>
 
 		                </td>
 		            </tr>
@@ -152,7 +157,7 @@
 		                    <div class="modal-header">
 		                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		                        <h4 class="modal-title" id="edit">
-		                            编辑
+		                            分配
 		                        </h4>
 		                    </div>
 		                    <div class="modal-body">
@@ -338,6 +343,77 @@
 				$('#edit_memberId').prop('value',id);
 
 			}
+
+			/*
+		   * 批量删除文件
+		   * */
+			$('.all_check_button,#all_check').change(function () {
+
+				//全选复选框绑定事件
+				if ($(this).attr('data-type') == 3) {
+					var check = document.getElementById("all_check").checked; //获取全选复选框的状态
+					if (check == true) {
+						$(".all_check_button").prop("checked", true);  //设置所有复选框的为选中状态
+						$('#all-delete').css({
+							display: 'block',
+						});
+					} else {
+						$(".all_check_button").prop("checked", false); //设置所有复选框的为不选中状态
+						$('#all-delete').css({
+							display: 'none',
+						});
+					}
+				}
+
+
+
+				let idList = $('.all_check_button');       //记录复选框
+				let memberId = [];                         //成员id
+				let flag = false;                          //判断是否存在选中复选框
+
+
+				//获得成员id
+				for (let i = 0; i < idList.length; i++) {
+					if (idList.eq(i).prop('checked')) {
+						memberId.push(idList.eq(i).attr('data-member-id'))
+						flag = true;
+					}
+				}
+
+
+				//
+				if (flag) {
+					$('#all-delete').css({
+						display: 'block',
+					});
+
+				} else {
+					$('#all-delete').css({
+						display: 'none',
+					});
+				}
+
+
+				$('#all-delete').unbind('click')
+
+
+				$('#all-delete').click(function () {
+					if (confirm("确定要删除这些待分配成员吗？")) {
+						$.ajax({
+							url: '/deleteBatchMember',
+							type: 'post',
+							data: {memberId: memberId},
+							traditional: true,
+							success: function (data) {
+								if (data == 'OK') {
+									alert('删除成功')
+									window.location.reload();
+								}
+							}
+						})
+					}
+				})
+			});
 		</script>
 	</body>
 </html>

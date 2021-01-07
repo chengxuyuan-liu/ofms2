@@ -5,7 +5,7 @@ import java.util.Date;
 public class UserLog {
     private Integer logId;
 
-    private Integer userId;
+    private String email;
 
     private String username;
 
@@ -23,12 +23,12 @@ public class UserLog {
         this.logId = logId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getUserId() {
+        return email;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserId(String email) {
+        this.email = email;
     }
 
     public String getUsername() {

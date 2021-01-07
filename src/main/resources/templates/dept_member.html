@@ -12,6 +12,16 @@
         tbody td{
             padding: 20px 0px;
         }
+
+
+        select{
+            height: 32px;
+            box-sizing: border-box;
+            padding-top: 1px;
+        }
+        #all-delete {
+            display: none;
+        }
     </style>
 
 
@@ -29,16 +39,25 @@
     共：<span th:attr="data-maxspace=${fileCabinet.getMaxSpace()}" id="max_space"></span>
 </div>
 <!--添加成员、搜索-->
-<div class="btn-group">
+<div class="btn-group" style="margin-left: 7px;">
     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-            data-target="#modal-container-new-member">添加成员
+            data-target="#modal-container-new-memberVO"
+            th:if="${session.USER_SESSION.userType} == 2 or ${permission.getpAddMember()} != 0" >添加成员
     </button>
     <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/searchMember">
+        <select  id="sid"  name="searchType" >
+            <option value="1">用户名</option>
+            <option value="2">手机号码</option>
+        </select><h2 style="display: inline;">:</h2>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="请输入手机号" name="userPhone"/>
+            <input type="hidden" th:value="${deptId}" name="deptId">
+            <input type="text" class="form-control" id="search_content" placeholder="请输入用户名" name="userName"/>
         </div>
         <button type="submit" class="btn btn-default btn-primary">搜索</button>
     </form>
+    <span style="display: inline-block">
+            <button type="button" class="btn btn-default btn-primary" id="all-delete">移除选中成员</button>
+    </span>
 </div>
 <!--成员信息-->
 <div class="row clearfix">
@@ -47,7 +66,7 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox" onchange="allCheck()" id="all_check">
+                    <input type="checkbox"  id="all_check" th:attr="data-type=3">
                 </th>
                 <th>
                     用户
@@ -76,37 +95,38 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="member:${memberList}">
+            <tr th:each="memberVO:${memberList}">
                 <td>
-                    <input type="checkbox" class="all_check_button"/><img src="/images/staff.png" style="width: 12px;position: absolute;margin-left: 10px">
+                    <input type="checkbox" class="all_check_button" th:attr="data-type=2,data-member-id=${memberVO.getId()}"/><img src="/images/staff.png" style="width: 12px;position: absolute;margin-left: 10px">
                 </td>
                 <td>
-                    [[${member.userName}]]
+                    [[${memberVO.userName}]]
                 </td>
-                <td class="used_space"  th:attr="data-space=${member.usedSpace}">
+                <td class="used_space"  th:attr="data-space=${memberVO.usedSpace}">
 
                 </td>
-                <td class="max_space"  th:attr="data-space=${member.maxSpace}">
+                <td class="max_space"  th:attr="data-space=${memberVO.maxSpace}">
 
                 </td>
                 <td style="width: 30px;">
-                    <p>[[${member.email}]]</p>
+                    <p>[[${memberVO.email}]]</p>
                 </td>
                 <td>
-                    <p>[[${member.phone}]]</p>
+                    <p>[[${memberVO.phone}]]</p>
                 </td>
                 <td>
-                    [[${member.deptName}]]
+                    [[${memberVO.deptName}]]
                 </td>
                 <td>
-                    最近访问：[[${#dates.format(member.recent, 'yyyy-MM-dd HH:mm:ss')}]]
+                    最近访问：[[${#dates.format(memberVO.recent, 'yyyy-MM-dd HH:mm:ss')}]]
                 </td>
                 <td>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                            data-target="#modal-container-edit"  th:onclick="|get_member_mes(${member.id},${member.usedSpace},${member.maxSpace},${member.pUpload},${member.pDown},${member.pPreview})|">编辑
+                            th:if="${session.USER_SESSION.userType} == 2 or ${permission.getpEditMember()} != 0"
+                            data-target="#modal-container-edit"  th:onclick="|get_member_mes(${memberVO.id},${memberVO.usedSpace},${memberVO.maxSpace},${memberVO.pUpload},${memberVO.pDown},${memberVO.pPreview})|">编辑
                     </button>
-                    <button type="button" class="btn btn-default btn-primary" id="app" th:if="${session.USER_SESSION.getUserId() ne member.getUserId()} "
-                            th:onclick="|removeMember(${member.id},${member.getDeptId()})|">移除
+                    <button type="button" class="btn btn-default btn-primary" id="app" th:if="${session.USER_SESSION.getUserId() ne memberVO.getUserId()} or ${permission.getpDelMember()} != 0"
+                            th:onclick="|removeMember(${memberVO.id},${memberVO.getDeptId()})|">移除
                     </button>
                 </td>
             </tr>
@@ -120,7 +140,7 @@
 <div class="row clearfix">
     <div class="col-md-12 column">
         <!--toggle and tagget-->
-        <div class="modal fade" id="modal-container-new-member" role="dialog" aria-labelledby="myModalLabel"
+        <div class="modal fade" id="modal-container-new-memberVO" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -251,17 +271,17 @@
     /*
     全选
     */
-    function allCheck(){
-        var check = document.getElementById("all_check").checked;
-
-        if(check == true){
-            $(".all_check_button").prop("checked",true);
-            console.log("true");
-        }else{
-            $(".all_check_button").prop("checked",false);
-            console.log("false");
-        }
-    }
+    // function allCheck(){
+    //     var check = document.getElementById("all_check").checked;
+    //
+    //     if(check == true){
+    //         $(".all_check_button").prop("checked",true);
+    //         console.log("true");
+    //     }else{
+    //         $(".all_check_button").prop("checked",false);
+    //         console.log("false");
+    //     }
+    // }
 
     /*
     解散部门
@@ -419,11 +439,19 @@
     */
     function editDept() {
 
-            $.post("/editDept",$("#edit_dept").serialize(), function (date) {
-                if (date == "OK") {
+
+        let dept_name = $('#edit_dept_name').prop('value');
+        if(dept_name == ''){
+            alert('请输入部门名');
+            return false;
+        }
+
+            $.post("/editDept",$("#edit_dept").serialize(), function (data) {
+                if (data == "OK") {
                     alert("保存成功");
-                    window.location.reload();
-                } else {
+                    window.parent.location.reload();
+                }
+                else {
                     alert("保存失败");
                 }
             });
@@ -541,10 +569,88 @@
     }
 
 
-    // function showModal() {
-    //     // 调用父窗口方法模拟弹出模态窗口
-    //     window.top.showModal($('#modal-container-edit').html());
-    // }
+    $('#sid').change(function () {
+        if($('#sid').val() == 1){
+            $('#search_content').prop('name','userName');
+            $('#search_content').prop('placeholder','请输入用户名');
+        }else{
+            $('#search_content').prop('name','userPhone');
+            $('#search_content').prop('placeholder','请输入手机号');
+        }
+    });
+
+
+    /*
+    * 批量删除文件
+    * */
+    $('.all_check_button,#all_check').change(function () {
+
+        //全选复选框绑定事件
+        if ($(this).attr('data-type') == 3) {
+            var check = document.getElementById("all_check").checked; //获取全选复选框的状态
+            if (check == true) {
+                $(".all_check_button").prop("checked", true);  //设置所有复选框的为选中状态
+                $('#all-delete').css({
+                    display: 'block',
+                });
+            } else {
+                $(".all_check_button").prop("checked", false); //设置所有复选框的为不选中状态
+                $('#all-delete').css({
+                    display: 'none',
+                });
+            }
+        }
+
+
+
+        let idList = $('.all_check_button');       //记录复选框
+        let memberId = [];                         //成员id
+        let flag = false;                          //判断是否存在选中复选框
+
+
+        //获得成员id
+        for (let i = 0; i < idList.length; i++) {
+            if (idList.eq(i).prop('checked')) {
+                memberId.push(idList.eq(i).attr('data-member-id'))
+                flag = true;
+            }
+        }
+
+
+        //
+        if (flag) {
+            $('#all-delete').css({
+                display: 'block',
+            });
+
+        } else {
+            $('#all-delete').css({
+                display: 'none',
+            });
+        }
+
+
+        $('#all-delete').unbind('click')
+
+
+        $('#all-delete').click(function () {
+            if (confirm("确定要删除这些成员吗？")) {
+                $.ajax({
+                    url: '/removeBatchMember',
+                    type: 'post',
+                    data: {memberId: memberId},
+                    traditional: true,
+                    success: function (data) {
+                        if (data == 'OK') {
+                            alert('删除成功')
+                            window.location.reload();
+                        }
+                    }
+                })
+            }
+        })
+    });
+
 
 </script>
 </body>

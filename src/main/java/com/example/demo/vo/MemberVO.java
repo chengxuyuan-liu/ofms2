@@ -5,7 +5,7 @@ import com.example.demo.entity.DeptMember;
 import java.math.BigInteger;
 import java.util.Date;
 
-public class Member extends DeptMember {
+public class MemberVO extends DeptMember {
     private Integer id;
 
     private String userName;
@@ -28,7 +28,7 @@ public class Member extends DeptMember {
 
     private Integer pPreview;
 
-    public Member() {
+    public MemberVO() {
 
     }
 
@@ -64,7 +64,7 @@ public class Member extends DeptMember {
         this.email = email;
     }
 
-    public Member(Integer id, String userName, String deptName, String phone, String email, BigInteger usedSpace, BigInteger maxSpace, Date recent, Integer pUpload, Integer pDown, Integer pPreview) {
+    public MemberVO(Integer id, String userName, String deptName, String phone, String email, BigInteger usedSpace, BigInteger maxSpace, Date recent, Integer pUpload, Integer pDown, Integer pPreview) {
         this.id = id;
         this.userName = userName;
         this.deptName = deptName;

@@ -38,4 +38,6 @@ public interface FileInfDao {
     */
     int updateByPrimaryKeySelective(FileInf record);
     int updateByPrimaryKey(FileInf record);
+
+    List<FileInf> selectByFileType(@Param("list")List<String> list,@Param("userId")Integer userId,@Param("dirId")Integer dirId);
 }

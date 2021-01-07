@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.DirInfDao;
 import com.example.demo.dao.FileInfDao;
 import com.example.demo.entity.DirInf;
+import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
 import com.example.demo.util.DateUtil;
@@ -91,65 +92,59 @@ public class DirInfServiceImpl implements DirInfService {
         int result;
         DirInf newDir = new DirInf();
 
+        //如果父文件夹id不为空（通过创建文件夹按钮创建），如果为空（创建新用户时，创建文件夹）
         if(parentDirId!=null) {
             DirInf fatherDir = dirInfDao.selectByPrimaryKey(parentDirId);//获得父文件夹
-            //构建新文件的属性
 
-            //以文件名查询文件夹
-            DirInf dirInf = dirInfDao.selectDirByDirName(dirName,parentDirId);
-            //判断文件名是否重复，若重复则 重构：文件名+当前日期
-            if(dirInf != null) dirName = dirName+"_"+DateUtil.getNowDateForString();
+            //判断重名以及名字重构
+            String item = dirName;
+            int i = 0;
+            while(true) {
+                //以文件名查询文件夹,查看是否已存在这个文件夹名
+                DirInf dirInf = dirInfDao.selectDirByDirName(dirName, parentDirId);
+                //判断文件名是否重复，若重复则 重构：文件名+当前日期
+                if (dirInf != null) {
+                    i++;
+                    dirName = item + "(" +i+")";
+                } else {
+                    break;
+                }
+            }
 
+            //封装新文件的属性
             newDir.setDirName(dirName);
             newDir.setParentDir(fatherDir.getDirId());
             newDir.setUserId(user.getUserId());         //文件夹所属
             newDir.setDirPath(fatherDir.getDirPath()
                     + fatherDir.getDirName() + "\\");
+
             realDir = new File(realPath + fatherDir.getDirPath() + fatherDir.getDirName()
-                    + "\\" + dirName);    //创建 新文件夹 的  文件类
-            //如果文件不存在
+                    + "\\" + dirName);    //创建 新文件夹 的 文件类
+
+            //如果文件不存在，就创建文件夹
             if(!realDir.exists()) {
-                realDir.mkdir();    //磁盘内创建相应的文件夹
+                System.out.println("在硬盘中创建新文件夹："+realDir.getAbsolutePath());
+                realDir.mkdirs();    //磁盘内创建相应的文件夹
             }
 
             //记录写入数据库
-            result = dirInfDao.insertSelective(newDir);
+            if(dirInfDao.insertSelective(newDir) == 0) return null;
 
         } else{
 
             //用户根目录
-            newDir.setDirName(user.getUserPhone().toString());
+            newDir.setDirName(user.getEmail().toString());
             newDir.setUserId(user.getUserId());         //文件夹所属
             newDir.setDirPath("\\");
             //记录写入数据库
             result = dirInfDao.insertSelective(newDir);
-
-            //”我的文件“
-//            DirInf myDir = new DirInf();
-//            myDir.setDirName("我的文件");
-//            myDir.setParentDir(newDir.getDirId());
-//            myDir.setUserId(user.getUserId());          //文件夹所属
-//            myDir.setDirPath(newDir.getDirPath()+newDir.getDirName()+"\\");
-
-            //外存中新建文件夹
+            //硬盘中中新建文件夹
             realDir = new File(realPath + newDir.getDirPath() + newDir.getDirName());    //创建 新文件夹 的  文件类
-//            myDirFile = new File(realPath + myDir.getDirPath() + myDir.getDirName());
-//            if (result != 0)
-//                result = dirInfDao.insertSelective(myDir);
-
             //如果文件不存在
             if(!realDir.exists()) {
                 realDir.mkdir();    //磁盘内创建相应的文件夹
-//                if (!myDirFile.exists()) {
-//                    myDirFile.mkdir();
-//                }
             }
-
-
-
         }
-
-
         return newDir;
     }
 
@@ -192,19 +187,86 @@ public class DirInfServiceImpl implements DirInfService {
         return result;
     }
 
+
+    /*
+    * 移动文件夹
+    * */
     @Override
     public int updateByPrimaryKeySelective(Integer dirId,Integer parentId) {
+        String systemPath = "D:\\graduation project\\ofms";
+        //硬盘移动文件
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId); //文件夹
+        DirInf fatherDir = dirInfDao.selectByPrimaryKey(dirInf.getParentDir()); //父文件夹
+        DirInf dirInf2 = dirInfDao.selectByPrimaryKey(parentId); //目标文件夹
+        File file = new File(systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\"); //文件夹文件类
+        File file2 = new File(systemPath+dirInf2.getDirPath()+dirInf2.getDirName()+"\\"); //目标文件夹文件类
+        System.out.println(systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\");
+        if(!file.exists()){
+            System.out.println("file路径不合法");
+        }
+        if(!file2.exists()){
+            System.out.println("file2路径不合法");
+        }
 
-        DirInf dirInf = new DirInf();
-        dirInf.setDirId(dirId);
-        dirInf.setParentDir(parentId);
-        int result = dirInfDao.updateByPrimaryKeySelective(dirInf);
-        return result;
+        System.out.println("目标文件夹："+dirInf2.getDirId());
+        System.out.println("父文件夹夹："+fatherDir.getDirId());
+        //如果路径相同不移动
+        if(!fatherDir.getDirId().equals(dirInf2.getDirId())){
+            System.out.println("路径不同");
+            FileUtil.moveFolder(file,file2);
+
+
+            //数据库移动文件
+            List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
+            DirInf item  = dirInf2; //当前要修改文件夹的父文件夹
+            for (DirInf inf : dirInfList) {
+                System.out.println("文件移动-父文件夹-数据库："+item.getDirName());
+                System.out.println("文件移动-当前文件夹-数据库："+inf.getDirName());
+                String newPath = item.getDirPath()+item.getDirName()+"\\"; //构建新路径
+                //封装item
+                DirInf updateDirInf = new DirInf();
+                updateDirInf.setDirId(inf.getDirId());
+                updateDirInf.setDirName(inf.getDirName());
+                updateDirInf.setParentDir(item.getDirId());
+                updateDirInf.setDirPath(newPath);
+
+                if(dirInfDao.updateByPrimaryKeySelective(updateDirInf)!=1) return 0;    //数据持久化
+                item = updateDirInf; //更新父文件夹
+            }
+        }
+        return 1;
     }
 
     /*
-    下载文件夹
+    修改文件夹
     */
+    @Override
+    public int updateDirName(Integer dirId,String dirName) {
 
+        String systemPath = "D:\\graduation project\\ofms";
+        //修改硬盘文件名
+        DirInf dirInf1 = dirInfDao.selectByPrimaryKey(dirId); //原文件所在文件夹
+        String dirPhat = systemPath+dirInf1.getDirPath();
+        File file = new File(dirPhat+dirInf1.getDirName()); //原文件文件类
+        File newFile = new File(dirPhat+dirName);
+        System.out.println(dirPhat+dirName);
+        //校验新文件名是否在硬盘中是否存在，存在则返回对应信息
+        if(newFile.exists()){
+            System.out.println("文件已存在");
+            return 2;       //文件已存在
+        }
+        //改名
+        if(!file.renameTo(newFile)){
+            return 0;
+        }
+
+
+        //数据库修改
+        DirInf dirInf = new DirInf();
+        dirInf.setDirId(dirId);
+        dirInf.setDirName(dirName);
+        int result = dirInfDao.updateByPrimaryKeySelective(dirInf);
+        return result;
+    }
 
 }
