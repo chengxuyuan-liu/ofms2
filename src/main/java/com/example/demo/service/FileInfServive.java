@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +16,7 @@ public interface FileInfServive {
     List<FileInf> selectFileListByFolderId(Integer dirId);
     List<FileInf> selectByFileName(String fileName,Integer fileId);  //模糊查询
     FileInf selectByPrimaryKey(Integer fileId);
-    FileInf selectByFileNameAndDirId(String fileName,Integer dirId);
+    List<FileInf> selectListByFileNameAndDirId(String fileName, Integer dirId);
     /*
     删除
     */
@@ -40,7 +39,7 @@ public interface FileInfServive {
     String preview(Integer fileId, HttpServletResponse response);
 
     //更新文件
-    int updateByPrimaryKeySelective(Integer fileId,Integer parentId);
+    String updateByPrimaryKeySelective(Integer fileId, Integer parentId);
     int updateFileName(Integer fileId,String fileName);
 
     List<FileInf> selectByFileType(List<String> type,Integer userId,Integer dirId);

@@ -3,7 +3,6 @@ package com.example.demo.service;
 import com.example.demo.entity.DeptMember;
 import com.example.demo.entity.UserInf;
 import com.example.demo.vo.MemberVO;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

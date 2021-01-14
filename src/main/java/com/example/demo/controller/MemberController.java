@@ -8,6 +8,7 @@ import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.PermissionService;
 import com.example.demo.util.UnitChange;
 import com.example.demo.vo.MemberVO;
+import com.example.demo.vo.PermissionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -174,8 +176,25 @@ public class MemberController {
      * */
     @ResponseBody
     @RequestMapping("/getMember")
-    public String getMember(Map<String,Object> map, Integer deptId) {
+    public String getMember(Map<String,Object> map, Integer deptId,HttpSession session) {
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+
         List<MemberVO> memberVOS = deptMemberService.selectListByDeptKey(deptId);
+        //删除已经存在权限的成员
+        List<PermissionVO> permissionVOList = permissionService.selectByUserId(userInf.getUserId());
+        Iterator<MemberVO> di = memberVOS.iterator();
+
+        //删除已有角色的成员
+        while(di.hasNext()){
+            MemberVO memberVO = di.next();
+            for (PermissionVO permissionVO : permissionVOList) {
+                if(memberVO.getId().equals(permissionVO.getMemberId())){
+                    di.remove();
+                }
+            }
+        }
+
+
         String str = JSONArray.toJSONString(memberVOS);
         return str;
     }

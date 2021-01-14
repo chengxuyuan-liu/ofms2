@@ -23,8 +23,6 @@
             display: none;
         }
     </style>
-
-
 </head>
 <body>
 
@@ -125,7 +123,7 @@
                             th:if="${session.USER_SESSION.userType} == 2 or ${permission.getpEditMember()} != 0"
                             data-target="#modal-container-edit"  th:onclick="|get_member_mes(${memberVO.id},${memberVO.usedSpace},${memberVO.maxSpace},${memberVO.pUpload},${memberVO.pDown},${memberVO.pPreview})|">编辑
                     </button>
-                    <button type="button" class="btn btn-default btn-primary" id="app" th:if="${session.USER_SESSION.getUserId() ne memberVO.getUserId()} or ${permission.getpDelMember()} != 0"
+                    <button type="button" class="btn btn-default btn-primary" id="app" th:if="${session.USER_SESSION.getUserId() ne memberVO.getUserId()} or ${permission} == null or ${permission.getpDelMember()} != 0"
                             th:onclick="|removeMember(${memberVO.id},${memberVO.getDeptId()})|">移除
                     </button>
                 </td>
@@ -191,6 +189,7 @@
                                        style="padding-top:3px;">可用总空间:</label>
                                 <div class="col-sm-10">
                                     <input type="number" id="edit_maxSpace" style="width:80px;" name="maxSpace"> MB
+                                    &nbsp;&nbsp;-可分配空间：<span id="available-space"></span>MB
                                 </div>
                             </div>
                             <div class="form-group">
@@ -302,31 +301,26 @@
     }
 
     /*
-    模态窗口获取成员信息
+    模态窗口获取成员信息 以及 编辑成员限制输入
     */
 
     function get_member_mes(memberId,usedSpace,maxSpace,pUpload,pDown,pPreview){
-
         $("#edit_memberId").prop("value",memberId);
         $("#edit_maxSpace").prop("value",(maxSpace/1024/1024).toFixed(0));
 
+        let fcMaxSpace = $('#edit_memberId').attr('data-fcmaxspace')      //文件柜最大空间
+        let fcUsedSpace = $('#edit_memberId').attr('data-fcusedspace')    //文件柜已使用空间
+        let surplus = parseInt(fcMaxSpace) - parseInt(fcUsedSpace);                 //剩余空间
+        let available = ((surplus+parseInt(maxSpace))/1024/1024).toFixed(0);      //可分配空间
+        $("#available-space").text(available);
 
-        // let unit = 1;
-        //
-        // //单位下拉框改变事件
-        // $('#unit').change(function () {
-        //     unit = $('#unit').val();
-        //     console.log('单位改变：'+unit)
-        // })
         //输入框失去焦点事件
         $('#edit_maxSpace').blur(function () {
-            let inputSpace;
-            inputSpace = $('#edit_maxSpace').val()*1024*1024;   //分配的空间
-
+            let inputSpace = $('#edit_maxSpace').val()*1024*1024;   //分配的空间
             let fcMaxSpace = $('#edit_memberId').attr('data-fcmaxspace')      //文件柜最大空间
             let fcUsedSpace = $('#edit_memberId').attr('data-fcusedspace')    //文件柜已使用空间
             let surplus = parseInt(fcMaxSpace) - parseInt(fcUsedSpace);                 //剩余空间
-
+            let available = (surplus+parseInt(maxSpace))       //可分配空间
 
             //如果分配的空间小于已使用空间
             if(inputSpace<usedSpace){
@@ -336,9 +330,10 @@
             }
 
             //如果分配的空间大于用户剩余空间
-            if (inputSpace>surplus){
+            if (inputSpace>available){
                 let maxSpace;
-                 maxSpace = (surplus/1024/1024).toFixed(0);
+                 maxSpace = (available/1024/1024).toFixed(0);
+                 console.log(available/1024/1024)
                 $('#edit_maxSpace').prop('value',maxSpace);
             }
         })
@@ -385,6 +380,13 @@
     添加新成员
     */
     function add_member() {
+
+        let phone = $("#am_dept_phone").prop('value');
+        if(phone == ''){
+            alert('请输入手机号码')
+            return false;
+        }
+
         $.post("/addMember", $("#add_member_from").serialize(), function (data) {
             if (data == "OK") {
                 alert("添加成功");
@@ -441,20 +443,28 @@
 
 
         let dept_name = $('#edit_dept_name').prop('value');
+        let oldName = $('#edit_dept_name').attr('value');
+        let oldDeptSpace =  $('edit_dept_maxSpace').attr('value');
+        let newDeptSpace = $('#edit_dept_name').prop('value');
+
+        //提示可分配最大空间
+
+
         if(dept_name == ''){
             alert('请输入部门名');
             return false;
         }
 
-            $.post("/editDept",$("#edit_dept").serialize(), function (data) {
-                if (data == "OK") {
-                    alert("保存成功");
-                    window.parent.location.reload();
-                }
-                else {
-                    alert("保存失败");
-                }
-            });
+        $.post("/editDept",$("#edit_dept").serialize(), function (data) {
+            if (data == "OK") {
+                alert("保存成功");
+                window.parent.location.reload();
+            }else if(data == "EXIST"){
+                alert('部门已存在')
+            }else {
+                alert("保存失败");
+            }
+        });
     }
 
 
@@ -478,7 +488,7 @@
         }, function (data) {
             if (data == "OK") {
                 alert("保存成功！");
-                window.parent.location.reload();
+                window.location.reload();
             }else if(data == 'FILE_CABINET_FULL'){
                 alert("空间不足，请为部门扩容再进行分配！")
             }
@@ -492,7 +502,7 @@
 
     }
 
-    //单位转换显示-----------
+    //数据显示界面单位转换显示-----------
     window.onload = count2();
     function count2(){
         let used_space = $('.used_space');
@@ -522,7 +532,7 @@
     }
 
 
-    //限制输入
+    //编辑文件柜限制输入
     $('#edit_dept_maxSpace,#edit_maxSpace').keydown(function (e) {
         var code = parseInt(e.keyCode);
         if (code >= 96 && code <= 105 || code >= 48 && code <= 57 || code == 8) {
@@ -540,6 +550,9 @@
         let maxSpace = $('#edit_deptId').attr('data-maxspace')      //文件柜最大空间
         let usedSpace = $('#edit_deptId').attr('data-usedspace')    //文件柜已使用空间
         let inputSpace = $('#edit_dept_maxSpace').val()*1024*1024*1024;     //分配的空间
+
+        let available = surplus+parseInt(maxSpace);
+
         //如果分配的空间小于已使用空间
         if(inputSpace<usedSpace){
             usedSpace = Math.ceil(usedSpace/1024/1024/1024);
@@ -547,11 +560,11 @@
         }
 
         //如果分配的空间大于用户剩余空间
-        if (inputSpace>surplus+parseInt(maxSpace)){
-            let count = ((surplus+parseInt(maxSpace))/1024/1024/1024).toFixed(0);
-
+        if (inputSpace>available){
+            let count = (available/1024/1024/1024).toFixed(0);
             $('#edit_dept_maxSpace').prop('value',count);
         }
+
     })
 
 

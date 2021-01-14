@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.UserInf;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ public interface DirInfService {
     int deleteByUserId(Integer userId);
 
     //更新
-    int updateByPrimaryKeySelective(Integer dirId,Integer parentId);
+    String updateByPrimaryKeySelective(Integer dirId, Integer parentId);
 
     public int updateDirName(Integer dirId,String dirName);
 }

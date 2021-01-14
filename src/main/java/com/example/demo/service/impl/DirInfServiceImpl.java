@@ -3,10 +3,8 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.DirInfDao;
 import com.example.demo.dao.FileInfDao;
 import com.example.demo.entity.DirInf;
-import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
-import com.example.demo.util.DateUtil;
 import com.example.demo.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +35,10 @@ public class DirInfServiceImpl implements DirInfService {
         return accessPath;
     }
 
+
+    /*
+    *
+    * */
     @Override
     public List<DirInf> selectChildrenDirByDirId(Integer dirId) {
         List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
@@ -192,7 +194,7 @@ public class DirInfServiceImpl implements DirInfService {
     * 移动文件夹
     * */
     @Override
-    public int updateByPrimaryKeySelective(Integer dirId,Integer parentId) {
+    public String updateByPrimaryKeySelective(Integer dirId, Integer parentId) {
         String systemPath = "D:\\graduation project\\ofms";
         //硬盘移动文件
         DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId); //文件夹
@@ -201,6 +203,12 @@ public class DirInfServiceImpl implements DirInfService {
         File file = new File(systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\"); //文件夹文件类
         File file2 = new File(systemPath+dirInf2.getDirPath()+dirInf2.getDirName()+"\\"); //目标文件夹文件类
         System.out.println(systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\");
+
+        //判断目标文件中是否存在重名文件夹
+        DirInf repeatDir = dirInfDao.selectDirByDirName(dirInf.getDirName(),dirInf2.getDirId());
+        if(repeatDir != null){
+            return "文件夹已存在，操作失败！";
+        }
         if(!file.exists()){
             System.out.println("file路径不合法");
         }
@@ -214,7 +222,6 @@ public class DirInfServiceImpl implements DirInfService {
         if(!fatherDir.getDirId().equals(dirInf2.getDirId())){
             System.out.println("路径不同");
             FileUtil.moveFolder(file,file2);
-
 
             //数据库移动文件
             List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
@@ -230,11 +237,11 @@ public class DirInfServiceImpl implements DirInfService {
                 updateDirInf.setParentDir(item.getDirId());
                 updateDirInf.setDirPath(newPath);
 
-                if(dirInfDao.updateByPrimaryKeySelective(updateDirInf)!=1) return 0;    //数据持久化
+                if(dirInfDao.updateByPrimaryKeySelective(updateDirInf)!=1) return "保存失败";    //数据持久化
                 item = updateDirInf; //更新父文件夹
             }
         }
-        return 1;
+        return "保存成功";
     }
 
     /*

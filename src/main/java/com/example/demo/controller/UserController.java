@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.entity.Department;
-import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.*;
 import com.example.demo.util.UnitChange;
@@ -10,13 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
-import java.math.BigInteger;
-import java.util.List;
 
 @Controller
 public class UserController {

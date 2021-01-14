@@ -18,6 +18,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, 
 			HttpServletResponse response, Object handler)
 			throws Exception {
+
+		//测试
+		//if(true) return true;
+
 		// 获取请求的URL
 		String url = request.getRequestURI();
 		// URL:除了登录请求外，其他的URL都进行拦截控

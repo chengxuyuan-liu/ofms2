@@ -79,6 +79,7 @@ public class PermissionServiceImpl implements PermissionService {
             permissionVO.setPhone(memberVO.getPhone());
             permissionVO.setDeptName(memberVO.getDeptName());
             permissionVO.setRecent(memberVO.getRecent());
+            permissionVO.setMemberId(memberVO.getId());
             permissions.add(permissionVO);
         }
         return permissions;

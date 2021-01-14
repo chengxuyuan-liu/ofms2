@@ -43,16 +43,18 @@ public class DepartmentContoller {
         //当前用户
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
 
+        //判断
+
+
+        //获得当前所在团队和团队负责人id
         Team team;
         if(userInf.getUserType() == 2) {
-            //调用创建部门service
             team = teamService.selectByUserId(userInf);
         }else{
             DeptMember deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
             team =  teamService.selectByPrimaryKey(deptMember.getTeamId());
         }
-
-        UserInf teamUser = userInfService.selectByPrimaryKey(team.getUserId()); //获得团队所属人
+        UserInf teamUser = userInfService.selectByPrimaryKey(team.getUserId()); //获得团队负责人信息
 
         //判断空间是否足够
         if(!userInfService.judgeSpace(teamUser)) return "SPACE_FULL";
@@ -60,19 +62,13 @@ public class DepartmentContoller {
         //调用创建文件夹service
         DirInf dirInf = dirInfService.selectRootDirByUserId(teamUser.getUserId()); //获得根目录
         DirInf newDeptDir = dirInfService.insertSelective(dept.getDeptName(),dirInf.getDirId(),teamUser); //创建文件夹
-
-        //调用创建文件柜service
-        FileCabinet fileCabinet = fileCabinetService.newFileCabinet(dept,teamUser,newDeptDir);
-
-
-        departmentService.insertSelective(fileCabinet,team);
-
-        //更新用户空间
-        userInfService.updateSpaceWhenNewDept(teamUser);
-
-        UserInf newUser = userInfService.selectByPrimaryKey(userInf.getUserId());
-
-        session.setAttribute("USER_SESSION",newUser);
+        FileCabinet fileCabinet = fileCabinetService.newFileCabinet(dept,teamUser,newDeptDir); //创建文件柜
+        departmentService.insertSelective(fileCabinet,team);  //创建部门
+        userInfService.updateSpaceWhenNewDept(teamUser); //更新团队空间
+        if(userInf.getUserType() == 2) {
+            UserInf newUser = userInfService.selectByPrimaryKey(userInf.getUserId());
+            session.setAttribute("USER_SESSION", newUser);  //更新当前用户信息
+        }
         return "OK";
     }
 
@@ -121,14 +117,24 @@ public class DepartmentContoller {
     public String editDept(String deptName,Integer maxSpace,Integer deptId,HttpSession session){
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         BigInteger maxSpaceChange = UnitChange.TranslateGBtoByte(maxSpace); //转换单位
-        //调用业务
-        //更新部门（名字 和 空间）
-        departmentService.updateByPrimaryKeySelective(deptId,deptName,null,null);
-        //更新用户空间
-        FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
-        userInfService.updateSpaceWhenEditDept(userInf,fileCabinet,maxSpaceChange);
-        //更新文件柜
-        fileCabinetService.updateByPrimaryKeySelective(fileCabinet.getFcId(),deptName,maxSpaceChange,null,null);
+        //更新名称
+        FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId); //获得文件柜空间信息
+        if(!fileCabinet.getFcName().equals(deptName)){
+            int result = dirInfService.updateDirName(fileCabinet.getDirId(), deptName);//修改文件名
+            switch (result) {
+                case 1:
+                    break;
+                case 2:
+                    return "EXIST";
+                default:
+                    return "FALSE";
+            }
+            departmentService.updateByPrimaryKeySelective(deptId, deptName, null, null); //修改文件空间
+        }
+
+        //更新空间
+        userInfService.updateSpaceWhenEditDept(userInf,fileCabinet,maxSpaceChange);//更新用户空
+        fileCabinetService.updateByPrimaryKeySelective(fileCabinet.getFcId(),deptName,maxSpaceChange,null,null);//更新文件柜
         return "OK";
     }
 }

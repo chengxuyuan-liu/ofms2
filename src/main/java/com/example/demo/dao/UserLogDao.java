@@ -22,10 +22,7 @@ public interface UserLogDao {
     int updateByPrimaryKey(UserLog record);
 
 
-    /*
-    * 查找所有
-    * */
-    List<UserLog> seleteAll();
+
     /*
     * 查找分页
     * */

@@ -5,7 +5,6 @@ import com.example.demo.entity.PageRequest;
 import com.example.demo.entity.PageResult;
 import com.example.demo.entity.UserInf;
 
-import javax.jws.soap.SOAPBinding;
 import java.math.BigInteger;
 import java.util.List;
 

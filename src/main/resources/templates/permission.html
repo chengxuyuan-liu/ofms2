@@ -206,14 +206,14 @@
                         <label  class="col-sm-2 control-label" style="padding-top:0;">
                             职位：
                         </label>
-                        <input type="text" name="role"/></br>
+                        <input type="text" name="role" id="new-role"/></br>
                     </div>
                     <div class="form-group">
                         <label  class="col-sm-2 control-label" style="padding-top:0;">
                             部门:
                         </label>
                         <select id="add_dept" name="deptId">
-                            <option>-请选择-</option>
+                            <option value="">-请选择-</option>
                             <option th:each="department:${department}" th:value="${department.getDeptId()}" th:text="${department.getDeptName()}">用户名</option>
                         </select></br>
                     </div>
@@ -222,7 +222,7 @@
                             成员：
                         </label>
                         <select id="add_member" name="memberId">
-                            <option value="1">-请选择-</option>
+                            <option value="">-请选择-</option>
 
                         </select>
                     </div>
@@ -285,7 +285,7 @@
 <!--                            </div>-->
                             <div class="form-group">
                                 <label for="edit_role_position" class="col-sm-2 control-label"
-                                       style="padding-top:3px;">角色名称:</label>
+                                       style="padding-top:3px;">职位:</label>
                                 <div class="col-sm-10">
                                     <input type="text" id="edit_role_position" style="width:80px;" name="role">
                                 </div>
@@ -425,6 +425,25 @@
 
 
     function newRole(){
+
+        //校验
+        let newRole = $('#new-role').prop('value');     //职位名
+        let dept = $('#add_dept').prop('value');
+        let member = $('#add_member').prop('value');
+        if(newRole == ""){
+            alert("请输入职位名称");
+            return false;
+        }
+        if(dept == ""){
+            alert("请选择部门");
+            return false;
+        }
+        if(member == ""){
+            alert("请选择成员");
+            return false;
+        }
+
+        //提交请求
         $.post('/newRole',$('#new_role').serialize(),function (data) {
             if(data == 'OK'){
                 alert('保存成功');
@@ -448,6 +467,12 @@
         })
     }
     function editRole(){
+        let role = $('#edit_role_position').prop('value')
+        if(role == ""){
+            alert('请输入角色名称')
+            return false;
+        }
+
         $.post('/editRole',{
             'psiId':$('#edit_role_id').prop('value'),
             'role':$('#edit_role_position').prop('value'),

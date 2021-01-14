@@ -22,8 +22,6 @@
     from user_log
     where log_id = #{logId,jdbcType=INTEGER}
   </select>
-    <select id="seleteAll" resultType="com.example.demo.entity.UserLog">
-    </select>
 
   <select id="seletePage" resultType="com.example.demo.entity.UserLog">
     select <include refid="Base_Column_List" />

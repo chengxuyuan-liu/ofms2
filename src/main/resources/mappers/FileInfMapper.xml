@@ -24,17 +24,18 @@
   </select>
 
   <select id="selectFileListByFolderId" resultMap="BaseResultMap" parameterType="Integer">
-		SELECT * FROM file_inf
+		SELECT <include refid="Base_Column_List" />
+		FROM file_inf
 		WHERE dir_id = #{dirId}
 		ORDER BY file_upload_time DESC
 	</select>
   <select id="selectByFileName" resultMap="BaseResultMap">
-        SELECT *
+        SELECT <include refid="Base_Column_List" />
         FROM file_inf
         WHERE file_name LIKE "%${fileName}%" and user_id = #{userId}
   </select>
   <select id="selectByFileNameAndDirId" resultMap="BaseResultMap">
-        SELECT *
+        SELECT <include refid="Base_Column_List" />
         FROM file_inf
         WHERE file_name=#{fileName} and dir_id = #{dirId}
   </select>
@@ -44,9 +45,14 @@
     FROM file_inf
     WHERE
     <trim prefix="(" suffix=")" suffixOverrides="or">
-    <foreach  collection="list" item="type">file_name LIKE "%${type}%" or </foreach>
+    <foreach  collection="list" item="type">file_type = #{type} or </foreach>
      </trim>
-    AND user_id = #{userId} AND dir_id=#{dirId};
+     AND dir_id=#{dirId};
+  </select>
+  <select id="selectListByFileNameAndDirId" resultType="com.example.demo.entity.FileInf">
+    SELECT  <include refid="Base_Column_List" />
+    FROM file_inf
+    WHERE file_name like "%${fileName}%" and dir_id = #{dirId}
   </select>
 
   <!-- 删除-->

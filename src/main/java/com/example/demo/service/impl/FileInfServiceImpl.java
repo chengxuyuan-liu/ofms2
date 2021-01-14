@@ -1,9 +1,8 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.config.Const;
 import com.example.demo.dao.*;
 import com.example.demo.entity.*;
-import com.example.demo.service.DeptMemberService;
-import com.example.demo.service.DirInfService;
 import com.example.demo.service.FileInfServive;
 import com.example.demo.service.UserInfService;
 import com.example.demo.util.DateUtil;
@@ -23,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -60,9 +60,13 @@ public class FileInfServiceImpl implements FileInfServive {
         return fileInf;
     }
 
+
+    /*
+    * 在一个文件夹下执行模糊搜索
+    * */
     @Override
-    public FileInf selectByFileNameAndDirId(String fileName, Integer dirId) {
-        FileInf fileInf = fileInfDao.selectByFileNameAndDirId(fileName,dirId);
+    public List<FileInf> selectListByFileNameAndDirId(String fileName, Integer dirId) {
+        List<FileInf> fileInf = fileInfDao.selectListByFileNameAndDirId(fileName,dirId);
         return fileInf;
     }
 
@@ -81,6 +85,7 @@ public class FileInfServiceImpl implements FileInfServive {
         int result = fileInfDao.deleteByUserId(userId);
         return result;
     }
+
 
     @Override
     public Boolean deleteByPrimaryKey(Integer fileId) {
@@ -288,71 +293,119 @@ public class FileInfServiceImpl implements FileInfServive {
         }
     }
 
+
+    /*
+    * 文件预览
+    *
+    * */
     @Override
     public String preview(Integer fileId, HttpServletResponse response) {
         String systemPath = "D:\\graduation project\\ofms"; //文件保存系统路径
         FileInf fileInf = fileInfServive.selectByPrimaryKey(fileId);//文件信息
         DirInf dirInf = dirInfDao.selectByPrimaryKey(fileInf.getDirId());//文件夹
 
+        String fileRealPath = systemPath+dirInf.getDirPath()+ dirInf.getDirName()+ "\\" +fileInf.getFileName(); //预览路径
+        String fileName = fileInf.getFileName();  //获取文件名
 
-        //判断该文件是否可预览
-        if(!PreviewUtil.check(fileInf.getFileName())) return "preview_error";
-        //获取绝对路径
-        String fileRealPath = systemPath+dirInf.getDirPath()+ dirInf.getDirName()+ "\\" +fileInf.getFileName();
-        //获取文件名
-        String fileName = fileInf.getFileName();
-        //判断文件类型
+        //返回视频流或音频流，再浏览器中打开
+        if(PreviewUtil.isVideoOrAudio(fileInf.getFileName())) {
+            String file = fileRealPath;
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
+                byte[] data = new byte[inputStream.available()];
+                inputStream.read(data);
+                String diskfilename = "final.mp4";
+                response.setContentType("video/mp4");
+                response.setHeader("Content-Disposition", "inline; filename=\"" + diskfilename + "\""); //设置处理方式
+                System.out.println("data.length " + data.length);
+                response.setContentLength(data.length);
+                response.setHeader("Content-Range", "" + Integer.valueOf(data.length - 1));
+                response.setHeader("Accept-Ranges", "bytes");
+                response.setHeader("Etag", "W/\"9767057-1323779115364\"");
+                OutputStream os = response.getOutputStream();
+                os.write(data);
+                //先声明的流后关掉！
+                os.flush();
+                os.close();
+                inputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-        //判断是否是视频
-        if(fileName.indexOf(".mp4") >= 0) {
-            return systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\"+fileInf.getFileName();
+        if(PreviewUtil.isDocument(fileInf.getFileName())) {
+            //判断文件的类型是否是excel表格，如果是excel表格，统一将其缩放再转换
+            if (fileName.indexOf(".xlsx") >= 0) {
+                Workbook workbook = new Workbook();     //工作簿对象
+                workbook.loadFromFile(fileRealPath);     //加载文件
+                Worksheet worksheet = workbook.getWorksheets().get(0);  //
+                worksheet.getPageSetup().setZoom(50);  //缩放50%
+                workbook.saveToFile("D:\\test\\Temp Excel\\Temp.xlsx");     //保存到临时文件夹
+                fileRealPath = "D:\\test\\Temp Excel\\Temp.xlsx";    //改变预览路径
+            }
+
+            File file = new File(fileRealPath); //要预览的目标文件
+            File newFile = new File("D:\\test\\obj-pdf"); //转成PDF后存放的位置
+            //如果文件夹不存在就创建
+            if (!newFile.exists()) {
+                newFile.mkdirs();
+            }
+
+            File pdfFile = new File("D:\\test\\obj-pdf\\hello.pdf");     //保存预览信息的pdf
+            try {
+                converter.convert(file).to(pdfFile).execute();      //转化成pdf保存到hello.pdf
+                InputStream inputStream = new FileInputStream(pdfFile); //输入流读取文件
+                ServletOutputStream outputStream = response.getOutputStream(); //获得请求响应的输出流
+                //copy
+                int i = IOUtils.copy(inputStream, outputStream);      //读取并输出
+                //System.out.println(i);
+                inputStream.close();
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        //判断文件的类型是否是excel表格
-        if(fileName.indexOf(".xlsx") >= 0) {
-            //如果是excel表格，统一将其缩放再转换
-            Workbook workbook = new Workbook();
-            workbook.loadFromFile(fileRealPath);
-            Worksheet worksheet = workbook.getWorksheets().get(0);  //
-            worksheet.getPageSetup().setZoom(50);
-            workbook.saveToFile("D:\\test\\Temp Excel\\Temp.xlsx");
-            fileRealPath = "D:\\test\\Temp Excel\\Temp.xlsx";
-        }
-        //要预览的文件
-        File file = new File(fileRealPath);
-        //转成PDF后存放的位置
-        File newFile = new File("D:\\test\\obj-pdf");
-        if (!newFile.exists()) {
-            newFile.mkdirs();
-        }
-        //pdf文件
-        File pdfFile = new File("D:\\test\\obj-pdf\\hello.pdf");
-        try{
-            //开始文件转换
-            converter.convert(file).to(pdfFile).execute();
-            //输入流读取文件
-            InputStream inputStream = new FileInputStream(pdfFile);
-            //获得前端的输出流
-            ServletOutputStream outputStream = response.getOutputStream();
-            //copy
-            int i = IOUtils.copy(inputStream, outputStream);
-            //System.out.println(i);
-            inputStream.close();
-            outputStream.close();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "OK";
+        return "preview_error";
     }
 
+    /*
+    * 移动文件
+    * */
     @Override
-    public int updateByPrimaryKeySelective(Integer fileId,Integer parentId) {
-        FileInf fileInf = new FileInf();
-        fileInf.setFileId(fileId);
-        fileInf.setDirId(parentId);
-        int result = fileInfDao.updateByPrimaryKeySelective(fileInf);
-        return result;
+    public String updateByPrimaryKeySelective(Integer fileId, Integer parentId) {
+
+        //获取文件
+        FileInf fileInf = fileInfDao.selectByPrimaryKey(fileId); //原文件
+        DirInf dirInf = dirInfDao.selectByPrimaryKey(fileInf.getDirId()); //原文件夹
+        DirInf tagetDir = dirInfDao.selectByPrimaryKey(parentId);   //目标文件夹
+        String filePath = Const.SYSTEM_PATH + dirInf.getDirPath() + dirInf.getDirName()+"\\"+fileInf.getFileName(); //原文件路径
+        String newFilePath = Const.SYSTEM_PATH + tagetDir.getDirPath() + tagetDir.getDirName()+"\\"+fileInf.getFileName(); //新文件路径
+
+        //判断是否存在重复文件
+        FileInf repeatFile =  fileInfDao.selectByFileNameAndDirId(fileInf.getFileName(),tagetDir.getDirId());
+        if(repeatFile != null){
+            return "文件已存在，操作失败！";
+        }
+        File file = new File(filePath);
+        file.renameTo(new File(newFilePath));
+
+        System.out.println(filePath);
+        System.out.println(newFilePath);
+
+        FileInf newfile = new FileInf();
+        newfile.setFileId(fileId);
+        newfile.setDirId(parentId);
+        if(fileInfDao.updateByPrimaryKeySelective(newfile) == 0) return "操作失败";
+        return "保存成功";
     }
 
+
+    /*
+    * 修改文件名
+    * */
     @Override
     public int updateFileName(Integer fileId,String fileName) {
         String systemPath = "D:\\graduation project\\ofms";
@@ -381,7 +434,17 @@ public class FileInfServiceImpl implements FileInfServive {
 
     @Override
     public List<FileInf> selectByFileType(List<String> type,Integer userId,Integer dirId) {
-        List<FileInf> fileInfList = fileInfDao.selectByFileType(type,userId,dirId);
+        //从根目录开始搜索所有文件夹
+        List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
+
+        //遍历文件夹，搜索其中的文件
+
+        List<FileInf> fileInfList = new ArrayList<FileInf>();
+        //for
+        for (DirInf dirInf : dirInfList) {
+            fileInfList.addAll(fileInfDao.selectByFileType(type,userId,dirInf.getDirId()));
+        }
+
         return fileInfList;
     }
 

@@ -97,7 +97,7 @@ public class ViewController {
         List<DirInf> originAccessPath = null;     //访问路径
         List<DirInf> accessPath = new ArrayList<>();     //访问路径
         DeptMember deptMember = null;
-        String title=null;      //当前标题
+        String title=null;      //当前文件柜
 
         FileCabinet fileCabinet;//当前文件的文件柜
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
@@ -122,7 +122,7 @@ public class ViewController {
             title = accessPath.get(0).getDirName();
             DirInf dirInf = dirInfService.selectByPrimaryKey(dirId);
             if(userInf.getUserId() == dirInf.getUserId() ) {
-                fileCabinet = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
+                fileCabinet = fileCabinetService.selectByDirId(accessPath.get(0).getDirId()); //当前文件柜
                 map.put("fileCabinet", fileCabinet);
             }else{
                 deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
@@ -173,12 +173,33 @@ public class ViewController {
         //获得当前用户
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
 
-        //文件柜
-        //FileCabinet fileCabinet = fileCabinetService.selectByDirId();
-        //文件
-        List<FileInf> fileInfList = fileInfServive.selectByFileName(queryName,userInf.getUserId());
-        //文件夹
-        List<DirInf> dirInfList = dirInfService.selectByDirName(queryName,userInf.getUserId());
+        List<DirInf> originAccessPath = null;     //没有排序的访问路径
+        List<DirInf> fatherDir = new ArrayList<>(); //排序的访问路径
+        //没排序的导航路径
+        originAccessPath = dirInfService.selectParentDirByDirId(dirId);
+
+        //导航路径排序
+        Integer item = dirId;
+        for (int i = 0; i < originAccessPath.size(); i++) {
+            for (DirInf inf : originAccessPath) {
+                if(inf.getDirId().equals(item)){
+                    fatherDir.add(0,inf);
+                    item = inf.getParentDir();
+                }
+            }
+        }
+
+        //当前文件柜
+        FileCabinet fileCabinet = fileCabinetService.selectByDirId(fatherDir.get(0).getDirId());
+
+        //所有文件夹
+        List<DirInf> dirInfList = dirInfService.selectChildrenDirByDirId(fatherDir.get(0).getDirId()); //所有子文件夹
+        List<DirInf> resultDirInf = new ArrayList<DirInf>();    //文件夹搜索结果
+        List<FileInf> resultFileInf = new ArrayList<FileInf>();   //文件搜索结果
+        for (DirInf dirInf : dirInfList) {
+            resultDirInf.addAll(dirInfService.selectByDirName(queryName,dirInf.getDirId()));
+            resultFileInf.addAll(fileInfServive.selectListByFileNameAndDirId(queryName,dirInf.getDirId()));
+        }
 
         String title = "\""+queryName+"\""+"搜索结果";
         DirInf dirInf = new DirInf();
@@ -190,9 +211,10 @@ public class ViewController {
         //返回map
         map.put("title",title);
         map.put("typeSearch","typeSearch");
-        map.put("fileList",fileInfList);
-        map.put("dirList",dirInfList);
+        map.put("fileList",resultFileInf);
+        map.put("dirList",resultDirInf);
         map.put("accessPath",accessPath);
+        map.put("dirId",fileCabinet.getDirId());
 
         return "file_manage";
     }
@@ -302,7 +324,7 @@ public class ViewController {
         return "to_be_assigned";
     }
 
-        /*
+    /*
     待分配-搜索
     */
     @RequestMapping("/toBeAssignedSearch")
@@ -432,41 +454,40 @@ public class ViewController {
     public ModelAndView searchFile(Integer fileType,Integer dirId, ModelAndView modelAndView, HttpSession session){
 
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        Integer userId = userInf.getUserId();
 
-        DirInf nowInf =  dirInfService.selectByPrimaryKey(dirId);
+        DirInf nowDirInf =  dirInfService.selectByPrimaryKey(dirId); //当前文件柜的文件夹
         //
-        List<FileInf> fileList = null;
-        List<DirInf> accessPath = new ArrayList<>();
-        DirInf dirInf = new DirInf();
+        List<FileInf> fileList = null; //请求返回结果
+        List<DirInf> accessPath = new ArrayList<>(); //面包屑
+        DirInf dirInf = new DirInf();   //
         dirInf.setDirName("返回");
         dirInf.setDirId(dirId);
         String title = null;
         //查询文档
         if(fileType == 1) {
-            List<String> list = new ArrayList<String>(Arrays.asList(".doc",".docx",".pptx",".xlsx",".pdf",".txt"));
-            fileList = fileInfServive.selectByFileType(list,nowInf.getUserId(),dirId);
+            List<String> list = new ArrayList<String>(Arrays.asList("doc","docx","pptx","xlsx","pdf","txt"));
+            fileList = fileInfServive.selectByFileType(list,nowDirInf.getUserId(),dirId);
             title = "文档";
             accessPath.add(dirInf);
         }
         //查询视频
         else if(fileType == 2){
-            List<String> list = new ArrayList<String>(Arrays.asList(".mp4",".wmv",".swf",".avi",".pdf",".flv"));
-            fileList = fileInfServive.selectByFileType(list,nowInf.getUserId(),dirId);
+            List<String> list = new ArrayList<String>(Arrays.asList("mp4","wmv","swf","avi","pdf","flv"));
+            fileList = fileInfServive.selectByFileType(list,nowDirInf.getUserId(),dirId);
             title = "视频";
             accessPath.add(dirInf);
         }
         //查询音频
         else if(fileType == 3){
-            List<String> list = new ArrayList<String>(Arrays.asList(".mp3",".wma"));
-            fileList = fileInfServive.selectByFileType(list,nowInf.getUserId(),dirId);
+            List<String> list = new ArrayList<String>(Arrays.asList("mp3","wma"));
+            fileList = fileInfServive.selectByFileType(list,nowDirInf.getUserId(),dirId);
             title = "音频";
             accessPath.add(dirInf);
         }
         //查询图片
         else if(fileType == 4){
-            List<String> list = new ArrayList<String>(Arrays.asList(".jpg",".png",".gif",".svg"));
-            fileList = fileInfServive.selectByFileType(list,nowInf.getUserId(),dirId);
+            List<String> list = new ArrayList<String>(Arrays.asList("jpg","png","gif","svg"));
+            fileList = fileInfServive.selectByFileType(list,nowDirInf.getUserId(),dirId);
             title = "图片";
             accessPath.add(dirInf);
         }

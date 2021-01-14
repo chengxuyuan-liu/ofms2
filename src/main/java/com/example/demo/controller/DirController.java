@@ -2,22 +2,17 @@ package com.example.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPObject;
 import com.example.demo.entity.DirInf;
-import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.FileInfServive;
 import com.example.demo.service.UserInfService;
-import com.mysql.cj.protocol.x.ReusableInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
-import java.rmi.Remote;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +43,7 @@ public class DirController {
         }
         //调用业务层
         /*int result = */dirInfService.insertSelective(dirName,dirId,user);
-//        if(result != 0) {
-//            return "OK";
-//        }
+
          return "OK";
     }
 
@@ -121,12 +114,9 @@ public class DirController {
     public String moveTo(Integer dirId,Integer fileId,Integer parentId,Map<String,Object> map){
         //
         if(dirId != null){
-            dirInfService.updateByPrimaryKeySelective(dirId,parentId);  //移动文件夹
+            return dirInfService.updateByPrimaryKeySelective(dirId,parentId);  //移动文件夹
         }
-        if(fileId != null){
-           fileInfServive.updateByPrimaryKeySelective(fileId,parentId); //移动文件
-        }
-        return "OK";
+        return fileInfServive.updateByPrimaryKeySelective(fileId,parentId); //移动文件
     }
 
     /*

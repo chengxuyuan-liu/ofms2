@@ -95,7 +95,16 @@
         <!--                   selectByExampleQueryId="false"></table>-->
 
 
-        <table tableName="user_log" domainObjectName="UserLog"
+<!--        <table tableName="user_log" domainObjectName="UserLog"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false"></table>-->
+
+<!--        <table tableName="combo_meal" domainObjectName="ComboMeal"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false"></table>-->
+        <table tableName="orders" domainObjectName="Orders"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false"></table>

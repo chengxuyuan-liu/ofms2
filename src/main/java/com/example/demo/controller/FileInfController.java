@@ -1,34 +1,20 @@
 package com.example.demo.controller;
 
-import com.example.demo.aop.ArchivesLog;
 import com.example.demo.entity.DirInf;
 import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.CheckPermissionsService;
 import com.example.demo.service.DirInfService;
 import com.example.demo.service.FileInfServive;
-import com.example.demo.util.PreviewUtil;
-import com.example.demo.util.ResponseUtil;
-import com.example.demo.util.ZipCompress;
-import com.spire.xls.Workbook;
-import com.spire.xls.Worksheet;
-import org.apache.commons.io.IOUtils;
-import org.jodconverter.DocumentConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 @Controller

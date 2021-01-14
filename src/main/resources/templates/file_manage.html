@@ -114,7 +114,11 @@
     <div class="alert  alert-info" style="margin-bottom: 0px;border-radius:0px">
         <h4>
             [[${title}]]</span>
+            <!--当前文件夹-->
             <input type="hidden" id="now-dir" th:attr="data-now-dir=${dirId}" >
+            <!--当前文件柜-->
+            <input type="hidden" id="now-cabinet" th:if="${fileCabinet} != null" th:attr="data-now-cabinet=${fileCabinet.getDirId()}" >
+            <input type="hidden" id="now-cabinet" th:if="${fileCabinet} == null" th:attr="data-now-cabinet=${accessPath.get(0).getDirId()}" >
         </h4>
         <div th:if="${fileCabinet} != null">
             已用：<span th:attr="data-usedspace=${fileCabinet.getUsedSpace()}" id="used_space"></span>/
@@ -124,6 +128,7 @@
             已上传：<span th:attr="data-usedspace=${deptMember.getUsedSpace()}" id="memberUsed_space"></span>/
             可上传共：<span th:attr="data-maxspace=${deptMember.getMaxSpace()}" id="memberMax_space"></span>
         </div>
+        <div th:if="${fileCabinet} == null and ${deptMember} == null">&nbsp;</div>
     </div>
 
     <ul class="breadcrumb" style="margin-bottom: 0px" th:if="${accessPath} != null">
@@ -135,10 +140,10 @@
     <!--上传、新建、搜索-->
     <div class="btn-group" style="margin-left: 7px;">
         <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                data-target="#modal-container-upload" th:if="${not #strings.isEmpty(dirId)}"> 上传
+                data-target="#modal-container-upload" th:if="${#strings.isEmpty(typeSearch)}"> 上传
         </button>
         <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                data-target="#modal-container-new-dir" th:if="${not #strings.isEmpty(dirId)}"> 新建文件夹
+                data-target="#modal-container-new-dir" th:if="${#strings.isEmpty(typeSearch)}"> 新建文件夹
         </button>
         <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/query"
               onsubmit="return checkSearch()">
@@ -347,7 +352,7 @@
                     <div class="modal-body">
                         <form id="newDir">
                             <input type="hidden" th:value="${dirId}" name="dirId">
-                            文件夹名 ：<input type="text" name="dirName">
+                            文件夹名 ：<input type="text" name="dirName" id="add-dir">
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -474,7 +479,7 @@
             });
         }
 
-
+        console.log(fileId);
         $('#all-delete').unbind('click')
 
         $('#all-delete').click(function () {
@@ -500,6 +505,21 @@
     新建文件夹
     */
     function new_dir() {
+
+        //获取文件名
+        let dirName = $('#add-dir').prop('value');
+        //判断文件名是否为空
+        if(dirName == ''){
+            alert('文件名不能为空！');
+            return false;
+        }
+        //校验文件名是否规范
+        let regex = /.*[/\\<>:*?|].*/;
+        if(regex.test(dirName)){
+            alert("文件名不能包含 /\\ : * \" < > | ？");
+            return false;
+        }
+
         $.post("/newDir", $("#newDir").serialize(), function (date) {
             if (date == "OK") {
                 alert("创建成功");
@@ -568,7 +588,7 @@
                     alert('您没有上传权限！');
                     window.location.reload();
                 } else if (data == "full") {
-                    alert('空间已达上限，请联系管理员加增空间！')
+                    alert('空间已达上限，请加增空间！')
                 }
             }
         });
@@ -654,13 +674,9 @@
         let fileId = $('#move_file_id').attr('value');
         //移动文件
         $.post('/moveDirTo', {'dirId': dirId, 'fileId': fileId, 'parentId': parentId}, function (data) {
-            if (data == 'OK') {
-                alert("保存成功")
+                alert(data);
                 window.location.reload();
-            } else {
-                alert("保存失败")
-                window.location.reload();
-            }
+
         });
     }
 
@@ -774,7 +790,7 @@
     //类型查询
     $('#sid').change(function () {
         let fileType = $('#sid').prop('value');
-        let dirId = $('#now-dir').attr('data-now-dir');
+        let dirId = $('#now-cabinet').attr('data-now-cabinet');
         window.location.href = '/searchFile?fileType='+fileType+'&dirId='+dirId;
     })
 

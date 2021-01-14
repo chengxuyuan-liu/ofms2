@@ -2,7 +2,6 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.UserInf;
-import com.example.demo.entity.UserLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +17,7 @@ public interface UserInfDao {
     UserInf selectByUserPhone(String userPhone);
     List<UserInf> selectAll();
     UserInf selectByEmail(String email);
+
     /*
      * 查找分页
      * */
