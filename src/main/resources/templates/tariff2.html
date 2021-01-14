@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>空间套餐</title>
+    <script src="/js/libs/jquery-2.1.1.min.js"></script>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
+    <style>
+        body {
+            background: url("/images/main.jpg");
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-12 column" style="padding: 0;">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/menu">办公文件管理系统</a>
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">用户<strong class="caret"></strong></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a th:text="${session.USER_SESSION.getUsername()}" href="#"></a>
+                                </li>
+
+                                <li class="divider">
+                                </li>
+                                <li>
+                                    <a href="/logout">退出</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="row clearfix" style="background: #cccccc;height: 100vh;padding-top: 50px;">
+        <div class="col-md-12 column">
+            <div class="row">
+                <div class="col-md-4" th:each="meal:${comboMeals}">
+                    <div class="thumbnail">
+                        <div class="caption">
+                            <h3>
+                                <input type="hidden" class="mealId" th:value="${meal.getMealId()}">
+                                <p  class="per-space" th:attr="data-per-space=${meal.getPerSpace()}">个人空间：+[[${#numbers.formatInteger(meal.getPerSpace()/1024/1024/1024,0)}]]GB</p>
+
+                            </h3>
+                            <p>
+                                价格：<span class="price" th:attr="data-price=${meal.getPrice()}">[[${meal.getPrice()}]]</span>元/年
+                            </p>
+                            <p>
+                                <a class="btn buy-btn" data-toggle="modal" data-target="#modal-pay">立即购买</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2>
+                        容量套餐是什么？
+                    </h2>
+                    <p>
+                        答：容量套餐是百度网盘提供的存储容量扩展服务，当您的网盘存储容量不足时，可以通过购买容量套餐进行容量扩充，存储更多文件。
+                    </p>
+                    <h2>
+                        容量套餐的有效期如何计算？
+                    </h2>
+                    <p>
+                        <span>答：当您成功购买容量套餐后，扩展容量立即生效，容量套餐的有效期为一年，有效期按照自然年进行计算。</span>
+
+                        <span>当购买一个容量套餐时，如：</span>
+
+                        <span> 您于2016年2月29日购买一年的容量套餐， 则可使用至2017年2月28日 23:59:59；</span>
+
+                        <span>当购买多个容量套餐时，容量进行叠加，如：</span>
+
+                        <span>您于2016年2月29日购买200G的容量套餐，2016年3月5日再购买300G的容量套餐，在2016年3月5日到2017年2月28日期间，您可使用的容量套餐总和为500G。在2017年3月1日到2017年3月5日期间，您可使用的容量套餐为未到期的300G；</span>
+                    </p>
+                    <h2>
+                        容量套餐到期后，容量该如何处理？
+                    </h2>
+                    <p>
+                        <span>答：如您已购买的容量套餐到期，未进行续费，到期后所购买的容量将被收回。</span>
+
+                        <span>当收回容量时您网盘中已存储的文件，小于当前可使用容量，则文件将不受任何影响，仍可正常使用。</span>
+
+                        <span>当收回容量时您网盘中已存储的文件，超出或等于当前可使用容量，超出可使用容量部分的文件不会被删除，但你将无法向网盘中存储文件，即上传、转存、离线下载等功能暂不可用，其他功能不受影响。</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--部门编辑模态窗口-->
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <!--toggle and tagget-->
+            <div class="modal fade" id="modal-pay" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 class="modal-title" id="dept_edit">
+                                请确认支付
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <h3>
+                                <input type="hidden" id="check-mealId">
+                                <p id="pay-per-space">个人空间：+<span id="check-per-space"></span>GB</p>
+                            </h3>
+                            <p>
+                                价格：<span id="check-price"></span>元/年
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" th:onclick="checkPay()">确认支付</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(".buy-btn").click(function () {
+            let num = $(".buy-btn").index(this);
+            let mealId = $('.mealId').eq(num).attr('value');
+            let perSpace = $('.per-space').eq(num).attr('data-per-space');
+            let price = $('.price').eq(num).attr('data-price');
+
+            $('#check-mealId').prop('value', mealId);
+            $('#check-per-space').text((perSpace / 1024 / 1024 / 1024).toFixed(0));
+            $('#check-price').text(price);
+        })
+
+        function checkPay() {
+            let mealId = $('#check-mealId').attr('value');
+            $.post('/orders/add', {'mealId': mealId}, function (data) {
+                confirm(data)
+                window.location.reload();
+            })
+        }
+
+    </script>
+</body>
+</html>

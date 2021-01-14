@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ComboMealDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ComboMeal">
+    <id column="meal_id" jdbcType="INTEGER" property="mealId" />
+    <result column="meal_name" jdbcType="VARCHAR" property="mealName" />
+    <result column="per_space" jdbcType="BIGINT" property="perSpace" />
+    <result column="team_space" jdbcType="BIGINT" property="teamSpace" />
+    <result column="deadline" jdbcType="INTEGER" property="deadline" />
+    <result column="price" jdbcType="INTEGER" property="price" />
+    <result column="m_status" jdbcType="INTEGER" property="mStatus" />
+    <result column="m_type" jdbcType="INTEGER" property="mType" />
+  </resultMap>
+
+
+
+
+
+  <sql id="Base_Column_List">
+    meal_id, meal_name, per_space, team_space, deadline, price,m_status,m_type
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from combo_meal
+    where meal_id = #{mealId,jdbcType=INTEGER}
+  </select>
+  <select id="comboMealList" resultType="com.example.demo.entity.ComboMeal" parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List" />
+    from combo_meal
+    <where>
+      <if test="mStatus != '' and mStatus != null">
+        and m_status = #{mStatus}
+      </if>
+    </where>
+  </select>
+
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from combo_meal
+    where meal_id = #{mealId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByIdArray">
+    delete from combo_meal
+    where meal_id in
+    <foreach collection="list" item="items" open="(" separator="," close=")">
+      #{items}
+    </foreach>
+  </delete>
+
+
+  <insert id="insert" parameterType="com.example.demo.entity.ComboMeal">
+    insert into combo_meal (meal_id, meal_name, per_space, 
+      team_space, deadline, price,m_status,m_type
+      )
+    values (#{mealId,jdbcType=INTEGER}, #{mealName,jdbcType=VARCHAR}, #{perSpace,jdbcType=BIGINT}, 
+      #{teamSpace,jdbcType=BIGINT}, #{deadline,jdbcType=INTEGER}, #{price,jdbcType=INTEGER},#{mStatus,jdbcType=INTEGER},
+      #{mType,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.ComboMeal">
+    insert into combo_meal
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="mealId != null">
+        meal_id,
+      </if>
+      <if test="mealName != null">
+        meal_name,
+      </if>
+      <if test="perSpace != null">
+        per_space,
+      </if>
+      <if test="teamSpace != null">
+        team_space,
+      </if>
+      <if test="deadline != null">
+        deadline,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="mStatus != null">
+        m_status,
+      </if>
+      <if test="mType != null">
+        m_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="mealId != null">
+        #{mealId,jdbcType=INTEGER},
+      </if>
+      <if test="mealName != null">
+        #{mealName,jdbcType=VARCHAR},
+      </if>
+      <if test="perSpace != null">
+        #{perSpace,jdbcType=BIGINT},
+      </if>
+      <if test="teamSpace != null">
+        #{teamSpace,jdbcType=BIGINT},
+      </if>
+      <if test="deadline != null">
+        #{deadline,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=INTEGER},
+      </if>
+      <if test="mStatus != null">
+        #{mStatus,jdbcType=INTEGER},
+      </if>
+      <if test="mType != null">
+        #{mType,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.ComboMeal">
+    update combo_meal
+    <set>
+      <if test="mealName != null">
+        meal_name = #{mealName,jdbcType=VARCHAR},
+      </if>
+      <if test="perSpace != null">
+        per_space = #{perSpace,jdbcType=BIGINT},
+      </if>
+      <if test="teamSpace != null">
+        team_space = #{teamSpace,jdbcType=BIGINT},
+      </if>
+      <if test="deadline != null">
+        deadline = #{deadline,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=INTEGER},
+      </if>
+      <if test="mStatus != null">
+        m_status = #{mStatus,jdbcType=INTEGER},
+      </if>
+      <if test="mType != null">
+        m_type = #{mType,jdbcType=INTEGER},
+      </if>
+    </set>
+    where meal_id = #{mealId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ComboMeal">
+    update combo_meal
+    set meal_name = #{mealName,jdbcType=VARCHAR},
+      per_space = #{perSpace,jdbcType=BIGINT},
+      team_space = #{teamSpace,jdbcType=BIGINT},
+      deadline = #{deadline,jdbcType=INTEGER},
+      price = #{price,jdbcType=INTEGER},
+      m_status = #{mStatus,jdbcType=INTEGER},
+      m_type = #{mType,jdbcType=INTEGER}
+    where meal_id = #{mealId,jdbcType=INTEGER}
+  </update>
+
+</mapper>
