@@ -18,6 +18,10 @@ public interface DepartmentService {
     Department selectByFileCabinetId(Integer fcId);
     List<Department> selectByTeamId(Integer teamId);
 
+    /*
+    * 检查部门名称是否重名
+    * */
+    Department selectRepeatDeptName(Department department, Team team);
 
     int updateByPrimaryKeySelective(Object... param);
     int updateByPrimaryKey(Department record);

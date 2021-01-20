@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.FileInf;
 import com.example.demo.entity.UserInf;
+import com.example.demo.vo.FileVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ public interface FileInfServive {
     List<FileInf> selectByFileName(String fileName,Integer fileId);  //模糊查询
     FileInf selectByPrimaryKey(Integer fileId);
     List<FileInf> selectListByFileNameAndDirId(String fileName, Integer dirId);
+    List<FileVO> selectFileVOListByDirId(Integer dirId);
     /*
     删除
     */

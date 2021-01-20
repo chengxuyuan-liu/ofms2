@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 
+import com.example.demo.entity.DirInf;
+import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.*;
 import com.example.demo.util.UnitChange;
@@ -56,11 +58,26 @@ public class UserController {
     * */
     @ResponseBody
     @RequestMapping("/editUser")
-    public String editUser(Integer userId,Integer maxSpace,HttpSession session){
-        UserInf userInf = new UserInf();
-        userInf.setUserId(userId);
-        userInf.setMaxSpace(UnitChange.TranslateGBtoByte(maxSpace));
-        int result = userInfService.updateByPrimaryKeySelective(userInf);
+    public String editUser(Integer userId,Integer perSpace,Integer teamSpace,HttpSession session){
+
+        //个人文件柜
+        DirInf rootDirInf = dirInfService.selectRootDirByUserId(userId);//根文件夹
+        DirInf myDir = dirInfService.selectDirByDirName("我的文件",rootDirInf.getDirId()); //'我的文件'
+        FileCabinet fileCabinet = fileCabinetService.selectByDirId(myDir.getDirId());
+        FileCabinet newFileCabinet = new FileCabinet();
+        newFileCabinet.setMaxSpace(UnitChange.TranslateGBtoByte(perSpace));
+        newFileCabinet.setFcId(fileCabinet.getFcId());
+        fileCabinetService.updateByPrimaryKeySelective(fileCabinet.getFcId(), null, UnitChange.TranslateGBtoByte(perSpace), null, null);
+        //团队空间
+        int result=0;
+        if(teamSpace != null) {
+            UserInf userInf = new UserInf();
+            userInf.setUserId(userId);
+            userInf.setMaxSpace(UnitChange.TranslateGBtoByte(teamSpace));
+            result = userInfService.updateByPrimaryKeySelective(userInf);
+        }
+
+
         return result != 0? "OK" : "FALSE";
     }
 
@@ -69,7 +86,7 @@ public class UserController {
     public String forGotPassword(String email) {
         //通过邮箱查询用户信息
        UserInf userInf = userInfService.selectByEmail(email);
-
+        System.out.println(userInf.getPassword());
        if(userInf != null){
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("2919586256@qq.com");
@@ -94,24 +111,42 @@ public class UserController {
 
     }
 
+
+    /*
+    * 修改密码
+    * */
     @ResponseBody
     @RequestMapping("/changePassword")
     public String changePassword(String password,HttpSession session) {
-
         UserInf nowUser = (UserInf) session.getAttribute("USER_SESSION");
         //通过邮箱查询用户信息
         UserInf userInf = new UserInf();
         userInf.setUserId(nowUser.getUserId());
         userInf.setPassword(password);
         int result = userInfService.updateByPrimaryKeySelective(userInf);
-        if(result != 0){
-            return "OK";
+        if(result == 0){
+            return "修改失败！";
         }
-        return "FALSE";
-
+        return "修改成功！";
     }
 
 
+    //禁用用户
+    @ResponseBody
+    @RequestMapping("/disableUser")
+    public String disableUser(Integer userId,HttpSession session) {
 
+        UserInf tagetUser = userInfService.selectByPrimaryKey(userId);
+        UserInf userInf = new UserInf();
+        userInf.setUserId(userId);
+        if(tagetUser.getStatus() == 1){
+            userInf.setStatus(0);
+        }else{
+            userInf.setStatus(1);
+        }
+
+        userInfService.updateByPrimaryKeySelective(userInf);
+        return "修改成功!";
+    }
 
 }

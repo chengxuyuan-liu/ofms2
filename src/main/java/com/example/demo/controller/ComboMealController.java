@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.ComboMeal;
+import com.example.demo.entity.PageRequest;
+import com.example.demo.entity.PageResult;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.ComboMealService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +23,29 @@ public class ComboMealController {
     ComboMealService comboMealService;
 
     /*
-     * 后台页面数据，所有套餐
+     * 后台页面数据
      * */
     @RequestMapping("/backgroundList")
-    public String backgroundList(Map<String,Object> map){
-        List<ComboMeal> comboMeals =  comboMealService.backComboMealList();
-        map.put("comboMeals",comboMeals);
+    public String backgroundList(String mealName,PageRequest pageRequest,Map<String,Object> map){
+        if(pageRequest.getPageNum() == 0 || pageRequest.getPageSize() == 0){
+            System.out.println("测试"+pageRequest.getPageNum());
+            pageRequest.setPageNum(1);
+            pageRequest.setPageSize(10);
+        }
+
+        PageResult pageResult;
+        if(mealName != null){
+            pageResult = comboMealService.findPage(pageRequest,mealName); //模糊查询
+
+        }else{
+            pageResult = comboMealService.findPage(pageRequest,null);
+        }
+        map.put("pageResult",pageResult);
+        map.put("mealName",mealName);
         return "adminstration_tariff";
     }
+
+
 
     /*
      *前台页面数据，已上架的套餐

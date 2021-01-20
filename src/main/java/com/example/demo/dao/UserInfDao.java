@@ -2,6 +2,7 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.UserInf;
+import com.example.demo.vo.UserVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +22,7 @@ public interface UserInfDao {
     /*
      * 查找分页
      * */
-    List<UserInf> seletePage();
+    List<UserVO> seletePage();
 
 
     int deleteByPrimaryKey(Integer userId);

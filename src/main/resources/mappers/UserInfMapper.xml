@@ -13,15 +13,29 @@
     <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
   </resultMap>
 
+  <resultMap id="VOResultMap" type="com.example.demo.vo.UserVO">
+    <id column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_phone" jdbcType="VARCHAR" property="userPhone" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="user_type" jdbcType="INTEGER" property="userType" />
+    <result column="max_space" jdbcType="INTEGER" property="maxSpace" />
+    <result column="per_space" jdbcType="INTEGER" property="perSpace" />
+    <result column="used_space" jdbcType="INTEGER" property="usedSpace" />
+  </resultMap>
+
 
   <sql id="Base_Column_List">
-    user_id, user_phone, username, password, email, register_time, status, user_type, 
+    user_id, user_phone, username, password, email, register_time, status, user_type,
     max_space,used_space
   </sql>
 
 
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from user_inf
     where user_id = #{userId,jdbcType=INTEGER}
@@ -31,7 +45,7 @@
     select
     <include refid="Base_Column_List" />
     from user_inf
-    where username = #{username,jdbcType=INTEGER}
+    where username = #{username,jdbcType=INTEGER} and user_type = 0
   </select>
 
   <select id="selectByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -61,9 +75,14 @@
     where user_phone = #{userPhone,jdbcType=VARCHAR} /*and user_type = 1*/
   </select>
 
-    <select id="seletePage" resultType="com.example.demo.entity.UserInf">
-      select  <include refid="Base_Column_List" />
-      from user_inf
+    <select id="seletePage" resultMap="VOResultMap">
+      select  t2.user_id, t2.user_phone, t2.username, t2.password, t2.email, t2.register_time, t2.status, t2.user_type,
+      t2. max_space,t2.used_space,t3.max_space as per_space
+      from user_inf as t2 join (SELECT max_space,user_id
+      FROM file_cabinet as t1 join (SELECT dir_id,user_id
+      FROM dir_inf
+      WHERE dir_name ='我的文件' and parent_dir in (SELECT dir_id FROM dir_inf
+      WHERE parent_dir IS NULL)) as t2 on t1.dir_id = t2.dir_id)as t3 on t3.user_id = t2.user_id
     </select>
 
 
@@ -76,11 +95,11 @@
 
 
   <insert id="insert" parameterType="UserInf">
-    insert into user_inf (user_id, user_phone, username, 
-      password, email, register_time, 
+    insert into user_inf (user_id, user_phone, username,
+      password, email, register_time,
       status, user_type, max_space,used_space)
-    values (#{userId,jdbcType=INTEGER}, #{userPhone,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP}, 
+    values (#{userId,jdbcType=INTEGER}, #{userPhone,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
+      #{password,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP},
       #{status,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, #{maxSpace,jdbcType=INTEGER}
 
   </insert>

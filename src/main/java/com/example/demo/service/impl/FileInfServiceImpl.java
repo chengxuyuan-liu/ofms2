@@ -8,7 +8,8 @@ import com.example.demo.service.UserInfService;
 import com.example.demo.util.DateUtil;
 import com.example.demo.util.PreviewUtil;
 import com.example.demo.util.ResponseUtil;
-import com.example.demo.util.ZipCompress;
+import com.example.demo.util.ZipCompressUtil;
+import com.example.demo.vo.FileVO;
 import com.spire.xls.Workbook;
 import com.spire.xls.Worksheet;
 import org.apache.commons.io.IOUtils;
@@ -70,6 +71,12 @@ public class FileInfServiceImpl implements FileInfServive {
         return fileInf;
     }
 
+    @Override
+    public List<FileVO> selectFileVOListByDirId(Integer dirId) {
+        List<FileVO> fileVOS = fileInfDao.selectFileVOListByDirId(dirId);
+        return fileVOS;
+    }
+
     /*
     删除
     */
@@ -93,7 +100,24 @@ public class FileInfServiceImpl implements FileInfServive {
         //外存删除相应文件
         //获得获得文件的存储路径
         String systemPath = "D:\\graduation project\\ofms\\";
-        DirInf dirInf = dirInfDao.selectDirByFileId(fileId);
+        DirInf dirInf = dirInfDao.selectDirByFileId(fileId);//文件所在文件夹
+
+        List<DirInf> originAccessPath = null;     //访问路径
+        List<DirInf> accessPath = new ArrayList<>();     //访问路径
+        //没排序的导航路径
+        originAccessPath = dirInfDao.selectParentDirByDirId(dirInf.getDirId());
+        //导航路径排序
+        Integer item = dirInf.getDirId();
+        for (int i = 0; i < originAccessPath.size(); i++) {
+            for (DirInf inf : originAccessPath) {
+                if(inf.getDirId().equals(item)){
+                    accessPath.add(0,inf);
+                    item = inf.getParentDir();
+                }
+            }
+        }
+
+
         FileInf fileInf = fileInfDao.selectByPrimaryKey(fileId);
         String filePath = systemPath+ dirInf.getDirPath()+dirInf.getDirName();
 
@@ -109,7 +133,7 @@ public class FileInfServiceImpl implements FileInfServive {
         //数据库删除记录
         int result = fileInfDao.deleteByPrimaryKey(fileId);
         //更新文件柜空间
-        FileCabinet fileCabinet = fileCabinetDao.selectByDirId(dirInf.getDirId());
+        FileCabinet fileCabinet = fileCabinetDao.selectByDirId(accessPath.get(0).getDirId());//根据文件夹id查文件柜
         BigInteger count = fileCabinet.getUsedSpace().subtract(fileInf.getFileSize());
         fileCabinet.setUsedSpace(count);
         fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
@@ -129,59 +153,43 @@ public class FileInfServiceImpl implements FileInfServive {
     */
     @Override
     public String fileUpload(MultipartFile file, Integer dirId, UserInf userInf) {
-
         DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId); //获取目标文件夹
         DeptMember deptMember=null;
         List<DirInf> dirInfList = dirInfDao.selectParentDirByDirId(dirId);
         FileCabinet fileCabinet = fileCabinetDao.selectByDirId(dirInfList.get(0).getDirId());
 
-
         //判断空间是否已满了
         if(dirInf.getUserId() == userInf.getUserId()) {
             if (fileCabinet.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString())).compareTo(fileCabinet.getMaxSpace()) > 0) {
-                return "full";
+                return "空间已达上限";
             }
-
-
         }else{
             deptMember = deptMemberDao.selectByUserKey(userInf.getUserId());
             System.out.println(deptMember);
             if(deptMember.getUsedSpace().add(new BigInteger(Long.valueOf(file.getSize()).toString())).compareTo(deptMember.getMaxSpace())>0){
-                return "full";
+                return "空间已达上限";
             }
         }
-
-
-
-        //系统路径
-        String systemPath = "D:\\graduation project\\ofms";
+        String systemPath = "D:\\graduation project\\ofms"; //系统路径
         //获取上传文件的信息
         String fileOriginalName = file.getOriginalFilename();  //文件的原始名
         String fileName = fileOriginalName;
         String fileType = fileOriginalName.substring(fileOriginalName.lastIndexOf(".") + 1); //获取文件类型
         Integer fileSize =  (int)file.getSize(); //获取文件的大小，单位为字节
-
-
-
         FileInf repeatFile = fileInfDao.selectByFileNameAndDirId(fileName,dirId);
-
         FileInf fileInf = new FileInf();
         fileInf.setFileName(fileName);//设置文件名
         fileInf.setFileSize(new BigInteger(fileSize.toString()));//设置文件大小，以字节为单位
         fileInf.setFileType(fileType);//设置文件的类型
         fileInf.setFileUploadTime(DateUtil.getNowDate());//设置上传时间
         fileInf.setDirId(dirId);//文件夹id
-        fileInf.setUserId(dirInf.getUserId());//用户id
-
-
-
-        boolean flag = true;      //插入数据开关
+        fileInf.setUserId(userInf.getUserId());//用户id
         //判断数据库中是否存在该文件的记录
+        boolean flag = true;    //插入数据开关
         if (repeatFile != null) {
             //如果文件字节相同，则覆盖，用户空间不用更新
             //如果文件字节大小不同，则更改名字后插入数据库，并且更新用户空间
             int fix = 0;
-
             String perfix = fileName.substring(0,fileName.lastIndexOf("."));
             String suffix = fileName.substring(fileName.lastIndexOf("."));
             do{
@@ -194,9 +202,7 @@ public class FileInfServiceImpl implements FileInfServive {
                 System.out.println("文件名="+fileName);
                 repeatFile = fileInfDao.selectByFileNameAndDirId(fileName,dirId);
             }while (repeatFile != null);
-
         }
-
         //判断是否要插入文件信息
         if(flag) {
             //插入文件信息
@@ -218,13 +224,11 @@ public class FileInfServiceImpl implements FileInfServive {
                 //当前文件柜的used_space增加
                 fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
             }
-
         }
 
         //上传文件到外存
         //判断文件是否存在
         if (!file.isEmpty() && file.getSize() > 0) {
-            //该文件的原始名
             //获得保存的路径
             String realPath = systemPath+dirInf.getDirPath()+"\\"+dirInf.getDirName();
             System.out.println(realPath);
@@ -237,7 +241,7 @@ public class FileInfServiceImpl implements FileInfServive {
                 return "save false";
             }
         }
-        return "successful";
+        return "上传成功!";
 
     }
 
@@ -246,38 +250,31 @@ public class FileInfServiceImpl implements FileInfServive {
     */
     @Override
     public void download(Integer fileId, Integer dirId, HttpServletResponse response, HttpSession session) {
-
         String systemPath = "D:\\graduation project\\ofms";  //文件保存系统路径
         DirInf dirInf = dirInfDao.selectByPrimaryKey(dirId); //文件夹信息
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION"); //用户信息
-
         //输入流
         byte[] buffer = new byte[1024];     //缓存区
         FileInputStream fis = null;         //文件输入流
         BufferedInputStream bis = null;     //缓存输入流
-
-
         //判断是文件还是文件夹
         if (fileId != null) {   //如果是文件
             FileInf fileInf = fileInfServive.selectByPrimaryKey(fileId);
             System.out.println(fileInf);
             String filePaht = systemPath + dirInf.getDirPath() + dirInf.getDirName() + "\\" + fileInf.getFileName();     //文件所在路径
-
             //返回文件给浏览器
             try {
                 ResponseUtil.responFileToBrower(response, filePaht);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         } else {
-                /*思路：源文件夹通过ZipOutputStream加工获得文件夹的Zip压缩文件存放在临时文件夹，再通过缓存输入流把文件读出来
+                /*源文件夹通过ZipOutputStream加工获得文件夹的Zip压缩文件存放在临时文件夹，再通过缓存输入流把文件读出来
                 最后通过ServletOutputStream响应给页面 */
-
             //压缩文件，存放到临时文件夹
             String temp = "D:\\graduation project\\ofms\\Tmpe";  //临时文件夹路径
             String zipFileName = temp + "\\" + dirInf.getDirName() + ".zip";      //输出的zip文件 路径 和 名称
-            ZipCompress zipCom = new ZipCompress(zipFileName, systemPath + dirInf.getDirPath() + dirInf.getDirName());
+            ZipCompressUtil zipCom = new ZipCompressUtil(zipFileName, systemPath + dirInf.getDirPath() + dirInf.getDirName());
             try {
                 zipCom.zip();
             } catch (Exception e) {
@@ -303,10 +300,8 @@ public class FileInfServiceImpl implements FileInfServive {
         String systemPath = "D:\\graduation project\\ofms"; //文件保存系统路径
         FileInf fileInf = fileInfServive.selectByPrimaryKey(fileId);//文件信息
         DirInf dirInf = dirInfDao.selectByPrimaryKey(fileInf.getDirId());//文件夹
-
         String fileRealPath = systemPath+dirInf.getDirPath()+ dirInf.getDirName()+ "\\" +fileInf.getFileName(); //预览路径
         String fileName = fileInf.getFileName();  //获取文件名
-
         //返回视频流或音频流，再浏览器中打开
         if(PreviewUtil.isVideoOrAudio(fileInf.getFileName())) {
             String file = fileRealPath;
@@ -335,7 +330,6 @@ public class FileInfServiceImpl implements FileInfServive {
                 e.printStackTrace();
             }
         }
-
         if(PreviewUtil.isDocument(fileInf.getFileName())) {
             //判断文件的类型是否是excel表格，如果是excel表格，统一将其缩放再转换
             if (fileName.indexOf(".xlsx") >= 0) {
@@ -349,11 +343,26 @@ public class FileInfServiceImpl implements FileInfServive {
 
             File file = new File(fileRealPath); //要预览的目标文件
             File newFile = new File("D:\\test\\obj-pdf"); //转成PDF后存放的位置
+
+            if(fileName.indexOf(".pdf") >= 0){
+                try {
+                    InputStream inputStream = new FileInputStream(file); //输入流读取文件
+                    ServletOutputStream outputStream = response.getOutputStream(); //获得请求响应的输出流; //获得请求响应的输出流
+                    //copy
+                    int i = IOUtils.copy(inputStream, outputStream);      //读取并输出
+                    inputStream.close();
+                    outputStream.close();
+                    outputStream = response.getOutputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
             //如果文件夹不存在就创建
             if (!newFile.exists()) {
                 newFile.mkdirs();
             }
-
             File pdfFile = new File("D:\\test\\obj-pdf\\hello.pdf");     //保存预览信息的pdf
             try {
                 converter.convert(file).to(pdfFile).execute();      //转化成pdf保存到hello.pdf
@@ -376,14 +385,12 @@ public class FileInfServiceImpl implements FileInfServive {
     * */
     @Override
     public String updateByPrimaryKeySelective(Integer fileId, Integer parentId) {
-
         //获取文件
         FileInf fileInf = fileInfDao.selectByPrimaryKey(fileId); //原文件
         DirInf dirInf = dirInfDao.selectByPrimaryKey(fileInf.getDirId()); //原文件夹
         DirInf tagetDir = dirInfDao.selectByPrimaryKey(parentId);   //目标文件夹
         String filePath = Const.SYSTEM_PATH + dirInf.getDirPath() + dirInf.getDirName()+"\\"+fileInf.getFileName(); //原文件路径
         String newFilePath = Const.SYSTEM_PATH + tagetDir.getDirPath() + tagetDir.getDirName()+"\\"+fileInf.getFileName(); //新文件路径
-
         //判断是否存在重复文件
         FileInf repeatFile =  fileInfDao.selectByFileNameAndDirId(fileInf.getFileName(),tagetDir.getDirId());
         if(repeatFile != null){
@@ -391,10 +398,8 @@ public class FileInfServiceImpl implements FileInfServive {
         }
         File file = new File(filePath);
         file.renameTo(new File(newFilePath));
-
         System.out.println(filePath);
         System.out.println(newFilePath);
-
         FileInf newfile = new FileInf();
         newfile.setFileId(fileId);
         newfile.setDirId(parentId);
@@ -424,7 +429,6 @@ public class FileInfServiceImpl implements FileInfServive {
         if(!file.renameTo(new File(systemPath+dirInf.getDirPath()+dirInf.getDirName()+"\\"+fileName))){
             return 0;
         }
-
         //数据库修改文件名
         FileInf fileInf = new FileInf();
         fileInf.setFileId(fileId);
@@ -436,15 +440,12 @@ public class FileInfServiceImpl implements FileInfServive {
     public List<FileInf> selectByFileType(List<String> type,Integer userId,Integer dirId) {
         //从根目录开始搜索所有文件夹
         List<DirInf> dirInfList = dirInfDao.selectChildrenDirByDirId(dirId);
-
         //遍历文件夹，搜索其中的文件
-
         List<FileInf> fileInfList = new ArrayList<FileInf>();
         //for
         for (DirInf dirInf : dirInfList) {
             fileInfList.addAll(fileInfDao.selectByFileType(type,userId,dirInf.getDirId()));
         }
-
         return fileInfList;
     }
 

@@ -9,6 +9,7 @@ import com.example.demo.service.DirInfService;
 import com.example.demo.service.TeamService;
 import com.example.demo.service.UserInfService;
 import com.example.demo.util.PageUtils;
+import com.example.demo.vo.UserVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class UserInfServiceImpl implements UserInfService {
     //判断用户空间
     @Override
     public Boolean judgeSpace(UserInf userInf) {
-        if (userInf.getUsedSpace().compareTo(userInf.getMaxSpace()) > 0) return false;
+        if (userInf.getUsedSpace().compareTo(userInf.getMaxSpace()) >= 0) return false;
         return true;
     }
 
@@ -122,8 +123,7 @@ public class UserInfServiceImpl implements UserInfService {
 
     @Override
     public UserInf selectByUserName(String username) {
-        UserInf userInf = userInfDao.selectByUserName(username);
-        return userInf;
+        return userInfDao.selectByUserName(username);
     }
 
     @Override
@@ -131,12 +131,12 @@ public class UserInfServiceImpl implements UserInfService {
         return PageUtils.getPageResult(pageRequest, getPageInfo(pageRequest));
     }
 
-    private PageInfo<UserInf> getPageInfo(PageRequest pageRequest) {
+    private PageInfo<UserVO> getPageInfo(PageRequest pageRequest) {
         int pageNum = pageRequest.getPageNum();
         int pageSize = pageRequest.getPageSize();
         PageHelper.startPage(pageNum, pageSize);
-        List<UserInf> userInfs = userInfDao.seletePage();
-        return new PageInfo<UserInf>(userInfs);
+        List<UserVO> userInfs = userInfDao.seletePage();
+        return new PageInfo<UserVO>(userInfs);
     }
 
     @Override

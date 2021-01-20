@@ -27,6 +27,11 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addViewController("tariff2").setViewName("tariff2");
         registry.addViewController("adminstration_order").setViewName("adminstration_order");
         registry.addViewController("adminstration_tariff").setViewName("adminstration_tariff");
+        registry.addViewController("my_collect").setViewName("my_collect");
+        registry.addViewController("my_distribute").setViewName("my_distribute");
+        registry.addViewController("other_collect").setViewName("other_collect");
+        registry.addViewController("other_distribute").setViewName("other_distribute");
+
 
     }
 

@@ -7,13 +7,13 @@ import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ZipCompress {
+public class ZipCompressUtil {
     private String zipFileName;	//目的地Zip文件
     private String sourceFileName;	//源文件
 
 
     //初始化
-    public ZipCompress(String zipFileName, String sourceFileName) {
+    public ZipCompressUtil(String zipFileName, String sourceFileName) {
         this.zipFileName = zipFileName;
         this.sourceFileName = sourceFileName;
     }

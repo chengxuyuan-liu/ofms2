@@ -71,7 +71,7 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" title="删除" onclick="deleteUser()" ><i class="fa fa-trash-o"></i> 删除
                             </button>
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-container-add"><i class="fa fa-refresh"></i> 添加套餐
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-container-add"><i class="fa fa-file-o"></i> 添加套餐
                             </button>
                             <button type="button" class="btn btn-default" title="刷新" onclick="refresh()"><i class="fa fa-refresh"></i> 刷新
                             </button>
@@ -80,7 +80,7 @@
                 </div>
                 <div class="box-tools pull-right">
                     <div class="has-feedback">
-                        <input type="text" class="form-control input-sm" placeholder="搜索">
+                        <input type="text" class="form-control input-sm" placeholder="输入套餐名搜索" id="searchContent">
                         <a href="#" id="search" class="glyphicon glyphicon-search form-control-feedback"></a>
                     </div>
                 </div>
@@ -103,17 +103,18 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="meals:${comboMeals}" style="border-bottom: 1px solid #5c6671">
+                    <tr th:each="meals:${pageResult.getContent()}" style="border-bottom: 1px solid #5c6671">
+                        <input type="hidden" class="meal-type1" th:attr="data-type=${meals.getmType()}">
                         <td><input type="checkbox" class="content-mealId"  th:attr="data-mealId=${meals.getMealId()}"/></td>
                         <td class="content-mealName">[[${meals.getMealName()}]]</td>
-                        <td class="content-perSpace" th:attr="data-perspace=${meals.getPerSpace()}">[[${#numbers.formatInteger(meals.getPerSpace()/1024/1024/1024,0)}]]</td>
-                        <td class="content-teamSpace" th:attr="data-teamspace=${meals.getTeamSpace()}">[[${#numbers.formatInteger(meals.getTeamSpace()/1024/1024/1024,0)}]]</td>
-                        <td class="content-deadline">[[${meals.getDeadline()}]]</td>
-                        <td class="content-price" th:text="${meals.getPrice()}"></td>
-                        <td th:if="${meals.getmType() eq 1}">个人套餐</td>
-                        <td th:if="${meals.getmType() eq 2}">团队套餐</td>
-                        <td th:if="${meals.getmStatus() eq 1}">已上架</td>
-                        <td th:if="${meals.getmStatus() eq 0}">未上架</td>
+                        <td class="content-perSpace" th:attr="data-perspace=${meals.getPerSpace()}"><span>[[${#numbers.formatInteger(meals.getPerSpace()/1024/1024/1024,0)}]]</span>GB</td>
+                        <td  class="content-teamSpace" th:attr="data-teamspace=${meals.getTeamSpace()}"><span>[[${#numbers.formatInteger(meals.getTeamSpace()/1024/1024/1024,0)}]]</span>GB</td>
+                        <td><span class="content-deadline">[[${meals.getDeadline()}]]</span>年</td>
+                        <td><span class="content-price" th:text="${meals.getPrice()}"></span>元</td>
+                        <td th:if="${meals.getmType() eq 1}" class="meal-type" th:attr="data-type=${meals.getmType()}">个人套餐</td>
+                        <td th:if="${meals.getmType() eq 2}" class="meal-type" th:attr="data-type=${meals.getmType()}">团队套餐</td>
+                        <td th:if="${meals.getmStatus() eq 1}"><span style="color: #3300aa">已上架</span></td>
+                        <td th:if="${meals.getmStatus() eq 0}"><span style="color: #7a8793">未上架</span></td>
                         <td class="text-center">
                             <button type="button" class="btn bg-olive btn-xs" th:if="${meals.getmStatus() eq 0}" th:onclick="|loadingAndunloading(${meals.getMealId()},${meals.getmStatus()})|">上架</button>
                             <button type="button" class="btn bg-olive btn-xs" th:if="${meals.getmStatus() eq 1}" th:onclick="|loadingAndunloading(${meals.getMealId()},${meals.getmStatus()})|">下架</button>
@@ -131,21 +132,21 @@
 
         <!-- .box-footer-->
         <div class="box-footer">
-<!--            <div class="box-tools pull-right">-->
-<!--                <input type="hidden" id="page_num" th:attr="data-page=${pageResult.getPageNum()}">-->
-<!--                <ul class="pagination">-->
-<!--                    <li>-->
-<!--                        <a href="#" aria-label="Previous" th:href="@{/toAdminstrationUser(pageNum=1,pageSize=10)}">首页</a>-->
-<!--                    </li>-->
-<!--                    <li id="example2_previous" ><a  th:href="@{/toAdminstrationUser(pageNum=${pageResult.getPageNum()-1},pageSize=10)}" th:if="${pageResult.getPageNum() ne 1}">上一页</a></li>-->
-<!--                    <li class="paginate_button page-item"  th:each="pageAll:${#numbers.sequence(1,pageResult.getTotalPages())}" >-->
-<!--                        <a  aria-controls="example2"  th:text="${pageAll}" th:href="@{/toAdminstrationUser(pageNum=${pageAll},pageSize=10)}">1</a></li>-->
-<!--                    <li><a  th:href="@{/toAdminstrationUser(pageNum=${pageResult.getPageNum()+1},pageSize=10)}">下一页</a></li>-->
-<!--                    <li>-->
-<!--                        <a  aria-label="Next" th:href="@{/toAdminstrationUser(pageNum=${pageResult.getTotalPages()},pageSize=10)}">尾页</a>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--            </div>-->
+            <div class="box-tools pull-right">
+                <input type="hidden" id="page_num" th:attr="data-page=${pageResult.getPageNum()}">
+                <ul class="pagination">
+                    <li>
+                        <a href="#" aria-label="Previous" th:href="@{/comboMeal/backgroundList(pageNum=1,pageSize=10,mealName=${mealName})}">首页</a>
+                    </li>
+                    <li id="example2_previous" ><a  th:href="@{/comboMeal/backgroundList(pageNum=${pageResult.getPageNum()-1},pageSize=10,mealName=${mealName})}" th:if="${pageResult.getPageNum() ne 1}">上一页</a></li>
+                    <li class="paginate_button page-item"  th:each="pageAll:${#numbers.sequence(1,pageResult.getTotalPages())}" >
+                        <a  aria-controls="example2" th:if="${pageAll ne 0}" th:text="${pageAll}" th:href="@{/comboMeal/backgroundList(pageNum=${pageAll},pageSize=10,mealName=${mealName})}">1</a></li>
+                    <li><a  th:href="@{/comboMeal/backgroundList(pageNum=${pageResult.getPageNum()+1},pageSize=10,mealName=${mealName})}">下一页</a></li>
+                    <li>
+                        <a  aria-label="Next" th:href="@{/comboMeal/backgroundList(pageNum=${pageResult.getTotalPages()},pageSize=10,mealName=${mealName})}">尾页</a>
+                    </li>
+                </ul>
+            </div>
 
         </div>
         <!-- /.box-footer-->
@@ -186,7 +187,6 @@
                         </label>
                         <div class="col-sm-10">
                             <select  id="add-meal-type"  name="mType">
-                                <option >--请选择--</option>
                                 <option value="1">个人套餐</option>
                                 <option value="2">团队套餐</option>
                             </select>
@@ -197,15 +197,15 @@
                             个人空间:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="perSpace" id="add-perspace">
+                            <input type="number" name="perSpace" id="add-perspace" style="width: 60px;">&nbsp;GB
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="add-teamspace-input" style="display: none">
                         <label for="add-teamspace" class="col-sm-2 control-label" style="padding-top:0;">
                             团队空间:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="teamSpace" id="add-teamspace">
+                            <input type="number" name="teamSpace" id="add-teamspace" style="width: 60px;">&nbsp;GB
                         </div>
                     </div>
                     <div class="form-group">
@@ -213,7 +213,7 @@
                             期限:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="deadline" id="add-deadline">
+                            <input type="number" name="deadline" id="add-deadline" style="width: 60px;">&nbsp;年
                         </div>
                     </div>
                     <div class="form-group">
@@ -221,7 +221,7 @@
                             价钱:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="price" id="add-price">
+                            <input type="number" name="price" id="add-price" style="width: 60px;">&nbsp;元
                         </div>
                     </div>
                 </form>
@@ -261,15 +261,15 @@
                             个人空间:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="perSpace" id="edit-perSpace">
+                            <input type="number" name="perSpace" id="edit-perSpace" style="width: 60px;">&nbsp;GB
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="edit-teamSpace-input">
                         <label for="edit-teamSpace" class="col-sm-2 control-label" style="padding-top:0;">
                             团队空间:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="teamSpace" id="edit-teamSpace">
+                            <input type="number" name="teamSpace" id="edit-teamSpace" style="width: 60px;">&nbsp;GB
                         </div>
                     </div>
                     <div class="form-group">
@@ -277,7 +277,7 @@
                             期限:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="deadline" id="edit-deadline">
+                            <input type="number" name="deadline" id="edit-deadline" style="width: 60px;">&nbsp;年
                         </div>
                     </div>
                     <div class="form-group">
@@ -285,7 +285,7 @@
                             价钱:
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="price" id="edit-price">
+                            <input type="number" name="price" id="edit-price" style="width: 60px;">&nbsp;元
                         </div>
                     </div>
                 </form>
@@ -481,7 +481,7 @@
 
     //刷新
     function  refresh(){
-        window.location.reload();
+        window.location.href = '/comboMeal/backgroundList';
     }
 
     //
@@ -499,7 +499,7 @@
     //设置编辑模态窗口值
     $('.btn-edit').click(function (){
         let num = $('.btn-edit').index(this);
-        console.log(num);
+        let type = $('.meal-type1').eq(num).attr('data-type');
         let mealId = $('.content-mealId').eq(num).attr('data-mealId');//
         let mealName = $('.content-mealName').eq(num).text();//套餐名
         let perSpace = $('.content-perSpace').eq(num).attr('data-perspace');//个人空间
@@ -507,10 +507,23 @@
         let deadLine = $('.content-deadline').eq(num).text();//期限
         let price = $('.content-price').eq(num).text();//价钱
 
+        console.log(type);
         $('#add-mealId').prop('value',mealId);
         $('#edit-meal-name').prop('value',mealName);
         $('#edit-perSpace').prop('value',(perSpace/1024/1024/1024).toFixed(0));
-        $('#edit-teamSpace').prop('value',(teamSpace/1024/1024/1024).toFixed(0));
+
+        if(type == 2){
+            console.log(teamSpace)
+            $('#edit-teamSpace').prop('value',(teamSpace/1024/1024/1024).toFixed(0));
+            $('#edit-teamSpace-input').css({
+                display:'block',
+            });
+        }else{
+            $('#edit-teamSpace-input').css({
+               display:'none',
+            });
+        }
+
         $('#edit-deadline').prop('value',deadLine);
         $('#edit-price').prop('value',price);
 
@@ -534,6 +547,28 @@
         });
     }
 
+
+    $("#searchContent").keyup(function(e){
+        if(e.keyCode==13){
+           let searchContent  = $("#searchContent").prop('value')
+            window.location.href = '/comboMeal/backgroundList?mealName='+searchContent;
+        }
+    })
+
+
+    $('#add-meal-type').change(function () {
+        let sel = $('#add-meal-type').prop('value');
+        if(sel == 2){
+            $('#add-teamspace-input').css({
+            display:'block',
+        });
+        }else{
+            $('#add-teamspace-input').css({
+                display:'none',
+            })
+        }
+
+    });
 </script>
 </body>
 

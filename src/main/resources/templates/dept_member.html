@@ -31,7 +31,7 @@
 <div class="alert  alert-info">
     <h4>
         [[${fileCabinet.fcName}]]
-        <button class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit" th:if="${session.USER_SESSION.userType} == 2 or ${permission.pAddDept} != 0">编辑</button>
+        <button class="btn btn-default btn-primary" data-toggle="modal" data-target="#modal-dept-edit" th:if="${session.USER_SESSION.userType} == 2 or ${permission.pAddDept} != 0" th:onclick="|setTip(${fileCabinet.getMaxSpace()},${session.USER_SESSION.getUsedSpace()},${session.USER_SESSION.getMaxSpace()})|">编辑</button>
     </h4>
     已用：<span th:attr="data-usedspace=${fileCabinet.getUsedSpace()}" id="used_space"></span>/
     共：<span th:attr="data-maxspace=${fileCabinet.getMaxSpace()}" id="max_space"></span>
@@ -123,7 +123,7 @@
                             th:if="${session.USER_SESSION.userType} == 2 or ${permission.getpEditMember()} != 0"
                             data-target="#modal-container-edit"  th:onclick="|get_member_mes(${memberVO.id},${memberVO.usedSpace},${memberVO.maxSpace},${memberVO.pUpload},${memberVO.pDown},${memberVO.pPreview})|">编辑
                     </button>
-                    <button type="button" class="btn btn-default btn-primary" id="app" th:if="${session.USER_SESSION.getUserId() ne memberVO.getUserId()} or ${permission} == null or ${permission.getpDelMember()} != 0"
+                    <button type="button" class="btn btn-default btn-primary" id="app" th:if="${session.USER_SESSION.getUserId() ne memberVO.getUserId()} or ${permission} == null and ${permission.getpDelMember()} != 0"
                             th:onclick="|removeMember(${memberVO.id},${memberVO.getDeptId()})|">移除
                     </button>
                 </td>
@@ -196,8 +196,8 @@
                                 <label for="edit_p_upload" class="col-sm-2 control-label" style="padding-top:0;">
                                     用户权限:</label>
                                 <div class="col-sm-10">
-                                    <input type="checkbox" id="edit_p_upload" name="pUpload" onclick="setCheck1()" value="0"/>上传 &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <input type="checkbox" id="edit_p_down" name="pDown" onclick="setCheck2()" value="0"/>&nbsp;下载 &nbsp;&nbsp;&nbsp;
+                                    <span style="display: block"><input type="checkbox" id="edit_p_upload" name="pUpload" onclick="setCheck1()" value="0"/>上传、新建文件夹</span>
+                                    <span style="display: block"><input type="checkbox" id="edit_p_down" name="pDown" onclick="setCheck2()" value="0" />下载</span>
                                     <input type="checkbox" id="edit_p_preview" name="pPreview" onclick="setCheck3()" value="0"/>&nbsp;预览 &nbsp;&nbsp;&nbsp;
                                 </div>
                             </div>
@@ -245,6 +245,7 @@
                                     部门总空间:</label>
                                 <div class="col-sm-10">
                                     <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace" th:value="${(#numbers.formatDecimal((((fileCabinet.maxSpace.doubleValue()/1024)/1024)/1024),1,'COMMA',0,'POINT'))}" min="0">&nbsp;GB
+                                    &nbsp;&nbsp;<span>*可分配(当前+剩余)共:<span id="available-user-space">xxx</span></span>
                                 </div>
                             </div>
                         </form>
@@ -286,7 +287,7 @@
     解散部门
     */
     function delete_dept(deptId){
-            if(confirm("确定要解散部门?（部门文件将会被删除，部门成员分配至“待分配”）")){
+            if(confirm("确定要解散部门?（部门文件将会被删除，部门成员移入至“待分配”）")){
                 $.post("/deleteDept",{"deptId":deptId}, function (date) {
                 if (date == "OK") {
                     alert("解散成功");
@@ -337,17 +338,22 @@
                 $('#edit_maxSpace').prop('value',maxSpace);
             }
         })
+        console.log(pUpload);
+        console.log(pDown);
+        console.log(pPreview);
+        //权限情况
+        if(pUpload == 1){$("#edit_p_upload").prop({checked:true,value:pUpload})
+        }else{$("#edit_p_upload").prop({checked:false,value:pUpload}) }
 
+        if(pDown == 1) { $("#edit_p_down").prop({checked:true,value:pDown})
+        } else {$("#edit_p_down").prop({checked:false,value:pDown})}
 
-        if(pUpload == 1){ $("#edit_p_upload").prop({checked:true,value:pUpload}) } ;
-        if(pDown == 1)  $("#edit_p_down").prop({checked:true,value:pDown});
-        if(pPreview == 1)  $("#edit_p_preview").prop({checked:true,value:pPreview});
+        if(pPreview == 1){$("#edit_p_preview").prop({checked:true,value:pPreview})
+        } else {$("#edit_p_preview").prop({checked:false,value:pPreview})}
     }
 
     /*设置check*/
     function setCheck1() {
-
-
         if($("#edit_p_upload").prop("checked")){
             $("#edit_p_upload").prop("value",1)
         }else{
@@ -366,7 +372,6 @@
         console.log("p_down:"+$("#edit_p_down").prop("value"));
     }
     function setCheck3() {
-
         if($("#edit_p_preview").prop("checked")){
             $("#edit_p_preview").prop("value",1)
         }else{
@@ -388,17 +393,8 @@
         }
 
         $.post("/addMember", $("#add_member_from").serialize(), function (data) {
-            if (data == "OK") {
-                alert("添加成功");
+                alert(data);
                 window.location.reload();
-            }else if(data == 'MEMBER_EXIST') {
-                alert("该用户已被分配或已存在’待分配‘中");
-            }else if(data == 'FILE_CABINET_FULL'){
-                alert("部门空间不足，请对部门空间进行扩容");
-            } else {
-                alert("添加失败");
-            }
-
         });
     }
 
@@ -407,13 +403,13 @@
     移除成员
     */
     function removeMember(id,deptId) {
-        if (confirm("确定要移除该成员吗")) {
+        if (confirm("确定要将该成员从部门中移除吗?")) {
             $.post("/removeMember", {"id":id,"deptId":deptId}, function (date) {
                 if (date == "OK") {
-                    alert("删除成功");
+                    alert("移除成功！");
                     window.location.reload();
                 } else {
-                    alert("删除失败");
+                    alert("移除失败！");
                 }
             });
         }
@@ -441,29 +437,44 @@
     */
     function editDept() {
 
-
-        let dept_name = $('#edit_dept_name').prop('value');
+        let deptId = $('#edit_deptId').attr('value');
+        let newDeptName = $('#edit_dept_name').prop('value');
         let oldName = $('#edit_dept_name').attr('value');
-        let oldDeptSpace =  $('edit_dept_maxSpace').attr('value');
-        let newDeptSpace = $('#edit_dept_name').prop('value');
+        let oldDeptSpace =  $('#edit_dept_maxSpace').attr('value');
+        let newDeptSpace = $('#edit_dept_maxSpace').prop('value');
+
+        let deptName = null;     //请求参数
+        let space = null;        //请求参数
 
         //提示可分配最大空间
 
-
-        if(dept_name == ''){
-            alert('请输入部门名');
+        if(newDeptName == ''){
+            alert("部门名称不能为空!");
+            return false;
+        }
+        //校验文件名是否规范
+        let regex = /.*[/\\<>:*?|].*/;
+        if(regex.test(newDeptName)){
+            alert("部门名不能包含 /\\ : * \" < > | ？");
             return false;
         }
 
-        $.post("/editDept",$("#edit_dept").serialize(), function (data) {
-            if (data == "OK") {
-                alert("保存成功");
+        if(newDeptName != oldName){
+            deptName = newDeptName;
+        }
+        if(oldDeptSpace != newDeptSpace) {
+            space = newDeptSpace;
+        }
+
+        console.log(deptName);
+        console.log(space);
+        $.post("/editDept",{'deptName':deptName,'maxSpace':space,'deptId':deptId}, function (data) {
+                alert(data);
+                if(data == "部门已存在!"){
+                    return false;
+                }
                 window.parent.location.reload();
-            }else if(data == "EXIST"){
-                alert('部门已存在')
-            }else {
-                alert("保存失败");
-            }
+
         });
     }
 
@@ -472,8 +483,6 @@
     编辑成员
     */
     function  editMember() {
-
-
 
         console.log("p_preview:"+$("#edit_p_preview").prop("value"));
         console.log("p_down:"+$("#edit_p_down").prop("value"));
@@ -527,7 +536,7 @@
                 space = space/1022
                 unit = 'GB';
             }
-            max_space.eq(i).text(space.toFixed(0)+unit);
+            max_space.eq(i).text(space.toFixed(2)+unit);
         }
     }
 
@@ -664,7 +673,14 @@
         })
     });
 
-
+//编辑部门空间提示
+    function setTip(fcSpace,usedSpace,maxSpace){
+        console.log(usedSpace);
+        console.log(maxSpace);
+        let surplus = maxSpace-usedSpace;
+        let available = surplus + fcSpace;
+        $('#available-user-space').text(count(available));
+    }
 </script>
 </body>
 </html>

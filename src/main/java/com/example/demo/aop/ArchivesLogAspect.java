@@ -39,16 +39,17 @@ public class ArchivesLogAspect {
     public void after(JoinPoint joinPoint) throws ClassNotFoundException {
         System.out.println("aop日志测试！！！！！！！！！！！！！！！！！");
         HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpSession session = req.getSession();
+        String loginStatus = (String) session.getAttribute("LOGIN_STATUS");
         UserInf userInf = getUSerMsg(req);
-
 
         //用户日志
         UserLog userLog = new UserLog();
         if(userInf != null) {
-            userLog.setUserId(userInf.getEmail());
-            userLog.setUsername(userInf.getUsername());
-            userLog.setUserIp(getIpAddr(req));
-            userLog.setOperateContent(getMethodDesc(joinPoint));
+            userLog.setUserId(userInf.getEmail());  //邮箱账号
+            userLog.setUsername(userInf.getUsername()); //用户名
+            userLog.setUserIp(getIpAddr(req));  //ip地址
+            userLog.setOperateContent(loginStatus); //操作内容
             //调用服务
             int result = userLogService.insertSelective(userLog);
             System.out.println("插入日志成功");
@@ -66,7 +67,7 @@ public class ArchivesLogAspect {
     public static UserInf getUSerMsg(HttpServletRequest req) {
         // 获取session
         HttpSession session = req.getSession();
-        UserInf user = (UserInf) session.getAttribute("USER_SESSION");
+        UserInf user = (UserInf) session.getAttribute("LOGIN_USER");
         return user;
     }
 

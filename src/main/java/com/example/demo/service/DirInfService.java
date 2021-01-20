@@ -27,5 +27,5 @@ public interface DirInfService {
     //更新
     String updateByPrimaryKeySelective(Integer dirId, Integer parentId);
 
-    public int updateDirName(Integer dirId,String dirName);
+    String updateDirName(Integer dirId,String dirName);
 }

@@ -48,13 +48,15 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     /*
-    * 查询
+    * 主键查询
     * */
     @Override
     public Department selectByPrimaryKey(Integer deptId) {
         Department department = departmentDao.selectByPrimaryKey(deptId);
         return department;
     }
+
+
 
     @Override
     public List<Department> selectDeptListByUserId(Integer userId) {
@@ -74,6 +76,14 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentList;
     }
 
+    /*
+    * 检查部门名称是否重名
+    * */
+    @Override
+    public Department selectRepeatDeptName(Department department, Team team) {
+        Department result =  departmentDao.selectRepeatDeptName(department.getDeptName(),team.getTeamId());
+        return result;
+    }
 
     /*
     * 更新

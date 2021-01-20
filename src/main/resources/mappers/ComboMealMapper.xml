@@ -35,7 +35,17 @@
       </if>
     </where>
   </select>
-
+  <select id="seletePage" resultType="com.example.demo.entity.ComboMeal">
+    select
+    <include refid="Base_Column_List" />
+    from combo_meal
+  </select>
+  <select id="seletePageByName" resultType="com.example.demo.entity.ComboMeal">
+    select
+    <include refid="Base_Column_List" />
+    from combo_meal
+    where meal_name like "%${mealName}%"
+  </select>
 
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

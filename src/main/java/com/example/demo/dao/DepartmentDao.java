@@ -20,6 +20,7 @@ public interface DepartmentDao {
     List<Department> selectDeptListByUserId(Integer userId);
     Department selectByFileCabinetId(Integer fcId);
     List<Department> selectByTeamId(Integer teamId);
+    Department selectRepeatDeptName(String deptName,Integer teamId);
 
     int updateByPrimaryKeySelective(Department record);
 

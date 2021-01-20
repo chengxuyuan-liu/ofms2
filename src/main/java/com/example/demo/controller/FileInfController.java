@@ -41,9 +41,8 @@ public class FileInfController {
             //检查上传权限，如果返回为false；
              if(checkPermissionsService.checkUploadPremission(userInf))
                  return fileInfServive.fileUpload(uploadfile,dirId,userInf);
-             return "No Access";
+             return "您没有上传权限!";
        }
-
         //上传服务
         return fileInfServive.fileUpload(uploadfile,dirId,userInf);
     }
@@ -86,6 +85,16 @@ public class FileInfController {
     @ResponseBody
     @RequestMapping("/deleteFile")
     public String deleterFile(Integer fileId, HttpSession session){
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+        FileInf fileInf = fileInfServive.selectByPrimaryKey(fileId);
+        DirInf dirInf = dirInfService.selectByPrimaryKey(fileInf.getDirId());
+        //校验操作合法性
+        if(!dirInf.getUserId().equals(userInf.getUserId())){
+            if(!fileInf.getUserId().equals(userInf.getUserId())){
+                return "FALSE";
+            }
+        }
+
         if (fileInfServive.deleteByPrimaryKey(fileId))  return "OK";
         return "FALSE";
     }

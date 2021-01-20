@@ -81,7 +81,7 @@
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">办公文件管理系统</a>
                     <div id="user-space" th:if="${session.USER_SESSION.getUserType() eq 2}">
-                        用户总空间:
+                        团队总空间:
                         已分配：<span th:attr="data-usedspace=${session.USER_SESSION.getUsedSpace()}"
                                   id="used_space"></span>/
                         共：<span th:attr="data-maxspace=${session.USER_SESSION.getMaxSpace()}" id="max_space"></span>
@@ -94,12 +94,9 @@
                         &nbsp;&nbsp;&nbsp;&nbsp;-职位：<span th:if="${permission} == null">无</span><span
                             th:if="${permission} != null" th:text="${permission.getRole()}"></span>
                     </div>
-
                 </div>
 
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
-
                     <ul class="nav navbar-nav navbar-right">
                         <li>
                             <a href="/comboMeal/foregroundList" >空间套餐</a>
@@ -139,7 +136,7 @@
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion"
                            href="#panel-element-962727">文件管理</a>
                     </div>
-                    <div id="panel-element-962727" class="panel-collapse collapse in">
+                    <div id="panel-element-962727" class="panel-collapse collapse">
                         <div class="panel-body file" th:each="fileCabinet:${fileCabinetList}">
                             <a href="#" th:attr="_link= @{/main(dirId = ${fileCabinet.dirId})}">[[${fileCabinet.fcName}]]</a>
                         </div>
@@ -153,7 +150,7 @@
                         <a class="panel-title collapsed" data-toggle="collapse" data-parent="#accordion"
                            href="#panel-element-78315">团队管理</a>
                     </div>
-                    <div id="panel-element-78315" class="panel-collapse collapse in">
+                    <div id="panel-element-78315" class="panel-collapse collapse">
                         <div class="new_dept btn-primary"
                              th:if="${session.USER_SESSION.userType} == 2 or ${permission.pAddDept} != 0">
                             <a href="#" style="color: white" class="btn" data-toggle="modal"
@@ -169,17 +166,39 @@
                     </div>
                 </div>
 
-
                 <!--权限管理管理-->
                 <div class="panel panel-default" th:if="${session.USER_SESSION.userType eq 2}">
                     <div class="panel-heading">
                         <a class="panel-title collapsed" data-toggle="collapse" data-parent="#accordion"
                            href="#panel-element-78316">权限管理</a>
                     </div>
-                    <div id="panel-element-78316" class="panel-collapse collapse in">
+                    <div id="panel-element-78316" class="panel-collapse collapse">
                         <div class="panel-body memberVO">
                             <a href="#" th:attr="_link=@{/permission}">角色和权限</a>
                         </div>
+                    </div>
+                </div>
+
+                <!--收发管理-->
+                <div class="panel panel-default" th:if="${session.USER_SESSION.userType eq 2}">
+                    <div class="panel-heading">
+                        <a class="panel-title collapsed" data-toggle="collapse" data-parent="#accordion"
+                           href="#panel-element-78317">收发管理</a>
+                    </div>
+                    <div id="panel-element-78317" class="panel-collapse collapse">
+                        <div class="panel-body memberVO">
+                            <a href="#" th:attr="_link=@{/my_collect}">我的收集</a>
+                        </div>
+                        <div class="panel-body memberVO">
+                            <a href="#" th:attr="_link=@{/other_collect}">他人的收集</a>
+                        </div>
+                        <div class="panel-body memberVO">
+                            <a href="#" th:attr="_link=@{/my_distribute}">我的共享</a>
+                        </div>
+                        <div class="panel-body memberVO">
+                            <a href="#" th:attr="_link=@{/other_distribute}">他人的共享</a>
+                        </div>
+
                     </div>
                 </div>
 
@@ -212,7 +231,7 @@
                         </div>
                         <div class="modal-body">
                             <form id="dept_edit_form">
-                                部门名称:<input type="text" name="deptName">
+                                部门名称:<input type="text" name="deptName" id="input-new-dept">
                             </form>
                         </div>
                         <div class="modal-footer">
@@ -295,16 +314,26 @@
 
         /*新建部门*/
         function new_dept() {
-            $(".d").va
+            let deptName = $("#input-new-dept").prop("value");
+
+            if(deptName == ''){
+                alert("部门名称不能为空！");
+                return false;
+            }
+            //校验文件名是否规范
+            let regex = /.*[/\\<>:*?|].*/;
+            if(regex.test(deptName)){
+                alert("部门名不能包含 /\\ : * \" < > | ？");
+                return false;
+            }
+
+            //提交请求
             $.post("/newDept", $("#dept_edit_form").serialize(), function (data) {
-                if (data == "OK") {
-                    alert("新建成功");
-                    window.location.reload();
-                } else if (data = 'SPACE_FULL') {
-                    alert("分配失败，您的用户空间已满");
-                } else {
-                    alert("新建失败");
+                alert(data);
+                if(data == '部门已存在！'){
+                    return false;
                 }
+                window.location.reload();
             })
         }
 
@@ -335,10 +364,12 @@
                 return false;
             }
             $.post('/changePassword',{'password':password},function (data){
-                if (data == 'OK'){
-                    alert('修改成功！请重新登录！')
-                    window.location.href='/logout';
-                }
+                    alert(data)
+                    if(data == '修改成功！'){
+                        alert('请重新登录!')
+                        window.location.href='/logout';
+                    }
+
             })
         }
 

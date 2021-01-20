@@ -31,6 +31,7 @@ public interface DeptMemberDao {
     DeptMember selectByPrimaryKey(Integer id);
     List<MemberVO> selectListByDeptKey(Integer id);
     DeptMember selectByUserKey(Integer userId);
+    DeptMember selectByUserIdAndTeamId(Integer userId,Integer teamId);
     List<MemberVO> selectToBeAssignedMemberListByUserId(Integer userId);
     List<MemberVO> selectToBeAssignedMemberByUserName(@Param("userId")Integer userId, @Param("userName")String userName);
     List<MemberVO> selectToBeAssignedMemberByPhone(@Param("userId")Integer userId, @Param("phone")String phone);

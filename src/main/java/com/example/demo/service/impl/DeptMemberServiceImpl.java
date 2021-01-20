@@ -109,6 +109,12 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     }
 
     @Override
+    public DeptMember selectByUserIdAndTeamId(Integer userId, Integer teamId) {
+        DeptMember deptMember = deptMemberDao.selectByUserIdAndTeamId(userId,teamId);
+        return deptMember;
+    }
+
+    @Override
     public int deleteByPrimaryKey(Integer id) {
         int result = deptMemberDao.deleteByPrimaryKey(id);
         return result;
@@ -128,10 +134,9 @@ public class DeptMemberServiceImpl implements DeptMemberService {
             Team team = teamDao.selectByUserId(userInf.getUserId());    //通过用户id查询团队
             //封装成员信息成DeptMember对象
             DeptMember deptMember = new DeptMember();
-            deptMember.setDeptId(deptId);
-            deptMember.setUserId(newMember.getUserId());
-            deptMember.setTeamId(team.getTeamId());
-
+            deptMember.setDeptId(deptId);           //部门id
+            deptMember.setUserId(newMember.getUserId());    //用户id
+            deptMember.setTeamId(team.getTeamId()); //团队id
             Integer result = deptMemberDao.insertSelective(deptMember);
             if(result != 0) return true;
         }
@@ -151,7 +156,6 @@ public class DeptMemberServiceImpl implements DeptMemberService {
 
     @Override
     public Boolean updateByPrimaryKeySelective(DeptMember record) {
-        record.setUsedSpace(new BigInteger("0"));
         if(deptMemberDao.updateByPrimaryKeySelective(record) == 0) return false;
         return true;
     }

@@ -99,7 +99,15 @@
                                         </td>
                                         <td th:text="${pageContent.getUserIp()}">Win 95+</td>
                                         <td th:text="${#dates.format(pageContent.getOperateDate(), 'yyyy-MM-dd HH:mm:ss')}"> 4</td>
-                                        <td th:text="${pageContent.getOperateContent()}">X</td>
+                                        <td th:if="${pageContent.getOperateContent() eq '登录失败!密码错误!'}"
+                                            th:text="${pageContent.getOperateContent()}" style="color: #d32535">X
+                                        </td>
+                                        <td th:if="${pageContent.getOperateContent() eq '禁用账号密码验证成功!'}"
+                                            th:text="${pageContent.getOperateContent()}">X
+                                        </td>
+                                        <td th:if="${pageContent.getOperateContent() eq '登录成功!'}"
+                                            th:text="${pageContent.getOperateContent()}" style="color: #00d75e;">X
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>

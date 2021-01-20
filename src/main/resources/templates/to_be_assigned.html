@@ -128,7 +128,7 @@
 		                </td>
 		                <td>
 		                    最近访问：
-		                    [[${memberVO.recent}]]
+		                    [[${#dates.format(memberVO.recent,'yyyy-MM-dd HH:mm:ss')}]]
 		                </td>
 		                <td>
 		                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal" id="edit_btn"
@@ -181,7 +181,8 @@
 		                                <label for="edit_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
 		                                    分配空间:</label>
 		                                <div class="col-sm-10">
-											 <input type="number" id="edit_maxSpace" style="width:80px;" name="maxSpace" min="0">&nbsp;MB<span id="tip_maxSpace"></span>
+											 <input type="number" id="edit_maxSpace" style="width:80px;" name="maxSpace" min="0">&nbsp;MB
+											 <span id="tip_maxSpace"></span>
 		                                </div>
 		                            </div>
 		                        </form>
@@ -202,10 +203,9 @@
 		
 		
 		<script>
-		
+
 		
 		    /*
-		    全选
 		    */
 		    function allCheck(){
 		        var check = document.getElementById("all_check").checked;

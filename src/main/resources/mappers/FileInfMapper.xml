@@ -11,6 +11,17 @@
     <result column="user_id" jdbcType="INTEGER" property="userId" />
   </resultMap>
 
+  <resultMap id="FileInfVOResultMap" type="com.example.demo.vo.FileVO">
+    <id column="file_id" jdbcType="INTEGER" property="fileId" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_size" jdbcType="INTEGER" property="fileSize" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="file_upload_time" jdbcType="TIMESTAMP" property="fileUploadTime" />
+    <result column="dir_id" jdbcType="INTEGER" property="dirId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+  </resultMap>
+
 
   <!--查询-->
   <sql id="Base_Column_List">
@@ -54,6 +65,15 @@
     FROM file_inf
     WHERE file_name like "%${fileName}%" and dir_id = #{dirId}
   </select>
+
+  <!--根据dirId的fileVO查询-->
+  <select id="selectFileVOListByDirId" resultType="com.example.demo.vo.FileVO">
+    SELECT  file_id, file_name, file_size,file_type, file_upload_time, dir_id, t1.user_id,t2.username
+    FROM file_inf as t1 join user_inf as t2 on t1.user_id = t2.user_id
+    WHERE  t1.dir_id = #{dirId}
+  </select>
+
+
 
   <!-- 删除-->
  <!-- 通过主键删除-->

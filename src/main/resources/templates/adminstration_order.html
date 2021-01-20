@@ -44,7 +44,7 @@
 <!-- 内容头部 -->
 <section class="content-header">
     <h1>
-        订单管理
+        购买记录管理
         <small>数据列表</small>
     </h1>
 </section>
@@ -90,7 +90,7 @@
                         <th class="" style="padding-right:0px;">
                             <input id="selall" type="checkbox" class="icheckbox_square-blue">
                         </th>
-                        <th >订单编号</th>
+                        <th >记录编号</th>
                         <th >用户</th>
                         <th >套餐</th>
                         <th >创建时间</th>
@@ -98,13 +98,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="order:${pageResult.getContent()}"  style="border-bottom: 1px solid #5c6671">
-                        <td><input type="checkbox" class="user_id"  th:attr="data-userid=${order.getOrderId()}"/></td>
-                        <td> [[${order.getOrderId()}]]</td>
-                        <td>[[${order.getUserId()}]]</td>
-                        <td>[[${order.getMealId()}]]</td>
-                        <td th:text="${#dates.format(order.getStartTime(), 'yyyy-MM-dd')}"></td>
-                        <td th:text="${#dates.format(order.getEndTime(), 'yyyy-MM-dd')}"></td>
+                    <tr th:each="record:${pageResult.getContent()}"  style="border-bottom: 1px solid #5c6671">
+                        <td><input type="checkbox" class="record_id"  th:attr="data-record-id=${record.getRecordId()}"/></td>
+                        <td> [[${record.getRecordId()}]]</td>
+                        <td>[[${record.getEmail()}]]</td>
+                        <td>[[${record.getMealName()}]]</td>
+                        <td th:text="${#dates.format(record.getStartTime(), 'yyyy-MM-dd')}"></td>
+                        <td th:text="${#dates.format(record.getEndTime(), 'yyyy-MM-dd')}"></td>
 <!--                        <td class="text-center">
                             <button type="button" class="btn bg-olive btn-xs"
                           data-toggle="modal" data-target="#modal-container-edit" >编辑</button>
@@ -125,14 +125,14 @@
                 <input type="hidden" id="page_num" th:attr="data-page=${pageResult.getPageNum()}">
                 <ul class="pagination">
                     <li>
-                        <a href="#" aria-label="Previous" th:href="@{/orders/backgroundList(pageNum=1,pageSize=10)}">首页</a>
+                        <a href="#" aria-label="Previous" th:href="@{/buyRecord/backgroundList(pageNum=1,pageSize=10)}">首页</a>
                     </li>
-                    <li id="example2_previous" ><a  th:href="@{/orders/backgroundList(pageNum=${pageResult.getPageNum()-1},pageSize=10)}" th:if="${pageResult.getPageNum() ne 1}">上一页</a></li>
+                    <li id="example2_previous" ><a  th:href="@{/buyRecord/backgroundList(pageNum=${pageResult.getPageNum()-1},pageSize=10)}" th:if="${pageResult.getPageNum() ne 1}">上一页</a></li>
                     <li class="paginate_button page-item"  th:each="pageAll:${#numbers.sequence(1,pageResult.getTotalPages())}" >
-                        <a  aria-controls="example2"  th:text="${pageAll}" th:href="@{/orders/backgroundList(pageNum=${pageAll},pageSize=10)}">1</a></li>
-                    <li><a  th:href="@{/orders/backgroundList(pageNum=${pageResult.getPageNum()+1},pageSize=10)}">下一页</a></li>
+                        <a  aria-controls="example2"  th:text="${pageAll}" th:href="@{/buyRecord/backgroundList(pageNum=${pageAll},pageSize=10)}">1</a></li>
+                    <li><a  th:href="@{/buyRecord/backgroundList(pageNum=${pageResult.getPageNum()+1},pageSize=10)}">下一页</a></li>
                     <li>
-                        <a  aria-label="Next" th:href="@{/orders/backgroundList(pageNum=${pageResult.getTotalPages()},pageSize=10)}">尾页</a>
+                        <a  aria-label="Next" th:href="@{/buyRecord/backgroundList(pageNum=${pageResult.getTotalPages()},pageSize=10)}">尾页</a>
                     </li>
                 </ul>
             </div>
@@ -279,31 +279,30 @@
     */
 
     function deleteUser() {
-        let idList = $('.user_id');
+        let idList = $('.record_id');
         let id = [];
         for ( i = 0; i < idList.length; i++) {
             if(idList.eq(i).prop('checked')){
-                id.push(idList.eq(i).attr('data-userid'))
+                id.push("'"+idList.eq(i).attr('data-record-id')+"'");
             }
         }
         if(id.length == 0){
-            alert('请选择要删除的用户！')
+            alert('请选择要删除的记录！')
             return false;
         }
-
-
-         if (confirm("确定要删除该用户吗")) {
+        console.log(id);
+        let json = '{"recordId":['+id+']}'
+         if (confirm("确定要删除该记录吗?")) {
             $.ajax({
-                url:"/deleteUser",
-                data:{userId:id},
+                url:"/buyRecord/delete",
+                data:json,
                 type:'post',
+                contentType : "application/json",
                 traditional: true,
                 success:function (data) {
-                    if(data == 'OK'){
-                        alert('删除成功')
+                        alert(data)
                         window.location.reload();
                     }
-                }
             })
          }
     }

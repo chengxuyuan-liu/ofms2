@@ -3,6 +3,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.*;
 import com.example.demo.service.*;
+import com.example.demo.vo.FileVO;
 import com.example.demo.vo.MemberVO;
 import com.example.demo.vo.PermissionVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class ViewController {
@@ -44,19 +42,19 @@ public class ViewController {
     public String toMenuView(Map<String,Object> map, HttpSession session){
         //当前用户
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        //获得用户或用户所在部门的文件柜
+        //用户自己的文件柜
         List<FileCabinet> fileCabinetList = fileCabinetService.selectByUserId(userInf.getUserId());
         //如果是团队账号,获取部门列表
         if(userInf.getUserType() == 2){
             List<Department> departmentList = departmentService.selectDeptListByUserId(userInf.getUserId());
             map.put("deptList", departmentList);
         }
-
         //如果是个人账号--》团队、部门
         if(userInf.getUserType() == 1){
             DeptMember deptMember=deptMemberService.selectByUserKey(userInf.getUserId()); //用户的成员信息
             Team team = null;
             Department department = null;
+            //如果为空，表示没有加入任何团队
             if(deptMember != null){
                 team = teamService.selectByPrimaryKey(deptMember.getTeamId());  //用户所属团队
                 department = departmentService.selectByPrimaryKey(deptMember.getDeptId()); //用户所属部门
@@ -64,20 +62,17 @@ public class ViewController {
                 map.put("department", department);
                 Permission permission = permissionService.selectByMemberId(deptMember.getId());
                 if(permission != null){
+                    //权限表返回给前端
+                    map.put("permission", permission);
+                    //判断拥有的权限：部门管理权限 or 成员管理权限
                     if(permission.getpAddDept() == 1 || permission.getpEditDept() ==1){
                         List<Department> departmentList = departmentService.selectByTeamId(team.getTeamId());
                         map.put("deptList", departmentList);        //获得团队所有部门
-
                     }else{
                         map.put("deptList", departmentService.selectByPrimaryKey(deptMember.getDeptId()));
                     }
                 }
-                //获取权限信息
-                map.put("permission", permission);
             }
-
-
-
         }
         map.put("fileCabinetList", fileCabinetList);
 
@@ -90,7 +85,6 @@ public class ViewController {
     **/
     @RequestMapping("/main")
     public String mainView(Integer dirId,Map<String,Object> map,HttpSession session){
-
         //调用业务
         List<DirInf> dirInfList;          //文件夹List
         List<FileInf> fileInfList;         //文件List
@@ -98,16 +92,13 @@ public class ViewController {
         List<DirInf> accessPath = new ArrayList<>();     //访问路径
         DeptMember deptMember = null;
         String title=null;      //当前文件柜
-
-        FileCabinet fileCabinet;//当前文件的文件柜
+        FileCabinet fileCabinet = null;//当前文件的文件柜
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-
         //如果dirId为空
         if(dirId != null)
         {
             //没排序的导航路径
             originAccessPath = dirInfService.selectParentDirByDirId(dirId);
-
             //导航路径排序
             Integer item = dirId;
             for (int i = 0; i < originAccessPath.size(); i++) {
@@ -118,47 +109,54 @@ public class ViewController {
                     }
                 }
             }
-
             title = accessPath.get(0).getDirName();
             DirInf dirInf = dirInfService.selectByPrimaryKey(dirId);
+            //如果是文件夹所属用户访问文件柜，就获取文件柜信息，如果不是就获取文件柜信息和用户成员信息
             if(userInf.getUserId() == dirInf.getUserId() ) {
                 fileCabinet = fileCabinetService.selectByDirId(accessPath.get(0).getDirId()); //当前文件柜
                 map.put("fileCabinet", fileCabinet);
             }else{
+                fileCabinet = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
                 deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
                 map.put("deptMember", deptMember);
             }
-
             //获得文件id为dirId文件夹下的文件夹、文件
             dirInfList = dirInfService.selectDirListByParentDirId(dirId);
-            fileInfList = fileInfServive.selectFileListByFolderId(dirId);
-
+            //区分个人文件柜和部门文件柜,如果是部门文件柜，返回带上传人信息的文件信息
+            Department department = departmentService.selectByFileCabinetId(fileCabinet.getFcId());
+            if(department != null){
+                List<FileVO> fileVOList = fileInfServive.selectFileVOListByDirId(dirId);
+                map.put("shareSpace", "shareSpace");
+                map.put("fileList",fileVOList);
+            }else{
+                fileInfList = fileInfServive.selectFileListByFolderId(dirId);
+                map.put("fileList",fileInfList);
+            }
         }
         else
         {
             //获得根文件夹
-            DirInf rootDir= dirInfService.selectRootChildrenDirByUserId(userInf.getUserId(),"我的文件");
-            dirId = rootDir.getDirId();
-            fileCabinet  = fileCabinetService.selectByDirId(rootDir.getDirId());
+            DirInf rootDir=dirInfService.selectRootDirByUserId(userInf.getUserId());
+            DirInf myDir= dirInfService.selectDirByDirName("我的文件",rootDir.getDirId());
+            dirId = myDir.getDirId();
+            fileCabinet  = fileCabinetService.selectByDirId(myDir.getDirId());
             map.put("fileCabinet", fileCabinet);
             //获得根文件夹下的文件夹
-            dirInfList = dirInfService.selectDirListByParentDirId(rootDir.getDirId());
+            dirInfList = dirInfService.selectDirListByParentDirId(myDir.getDirId());
             //获得根文件夹下的文件
-            fileInfList = fileInfServive.selectFileListByFolderId(rootDir.getDirId());
+            fileInfList = fileInfServive.selectFileListByFolderId(myDir.getDirId());
+            map.put("fileList",fileInfList);
             //导航路径
-            accessPath = dirInfService.selectParentDirByDirId(rootDir.getDirId());
+            accessPath = dirInfService.selectParentDirByDirId(myDir.getDirId());
             title = accessPath.get(0).getDirName();
 
         }
         //返回
-
         map.put("title",title);
         map.put("dirId",dirId);
-        map.put("fileList",fileInfList);
         map.put("dirList",dirInfList);
         map.put("accessPath",accessPath);
         return "file_manage";
-
     }
 
 
@@ -226,13 +224,20 @@ public class ViewController {
     public String deptMember(Integer deptId , Map<String,Object> map , HttpSession session) {
 
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
+
+        //通过部门Id获得部门成员List
+        List<MemberVO> memberVOList = deptMemberService.selectListByDeptKey(deptId);
         if(userInf.getUserType() == 1) {
             DeptMember deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
             Permission permission = permissionService.selectByMemberId(deptMember.getId());
             map.put("permission", permission);
+            for (int i = 0; i < memberVOList.size(); i++) {
+                if (userInf.getUserId().equals(memberVOList.get(i).getUserId())){
+                    Collections.swap(memberVOList,i,0);
+                }
+            }
         }
-        //通过部门Id获得部门成员List
-        List<MemberVO> memberVOList = deptMemberService.selectListByDeptKey(deptId);
+
         //部门文件柜
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
 
@@ -251,12 +256,13 @@ public class ViewController {
     @RequestMapping("/searchMember")
     public String searchMember(String userPhone,String userName,Integer deptId,Map<String,Object> map , HttpSession session) {
         Integer userId;
-        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        DeptMember deptMember  = deptMemberService.selectByUserKey(userInf.getUserId());
-
+        UserInf userInf = (UserInf) session.getAttribute("USER_SESSION"); //当前用户
+        DeptMember deptMember  = deptMemberService.selectByUserKey(userInf.getUserId()); //查询当前用户是否是成员
         if(deptMember !=null){
             Team team = teamService.selectByPrimaryKey(deptMember.getTeamId());
             userId = team.getUserId();
+            Permission permission = permissionService.selectByMemberId(deptMember.getId());
+            map.put("permission", permission);
         }else{
             userId = userInf.getUserId();
         }
@@ -277,6 +283,8 @@ public class ViewController {
         //部门文件柜
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
 
+
+
         //返回
         map.put("fileCabinet",fileCabinet);
         map.put("deptId",deptId);
@@ -292,24 +300,36 @@ public class ViewController {
     @RequestMapping("/toBeAssigned")
     public String toBeAssigned(Map<String,Object> map ,HttpSession session) {
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
-        Team team = teamService.selectByUserId(userInf);
+        Team team;
 
         //如果是个人账号
+        List<Department> departmentList = new ArrayList<>(); //用于编辑的部门列表
+
         if(userInf.getUserType() == 1){
             DeptMember deptMember = deptMemberService.selectByUserKey(userInf.getUserId());//通过成员信息获取团队id
+            Permission permission = permissionService.selectByMemberId(deptMember.getId());//权限
             team = teamService.selectByPrimaryKey(deptMember.getTeamId()); //通过团队信息获取用户id
+            //获取部门
+            departmentList.add(departmentService.selectByPrimaryKey(deptMember.getDeptId()));
+            System.out.println(permission.getpAddDept().equals(1));
+            if(permission.getpAddDept().equals(1)){
+                departmentList = departmentService.selectDeptListByUserId(team.getUserId());
+            }
+        }else{
+            team = teamService.selectByUserId(userInf);
+            departmentList = departmentService.selectDeptListByUserId(team.getUserId());    //获取所有部门，用于编辑时是使用
         }
 
         List<MemberVO> memberVOList = deptMemberService.selectToBeAssignedMemberListByUserId(team.getUserId());  //获取所有待分配成员
 
-        List<Department> departmentList = departmentService.selectDeptListByUserId(team.getUserId());    //获取所有部门，用于编辑时是使用
 
 
 
-        List<Department> department = departmentService.selectByTeamId(team.getTeamId());
+
+       // List<Department> department = departmentService.selectByTeamId(team.getTeamId());
 
         List<FileCabinet> fileCabinetList = new ArrayList<>();
-        for (Department department1 : department) {
+        for (Department department1 : departmentList) {
             fileCabinetList.add( fileCabinetService.selectByDeptId(department1.getDeptId()));//获取所有文件柜，用于编辑时是使用
         }
 

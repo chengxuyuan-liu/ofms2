@@ -2,10 +2,7 @@ package com.example.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.example.demo.entity.*;
-import com.example.demo.service.DepartmentService;
-import com.example.demo.service.DeptMemberService;
-import com.example.demo.service.FileCabinetService;
-import com.example.demo.service.PermissionService;
+import com.example.demo.service.*;
 import com.example.demo.util.UnitChange;
 import com.example.demo.vo.MemberVO;
 import com.example.demo.vo.PermissionVO;
@@ -24,7 +21,8 @@ import java.util.Map;
 @Controller
 public class MemberController {
 
-
+    @Autowired
+    UserInfService userInfService;
     @Autowired
     DeptMemberService deptMemberService;
     @Autowired
@@ -41,20 +39,33 @@ public class MemberController {
     @RequestMapping("/addMember")
     public String addMember(Integer deptId,String userPhone,HttpSession session){
 
+        //校验合法性
+        //成员是否存在
+        UserInf checkUser= userInfService.selectByUserPhone(userPhone);
+        if(checkUser == null){
+            return "用户不存在!";
+        }
+        //用户是否合法
+        if(checkUser.getUserType() ==2){
+            return "只能添加个人用户!";
+        }
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //更新文件柜空间
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
+        Department department = departmentService.selectByPrimaryKey(deptId);
         //添加新成员
         try {
+            //成员是否已加入团队
+            DeptMember deptMember =  deptMemberService.selectByUserIdAndTeamId(checkUser.getUserId(),department.getTeamId());
+            if(deptMember != null){
+                return "该用户已存在团队中!";
+            }
+            if(!fileCabinetService.updateWhenNewMember(fileCabinet)) return "文件柜空间已达上限!"; //文件空间已满
             Boolean result = deptMemberService.insertSelective(deptId,userPhone,userInf);
-            if(!fileCabinetService.updateWhenNewMember(fileCabinet)) return "FILE_CABINET_FULL";
-            return "OK";
+            return "添加成功!"; //添加成功
         }catch (Exception e){
-            return "MEMBER_EXIST";
+            return "用户已加入其他团队!"; //成员已存在
         }
-
-
-
     }
 
     /*
@@ -125,7 +136,8 @@ public class MemberController {
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(memberInfo.getDeptId());
         if(!fileCabinetService.updateWhenEditMember(fileCabinet,memberInfo,inputMember.getMaxSpace())) return "FILE_CABINET_FULL";
         //更新成员空间
-        deptMemberService.updateByPrimaryKeySelective(inputMember);
+        inputMember.setUsedSpace(memberInfo.getUsedSpace());
+        deptMemberService.updateByPrimaryKeySelective(inputMember); //更新成员信息，包括文件操作权限和空间
         return "OK";
     }
 
@@ -153,7 +165,7 @@ public class MemberController {
         record.setpUpload(1);
         record.setpPreview(1);
         record.setpDown(1);
-
+        record.setUsedSpace(UnitChange.TranslateGBtoByte(0));
         record.setMaxSpace(count);
         if (deptMemberService.updateByPrimaryKeySelective(record)) return "OK";
         return "FALSE";

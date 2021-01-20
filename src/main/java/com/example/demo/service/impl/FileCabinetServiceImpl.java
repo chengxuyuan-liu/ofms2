@@ -140,7 +140,9 @@ public class FileCabinetServiceImpl implements FileCabinetService {
     public Boolean updateWhenNewMember(FileCabinet fileCabinet) {
         BigInteger increment = UnitChange.TranslateMBtoByte(500);
         BigInteger count = fileCabinet.getUsedSpace().add(increment);
-        if(count.compareTo(fileCabinet.getMaxSpace()) > 0) return false;
+        if(count.compareTo(fileCabinet.getMaxSpace()) > 0) {
+            return false;
+        }
         fileCabinet.setUsedSpace(count);
         fileCabinetDao.updateByPrimaryKeySelective(fileCabinet);
         return true;

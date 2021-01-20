@@ -167,7 +167,7 @@
     <table style="table-layout: fixed" class="table table-hover">
         <thead>
         <tr>
-            <th>
+            <th style="width: 250px;">
                 <input type="checkbox" data-type="3" id="all_check" style="margin-right: 8px;">
                 文件
             </th>
@@ -179,6 +179,9 @@
             </th>
             <th>
                 大小
+            </th>
+            <th th:if="${shareSpace} != null">
+                上传人
             </th>
             <th>
                 操作
@@ -196,7 +199,7 @@
             <tbody>
             <!--循环输出文件夹-->
             <tr th:each="dir:${dirList}">
-                <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;" th:title="${dir.getDirName()}">
+                <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;width: 250px;" th:title="${dir.getDirName()}" >
                     <!--复选框-->
                     <input type="checkbox" class="all_check_button" th:attr="data-type=1,data-dir-id=${dir.getDirId()}"
                            style="margin-right: 8px;"/>
@@ -216,18 +219,17 @@
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
+                <td th:if="${shareSpace} != null">-</td>
                 <td>
                     <div name="main-funtion">
-                        <a type="button" class="btn btn-default btn-primary"
-                           th:href="@{/download(dirId=${dir.dirId})}">下载</a>
-                        <button type="button" class="btn btn-default btn-primary"
-                                th:onclick="|delete_dir(${dir.dirId})|" >
-                            删除
-                        </button>
                         <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
                                 data-target="#modal-container-move" th:if="${accessPath} != null"
                                 th:onclick="|move_file(${dir.dirId},null,${accessPath.get(0).getDirId()})|">
                             移动到
+                        </button>
+                        <button type="button" class="btn btn-default btn-primary"
+                                th:onclick="|delete_dir(${dir.dirId})|" >
+                            删除
                         </button>
                         <div class="btn-group">
                             <button data-toggle="dropdown" class="btn btn-default btn-primary">
@@ -235,6 +237,9 @@
                             <ul class="dropdown-menu" style="min-width:60px;width: 50px">
                                 <li>
                                     <a href="#" style="padding: 0px" name="rename-btn">重命名</a>
+                                </li>
+                                <li>
+                                    <a type="button" th:href="@{/download(dirId=${dir.dirId})}">下载</a>
                                 </li>
                             </ul>
                         </div>
@@ -244,7 +249,7 @@
 
             <!--循环输出文件-->
             <tr th:each="file:${fileList}">
-                <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;" th:title="${file.fileName}">
+                <td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;width: 250px;" th:title="${file.fileName}">
                     <!--复选框-->
                     <input type="checkbox" class="all_check_button"
                            th:attr="data-type=2,data-file-id=${file.getFileId()}" style="margin-right: 8px;"/>
@@ -267,26 +272,30 @@
                 <td>[[${file.fileType}]]</td>
                 <td th:text="${#dates.format(file.fileUploadTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
                 <td class="file-size" th:value="${file.fileSize}">[[${file.fileSize}]]</td>
+                <td th:if="${shareSpace} != null" th:text="${file.getName()}"></td>
                 <td>
                     <div name="main-funtion">
-                        <a type="button" class="btn btn-default btn-primary"
-                           th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
-                        <button type="button" class="btn btn-default btn-primary"
-                                th:onclick="|delete_file(${file.fileId})|">删除
-                        </button>
 
                         <div th:if="${accessPath} != null" style="display: inline-block">
                             <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
                                     data-target="#modal-container-move"
+                                    th:if="${file.getUserId() eq session.USER_SESSION.getUserId()} or ${session.USER_SESSION.getUserType() eq 2}"
                                     th:onclick="|move_file(null,${file.fileId},${accessPath.get(0).getDirId()})|">移动到
                             </button>
                         </div>
+                        <button type="button" class="btn btn-default btn-primary"
+                                th:if="${file.getUserId() eq session.USER_SESSION.getUserId()} or ${session.USER_SESSION.getUserType() eq 2}"
+                                th:onclick="|delete_file(${file.fileId})|">删除
+                        </button>
                         <div class="btn-group">
                             <button data-toggle="dropdown" class="btn btn-default btn-primary">
                                 <span>...</span></button>
                             <ul class="dropdown-menu" style="min-width:60px;width: 50px">
                                 <li>
-                                    <a href="#" style="padding: 0px" name="rename-btn">重命名</a>
+                                    <a th:if="${file.getUserId() eq session.USER_SESSION.getUserId()} or ${session.USER_SESSION.getUserType() eq 2}" href="#" style="padding: 0px" name="rename-btn">重命名</a>
+                                </li>
+                                <li>
+                                    <a type="button" th:href="@{/download(fileId=${file.fileId},dirId=${file.dirId})}">下载</a>
                                 </li>
                             </ul>
                         </div>
@@ -322,7 +331,9 @@
                               enctype="multipart/form-data">
                             <input type="hidden" th:value="${dirId}" name="dirId" id="upload_dirId">
                             <input type="file" id="file" name="uploadfile"/>
+
                         </form>
+                        <span style="margin-top: 0;position: absolute;right: 122px;top: 23px;">*上传文件大小不能大于<span style="color: red">500M</span></span>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -521,12 +532,8 @@
         }
 
         $.post("/newDir", $("#newDir").serialize(), function (date) {
-            if (date == "OK") {
-                alert("创建成功");
+                alert(date);
                 window.location.reload();
-            } else {
-                alert("创建失败，请联系客服");
-            }
         });
     }
 
@@ -536,12 +543,9 @@
     function delete_dir(dirID) {
         if (confirm("确定要删除该文件夹吗？")) {
             $.post("/deleteDir", {"dirId": dirID}, function (date) {
-                if (date == "OK") {
-                    alert("删除成功!");
+                    alert(date);
                     window.location.reload();
-                } else {
-                    alert("删除失败!");
-                }
+
             });
         }
     }
@@ -550,14 +554,16 @@
     删除文件
     */
     function delete_file(fileId) {
-        $.post("/deleteFile", {"fileId": fileId}, function (date) {
-            if (date == "OK") {
-                alert("删除成功");
-                window.location.reload();
-            } else {
-                alert("删除失败!");
-            }
-        });
+        if (confirm("确定要删除该文件吗？")) {
+            $.post("/deleteFile", {"fileId": fileId}, function (date) {
+                if (date == "OK") {
+                    alert("删除成功");
+                    window.location.reload();
+                } else {
+                    alert("删除失败!");
+                }
+            });
+        }
     }
 
 
@@ -565,12 +571,18 @@
     上传文件文件
     */
     function uploadFile() {
-        var file = document.getElementById("file").value;
+        /*event = event ? event : window.event;
+        let obj = event.srcElement? event.srcElement:event.target;*/
+        let file = document.getElementById("file").value;
         if (file.length == 0 || file == "") {
             alert("请选 上传文件");
             return false;
         }
-
+        let f = document.getElementById("file").files;
+        if(f[0].size > 524288000){
+            alert("文件大小超过500MB!");
+            return false;
+        }
         var formData = new FormData($("#uploal_form")[0]); //获得文件数据
         var dirId = document.getElementById("upload_dirId");
         $.ajax({
@@ -581,15 +593,8 @@
             processData: false,
             contentType: false,
             success: function (data) {
-                if (data == "successful") {
-                    alert('上传成功！');
+                    alert(data);
                     window.location.reload();
-                } else if (data == "No Access") {
-                    alert('您没有上传权限！');
-                    window.location.reload();
-                } else if (data == "full") {
-                    alert('空间已达上限，请加增空间！')
-                }
             }
         });
     }
@@ -745,14 +750,7 @@
                         let dirId = checkbox.attr('data-dir-id');
                         let dirName = inputName.prop('value');
                         $.post('/dirRename', {'dirId': dirId, 'dirName': dirName}, function (data) {
-                            if (data == 'OK') {
-                                alert('修改成功！');
-                            }else if(data == 'EXIST'){
-                                alert('文件已存在！');
-                            }else{
-                                alert('修改失败！');
-                            }
-
+                            alert(data);
                         })
                     }
                     if (type == 2) {

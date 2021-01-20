@@ -2,8 +2,8 @@ package com.example.demo.entity;
 
 import java.util.Date;
 
-public class Orders {
-    private Integer orderId;
+public class BuyRecord {
+    private Integer recordId;
 
     private Date startTime;
 
@@ -13,12 +13,12 @@ public class Orders {
 
     private Integer userId;
 
-    public Integer getOrderId() {
-        return orderId;
+    public Integer getRecordId() {
+        return recordId;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public void setRecordId(Integer recordId) {
+        this.recordId = recordId;
     }
 
     public Date getStartTime() {

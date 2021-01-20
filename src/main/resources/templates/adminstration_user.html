@@ -97,7 +97,9 @@
                         <th >邮箱</th>
                         <th >账号类型</th>
                         <th >注册时间</th>
-                        <th >空间</th>
+                        <th >个人空间</th>
+                        <th >团队空间</th>
+                        <th >状态</th>
                         <th >操作</th>
                     </tr>
                     </thead>
@@ -110,10 +112,22 @@
                         <td th:if="${user.userType eq 1}">个人账户</td>
                         <td th:if="${user.userType eq 2}">团队账户</td>
                         <td th:text="${#dates.format(user.registerTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                        <td class="max_space" th:attr="data-space=${user.maxSpace}"></td>
+
+
+                        <td class="per_space" th:attr="data-space=${user.perSpace}"><span>[[${#numbers.formatInteger(user.perSpace/1024/1024/1024,0)}]]</span>GB</td>
+                        <td th:if="${user.userType eq 2}" class="max_space" th:attr="data-space=${user.maxSpace}"><span>[[${#numbers.formatInteger(user.maxSpace/1024/1024/1024,0)}]]</span>GB</td>
+                        <td th:if="${user.userType eq 1}">无</td>
+
+
+                        <td th:if="${user.getStatus() eq 1}"><span style="color: #00d75e">启用中</span></td>
+                        <td th:if="${user.getStatus() eq 0}"><span style="color: #7a8793">禁用中</span></td>
                         <td class="text-center">
+                            <button type="button" class="btn bg-olive btn-xs disabled-btn" id="disable-user">
+                                <span th:if="${user.getStatus() eq 1}">禁用</span>
+                                <span th:if="${user.getStatus() eq 0}">启用</span>
+                            </button>
                             <button type="button" class="btn bg-olive btn-xs"
-                          data-toggle="modal" data-target="#modal-container-edit" th:onclick="|get(${user.userId},${user.maxSpace})|">编辑</button>
+                          data-toggle="modal" data-target="#modal-container-edit" th:onclick="|get(${user.userId},${user.maxSpace},${user.perSpace},${user.userType})|">编辑</button>
                         </td>
                     </tr>
 
@@ -160,15 +174,22 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 <h4 class="modal-title" id="edit">
-                    编辑
+                    分配空间：
                 </h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal" role="form" id="edit_member">
                     <input type="hidden" id="edit_userId">
-                    <div class="form-group">
+                    <div class="form-group" >
+                        <label for="edit_perSpace" class="col-sm-2 control-label" style="padding-top:0;">
+                            个人空间:</label>
+                        <div class="col-sm-10">
+                            <input type="number" id="edit_perSpace" style="width:50px;"  name="perSpace" value="0">&nbsp;GB<span id="tip_perSpace"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" id="team-space-input" style="display: none">
                         <label for="edit_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
-                            分配空间:</label>
+                            团队空间:</label>
                         <div class="col-sm-10">
                             <input type="number" id="edit_maxSpace" style="width:50px;"  name="maxSpace" value="0">&nbsp;GB<span id="tip_maxSpace"></span>
                         </div>
@@ -321,20 +342,32 @@
 
 
     //编辑窗口赋值
-    function get(userId,maxSpace){
+    function get(userId,maxSpace,perSpace,userType){
         //$('#edit_maxSpace').prop('value',maxSpace);
         $('#edit_userId').prop('value',userId);
         let space = count(maxSpace)
-        $('#edit_maxSpace').prop('value',parseInt(space));
+        let p_space = count(perSpace)
+
+        $('#edit_perSpace').prop('value', parseInt(p_space));
+        if(userType == 2) {
+            $('#team-space-input').css({
+               display:'block',
+            });
+            $('#edit_maxSpace').prop('value',parseInt(space));
+        }else{
+            $('#team-space-input').css({
+                display:'none',
+            });
+        }
     }
 
     //编辑请求
     $('#edit_user').click(function() {
-        let maxSpace = $('#edit_maxSpace').prop('value');
+        let teamSpace = $('#edit_maxSpace').prop('value');
+        let perSpace = $('#edit_perSpace').prop('value');
         let userId = $('#edit_userId').prop('value');
 
-        console.log(maxSpace+"------"+userId);
-        $.post('/editUser', {'userId': userId, 'maxSpace': maxSpace}, function (data) {
+        $.post('/editUser', {'userId': userId, 'teamSpace': teamSpace,'perSpace':perSpace}, function (data) {
             if (data == 'OK') {
                 alert('分配成功');
                 window.location.reload();
@@ -346,18 +379,19 @@
 
 
 
-    spaceChang();
+    // spaceChang();
 
-    function spaceChang() {
-        let space = $('.max_space');
-        for (let i = 0; i < space.length; i++) {
-            space.eq(i).text(count(space.eq(i).attr('data-space'))+' GB');
-        }
-    }
+    // function spaceChang() {
+    //     let space = $('.max_space');
+    //     let perSpace = $('.per_space');
+    //     for (let i = 0; i < space.length; i++) {
+    //         space.eq(i).text(count(space.eq(i).attr('data-space'))+' GB');
+    //         perSpace.eq(i).text(count(perSpace.eq(i).attr('data-space'))+' GB');
+    //     }
+    // }
 
     function count(space) {
         let unit = '';
-        //unit = 'GB'
         space = (space / 1024 / 1024 / 1024).toFixed(0);
         return space + '';
     }
@@ -372,6 +406,15 @@
     $('.paginate_button').eq( $('#page_num').attr('data-page')-1).addClass('active');
     console.log($('.paginate_button').eq(1))
 
+    $('.disabled-btn').click(function () {
+        let num = $('.disabled-btn').index(this);
+        console.log(num);
+        let id = $('.user_id').eq(num).attr('data-userid');
+        $.post('/disableUser',{'userId':id},function (data) {
+            alert(data);
+            window.location.reload();
+        })
+    })
 </script>
 </body>
 

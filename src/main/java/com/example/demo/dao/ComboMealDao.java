@@ -18,7 +18,11 @@ public interface ComboMealDao {
 
     ComboMeal selectByPrimaryKey(Integer mealId);
     List<ComboMeal> comboMealList(Integer mStatus);        //查询所有套餐
-
+    /*
+     * 查找分页
+     * */
+    List<ComboMeal> seletePage();
+    List<ComboMeal> seletePageByName(String mealName);
 
     int updateByPrimaryKeySelective(ComboMeal record);
 

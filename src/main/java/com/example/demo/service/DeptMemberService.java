@@ -16,6 +16,7 @@ public interface DeptMemberService {
     List<MemberVO> selectListByUserId(Integer userId);
     MemberVO selectListByPhone(String phone,Integer deptId);
     List<MemberVO> selectByUserName(Integer userId,String userName);;
+    DeptMember selectByUserIdAndTeamId(Integer userId,Integer teamId);
 
     int deleteByPrimaryKey(Integer id);
     int deleteByDeptId(Integer deptId);
