@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
     <script type="text/javascript" src="/js/libs/jquery.ztree.core.min.js"></script>
+    <script type="text/javascript" src="/js/libs/jquery.ztree.excheck.min.js"></script>
 
     <style>
         body {
@@ -84,6 +85,14 @@
             display: none;
         }
 
+        .text-hidden{
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow: ellipsis;
+            display: block;
+            width: 150px;
+        }
+
     </style>
 </head>
 <body>
@@ -91,14 +100,15 @@
 <!--部门概况-->
 <div class="alert  alert-info">
     <h4>
-        我的共享
+        我的分发
     </h4>
 
 </div>
 <!--添加成员、搜索-->
 <div class="btn-group" style="margin-left: 7px;">
     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-            data-target="#modal-container-new-memberVO">共享文件
+            data-target="#modal-container-new-memberVO"
+            th:onclick="|move_file(null,null,${accessPath.get(0).getDirId()})|">分发文件
     </button>
     <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/permissionSearch">
         <div class="form-group">
@@ -128,32 +138,24 @@
                 <th>
                     下载人数
                 </th>
-                <th>
-                    操作
-                </th>
             </tr>
             </thead>
             <tbody>
-            <tr>
+            <tr th:each="shareDetail:${shareDetails}">
                 <td>
-                    <input type="checkbox" class="all_check_button" th:attr="data-type=2"/><img src="#" style="width: 15px;
+                    <input type="checkbox" class="all_check_button" th:attr="data-type=2,data-sd-id=${shareDetail.getSdId()}"/><img src="#" style="width: 15px;
     position: absolute;
     margin-left: 10px;
     height: 17px;">
                 </td>
-                <td>
+                <td th:title="${shareDetail.getShareDescribe()}">
+                   <span class="text-hidden">[[${shareDetail.getShareDescribe()}]]</span>
+                </td>
+                <td >
+                    <span class="text-hidden" th:text="${shareDetail.getFileName()}" th:title="${shareDetail.getFileName()}"></span>
                 </td>
                 <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-primary" id="app">删除共享
-                    </button>
+                    [[${shareDetail.getLoadNum()}]]\[[${shareDetail.getAllNum()}]]
                 </td>
             </tr>
             </tbody>
@@ -173,61 +175,41 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                         <h4 class="modal-title" id="new_member">
-                            添加角色
+                           发布共享
                         </h4>
                     </div>
                     <br class="modal-body">
-                    <br id="add_member_from">
-                    <form class="form-horizontal" role="form"  id="new_role">
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                职位：
-                            </label>
-                            <input type="text" name="role" id="new-role"/></br>
-                        </div>
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                部门:
-                            </label>
-                            <select id="add_dept" name="deptId">
-                                <option value="">-请选择-</option>
-                                <option >用户名</option>
-                            </select></br>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" style="padding-top:0;">
-                                成员：
-                            </label>
-                            <select id="add_member" name="memberId">
-                                <option value="">-请选择-</option>
 
-                            </select>
+                    <input type="hidden" id="move_dir_id">
+                    <input type="hidden" id="move_file_id">
+                    <!-- -------------------------------------------------------------------------- -->
+                    <!--文件夹目录-->
+                    <span>选择分发文件：</span>
+                    <div class="content_wrap">
+                        <div class="zTreeDemoBackground left">
+                            <ul id="treeDemo" class="ztree"></ul>
                         </div>
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                团队权限:
-                            </label>
-                            <div class="col-sm-10">
-                                <span>新建部门：</span><input type="checkbox" name="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span> 编辑部门：</span><input type="checkbox" name="pEditDept" class="checkbox_role" value="0"/>
-                            </div>
+                    </div>
+
+                    <!--部门目录-->
+                    <span>选择分发对象：</span>
+                    <div class="content_wrap">
+                        <div class="zTreeDemoBackground left">
+                            <ul id="treeDemo2" class="ztree"></ul>
                         </div>
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                部门权限:
-                            </label>
-                            <div class="col-sm-10">
-                                <span>添加成员：</span><input type="checkbox" name="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span>编辑成员：</span><input type="checkbox" name="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span>删除成员：</span><input type="checkbox" name="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                            </div>
-                        </div>
-                    </form>
+                    </div>
+                    <br id="add_member_from">
+                    <!-- ------------------------------------------------------------------------- -->
+                    <div class="form-group">
+                        <label for="describe" class="col-sm-2 control-label" style="padding-top:0;">
+                           备注：
+                        </label>
+                        <textarea id="describe" with="150px" height="100px"></textarea>
+                    </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="newRole()" >确定</button>
+                        <button type="button" class="btn btn-primary" onclick="ack_share()" >确定</button>
                     </div>
                 </div>
-
 
             </div>
         </div>
@@ -251,42 +233,16 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <form class="form-horizontal" role="form" id="edit_role">
-                            <input type="hidden" id="edit_role_id" name="psiId">
-                            <!--                            <div class="form-group">-->
-                            <!--                                <label for="edit_role_username" class="col-sm-2 control-label"-->
-                            <!--                                       style="padding-top:3px;">用户：</label>-->
-                            <!--                                <div class="col-sm-10">-->
-                            <!--                                    <input type="text" id="edit_role_username" style="width:80px;" name="userName">-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
-                            <div class="form-group">
-                                <label for="edit_role_position" class="col-sm-2 control-label"
-                                       style="padding-top:3px;">职位:</label>
-                                <div class="col-sm-10">
-                                    <input type="text" id="edit_role_position" style="width:80px;" name="role">
-                                </div>
+                    <form class="form-horizontal" role="form" id="edit_role">
+                        <input type="hidden" id="edit_role_id" name="psiId">
+                        <div class="form-group">
+                            <label for="edit_role_position" class="col-sm-2 control-label"
+                                   style="padding-top:3px;">职位:</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="edit_role_position" style="width:80px;" name="role">
                             </div>
-                            <div class="form-group">
-                                <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                    团队权限:
-                                </label>
-                                <div class="col-sm-10">
-                                    <span>新建部门：</span><input type="checkbox" id="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                    <span> 编辑部门：</span><input type="checkbox" id="pEditDept" class="checkbox_role" value="0"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                    部门权限:
-                                </label>
-                                <div class="col-sm-10">
-                                    <span>添加成员：</span><input type="checkbox" id="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                    <span>编辑成员：</span><input type="checkbox" id="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                    <span>删除成员：</span><input type="checkbox" id="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                </div>
-                            </div>
-                        </form>
+                        </div>
+                    </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" onclick="editRole()">确定</button>
@@ -312,6 +268,7 @@
                         </h4>
                     </div>
                     <div class="modal-body">
+
                         <form class="form-horizontal" role="form" id="edit_dept">
                             <input type="hidden" name="deptId" id="edit_deptId">
 
@@ -499,7 +456,7 @@
         //获得成员id
         for (let i = 0; i < idList.length; i++) {
             if (idList.eq(i).prop('checked')) {
-                psnId.push(idList.eq(i).attr('data-psn-id'))
+                psnId.push(idList.eq(i).attr('data-sd-id'))
                 flag = true;
             }
         }
@@ -524,15 +481,14 @@
         $('#all-delete').click(function () {
             if (confirm("确定要删除这些角色吗？")) {
                 $.ajax({
-                    url: '/deleteBatchPermission',
+                    url: '/shareDetail/delete',
                     type: 'post',
-                    data: {psnId: psnId},
+                    data: {sdId: psnId},
                     traditional: true,
                     success: function (data) {
-                        if (data == 'OK') {
-                            alert('删除成功')
+                            alert(data)
                             window.location.reload();
-                        }
+
                     }
                 })
             }
@@ -548,6 +504,95 @@
             $('#search_content').prop('placeholder','请输入手机号');
         }
     });
+
+
+    function move_file(dirId, fileId, parentId) {
+
+        $('#move_dir_id').prop('value', dirId)
+        $('#move_file_id').prop('value', fileId)
+
+        //文件夹目录
+        $.post('/shareDetail/getDirListAadFileList', {'dirId': dirId, 'parentId': parentId}, function (data) {
+            console.log(data)
+            var setting = {
+                view: {
+                    showLine: false,
+                    showIcon: true
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                async: {
+                    enable: false
+                },
+
+            }
+            $(document).ready(function () {
+                $.fn.zTree.init($("#treeDemo"), setting, JSON.parse(data));
+            });
+
+        });
+
+
+        //部门目录
+        $.post('/shareDetail/getAllDeptMember', function (data) {
+            var setting = {
+                view: {
+                    showIcon: false
+                },
+                check: {
+                    enable: true
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+            }
+
+            $(document).ready(function () {
+                $.fn.zTree.init($("#treeDemo2"), setting, JSON.parse(data));
+            });
+
+        });
+
+    }
+
+    //提交请求发出共享
+    function ack_share() {
+        //文件
+        let fileTreeObj = $.fn.zTree.getZTreeObj("treeDemo"); //目录对象
+        let fileNodeArray = fileTreeObj.getSelectedNodes(true); //选中的对象数组
+        let fileId = fileNodeArray[0].id      //选中对象的id属性
+        console.log(fileId);
+
+
+        //部门成员
+        let memberTreeObj = $.fn.zTree.getZTreeObj("treeDemo2"); //目录对象
+        let memberNodeArray = memberTreeObj.getCheckedNodes(true); //选中的对象数组
+        let memberId = []           //id
+        let memberNum = 0;          //人数
+        for (let i = 0; i < memberNodeArray.length; i++) {
+            if(memberNodeArray[i].id != null){
+                memberId.push('"'+memberNodeArray[i].id+'"');
+                memberNum++;
+            }
+        }
+        let JsonMemberId = '{"memberId":'+'['+memberId+']}'
+        //描述
+        let describe = $('#describe').val();
+        console.log(describe)
+
+        //提交请求(文件夹id,成员id,人数,描述)
+        $.post('/shareDetail/add',{'fileId':fileId,'memberId':JsonMemberId,'memberNum':memberNum,'describe':describe},function (data) {
+            alert(data);
+            window.location.reload();
+        })
+
+    }
+
 
 </script>
 </body>

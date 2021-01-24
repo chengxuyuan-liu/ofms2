@@ -105,7 +105,7 @@
   </insert>
 
 
-  <insert id="insertSelective" parameterType="UserInf" keyProperty="userId" useGeneratedKeys="true">
+  <insert id="insertSelective"  parameterType="UserInf" keyProperty="userId" useGeneratedKeys="true">
     insert into user_inf
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="userId != null">

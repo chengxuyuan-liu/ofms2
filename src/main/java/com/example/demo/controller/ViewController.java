@@ -91,8 +91,9 @@ public class ViewController {
         List<DirInf> originAccessPath = null;     //访问路径
         List<DirInf> accessPath = new ArrayList<>();     //访问路径
         DeptMember deptMember = null;
-        String title=null;      //当前文件柜
+        String title=null;      //当前文件柜名
         FileCabinet fileCabinet = null;//当前文件的文件柜
+        DirInf nowDir = null;
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION");
         //如果dirId为空
         if(dirId != null)
@@ -110,6 +111,7 @@ public class ViewController {
                 }
             }
             title = accessPath.get(0).getDirName();
+            nowDir = accessPath.get(0);
             DirInf dirInf = dirInfService.selectByPrimaryKey(dirId);
             //如果是文件夹所属用户访问文件柜，就获取文件柜信息，如果不是就获取文件柜信息和用户成员信息
             if(userInf.getUserId() == dirInf.getUserId() ) {
@@ -118,26 +120,18 @@ public class ViewController {
             }else{
                 fileCabinet = fileCabinetService.selectByDirId(accessPath.get(0).getDirId());
                 deptMember = deptMemberService.selectByUserKey(userInf.getUserId());
+                Permission permission = permissionService.selectByMemberId(deptMember.getId());
+                map.put("permission", permission);
                 map.put("deptMember", deptMember);
             }
-            //获得文件id为dirId文件夹下的文件夹、文件
-            dirInfList = dirInfService.selectDirListByParentDirId(dirId);
-            //区分个人文件柜和部门文件柜,如果是部门文件柜，返回带上传人信息的文件信息
-            Department department = departmentService.selectByFileCabinetId(fileCabinet.getFcId());
-            if(department != null){
-                List<FileVO> fileVOList = fileInfServive.selectFileVOListByDirId(dirId);
-                map.put("shareSpace", "shareSpace");
-                map.put("fileList",fileVOList);
-            }else{
-                fileInfList = fileInfServive.selectFileListByFolderId(dirId);
-                map.put("fileList",fileInfList);
-            }
-        }
+
+        }//
         else
         {
             //获得根文件夹
             DirInf rootDir=dirInfService.selectRootDirByUserId(userInf.getUserId());
             DirInf myDir= dirInfService.selectDirByDirName("我的文件",rootDir.getDirId());
+            nowDir = myDir;
             dirId = myDir.getDirId();
             fileCabinet  = fileCabinetService.selectByDirId(myDir.getDirId());
             map.put("fileCabinet", fileCabinet);
@@ -150,8 +144,33 @@ public class ViewController {
             accessPath = dirInfService.selectParentDirByDirId(myDir.getDirId());
             title = accessPath.get(0).getDirName();
 
+
         }
+
+        //获得文件id为dirId文件夹下的文件夹、文件
+        dirInfList = dirInfService.selectDirListByParentDirId(dirId);
+        //区分个人文件柜和部门文件柜,如果是部门文件柜，返回带上传人信息的文件信息
+        //Department department = departmentService.selectByFileCabinetId(fileCabinet.getFcId());
+        List<FileVO> fileVOList = fileInfServive.selectFileVOListByDirId(dirId);
+        //map.put("shareSpace", "shareSpace");
+        map.put("fileList",fileVOList);
+
+
+        //判断是根目录还是子目录
+        DirInf rootDir2 =dirInfService.selectRootDirByUserId(userInf.getUserId());
+        DirInf dir2 = dirInfService.selectByPrimaryKey(dirId);
+        if(dir2.getParentDir().equals(rootDir2.getDirId())){
+            //判断是共享目录还是”我的文件“
+            if(!dir2.getDirName().equals("我的文件")){
+                map.put("shareDir","shareDir");
+            }
+        }
+
+
+
+
         //返回
+        map.put("nowDir",nowDir);
         map.put("title",title);
         map.put("dirId",dirId);
         map.put("dirList",dirInfList);
@@ -256,6 +275,7 @@ public class ViewController {
     @RequestMapping("/searchMember")
     public String searchMember(String userPhone,String userName,Integer deptId,Map<String,Object> map , HttpSession session) {
         Integer userId;
+        System.out.println(userPhone);
         UserInf userInf = (UserInf) session.getAttribute("USER_SESSION"); //当前用户
         DeptMember deptMember  = deptMemberService.selectByUserKey(userInf.getUserId()); //查询当前用户是否是成员
         if(deptMember !=null){
@@ -271,7 +291,7 @@ public class ViewController {
         List<MemberVO> memberVOList = new ArrayList<>();
         if(userName != null) {
             //通过用户名进行模糊搜索
-            memberVOList =  deptMemberService.selectByUserName(userId,userName);
+            memberVOList =  deptMemberService.selectByUserName(userId,userName,deptId);
         }else {
             //通过手机号码搜索
             memberVO = deptMemberService.selectListByPhone(userPhone,deptId);
@@ -492,7 +512,7 @@ public class ViewController {
         }
         //查询视频
         else if(fileType == 2){
-            List<String> list = new ArrayList<String>(Arrays.asList("mp4","wmv","swf","avi","pdf","flv"));
+            List<String> list = new ArrayList<String>(Arrays.asList("mp4","wmv","swf","avi","flv"));
             fileList = fileInfServive.selectByFileType(list,nowDirInf.getUserId(),dirId);
             title = "视频";
             accessPath.add(dirInf);

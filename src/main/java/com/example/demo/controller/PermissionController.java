@@ -72,7 +72,7 @@ public class PermissionController {
     }
 
     /*
-     * 获得角色
+     * 删除角色
      * */
     @ResponseBody
     @RequestMapping("/deleteBatchPermission")

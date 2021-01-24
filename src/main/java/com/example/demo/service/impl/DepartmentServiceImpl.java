@@ -1,7 +1,9 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.DepartmentDao;
+import com.example.demo.dao.DeptMemberDao;
 import com.example.demo.entity.Department;
+import com.example.demo.entity.DeptMember;
 import com.example.demo.entity.FileCabinet;
 import com.example.demo.entity.Team;
 import com.example.demo.service.DepartmentService;
@@ -16,6 +18,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Autowired
     DepartmentDao departmentDao;
+    @Autowired
+    DeptMemberDao deptMemberDao;
 
 
     /*
@@ -43,7 +47,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setFcId(fileCabinet.getFcId());
         department.setTeamId(team.getTeamId());
         //插入记录
-        return departmentDao.insertSelective(department);
+        if (departmentDao.insertSelective(department) == 0) return 0;;
+        return 1;
     }
 
 

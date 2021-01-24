@@ -1,8 +1,6 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dao.DirInfDao;
-import com.example.demo.dao.FileCabinetDao;
-import com.example.demo.dao.UserInfDao;
+import com.example.demo.dao.*;
 import com.example.demo.entity.*;
 import com.example.demo.service.FileCabinetService;
 import com.example.demo.service.DirInfService;
@@ -39,7 +37,11 @@ public class UserInfServiceImpl implements UserInfService {
     FileCabinetDao fileCabinetDao;
 
     @Autowired
-    TeamService teamService;
+    TeamDao teamDao;
+
+    @Autowired
+    DeptMemberDao deptMemberDao;
+
 
 
 

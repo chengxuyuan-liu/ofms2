@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.CollectDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Collect">
+    <id column="collect_id" jdbcType="INTEGER" property="collectId" />
+    <result column="cd_id" jdbcType="INTEGER" property="cdId" />
+    <result column="member_id" jdbcType="INTEGER" property="memberId" />
+    <result column="s_status" jdbcType="INTEGER" property="sStatus" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+  </resultMap>
+
+  <resultMap id="VOResultMap" type="com.example.demo.vo.CollectVO">
+    <id column="collect_id" jdbcType="INTEGER" property="collectId" />
+    <result column="cd_id" jdbcType="INTEGER" property="cdId" />
+    <result column="member_id" jdbcType="INTEGER" property="memberId" />
+    <result column="s_status" jdbcType="INTEGER" property="sStatus" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="username" jdbcType="VARCHAR" property="userName" />
+    <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
+    <result column="cd_describe" jdbcType="VARCHAR" property="collectDescribe" />
+    <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
+    <result column="cd_status" jdbcType="INTEGER" property="describeStatus" />
+    <result column="dir_id" jdbcType="INTEGER" property="dirId" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    collect_id, cd_id, member_id, s_status,file_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from collect
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </select>
+  <!--查询-->
+  <select id="selectAll" resultMap="VOResultMap">
+    SELECT t6.username,t6.cd_describe,t6.file_name,t6.user_id,t6.cd_id,t6.deadline,t6.cd_status,t6.dir_id,t6.s_status,t5.dept_name
+    FROM department as t5 RIGHT JOIN (SELECT  t4.username,t4.cd_describe,t4.file_name,t4.user_id,t4.cd_id,t4.deadline,t4.cd_status,t4.dir_id,t4.s_status,t3.dept_id
+    FROM members as t3 RIGHT JOIN  (SELECT t1.username,t2.cd_describe,t2.file_name,t2.user_id,t2.cd_id,t2.deadline,t2.cd_status,t2.dir_id,t2.s_status
+    FROM user_inf as t1 join ( SELECT t7.cd_id,cd_describe,save_path,deadline,all_num,upload_num,cd_status,user_id,dir_id,t8.s_status,t8.file_name
+    FROM collection_detail as t7 join (
+    SELECT cd_id,s_status,file_name
+    FROM collect
+    WHERE member_id = #{memberId}) as t8 on t7.cd_id = t8.cd_id) as t2 on t1.user_id = t2.user_id)as t4 on t3.user_id = t4.user_id
+    ) as t6 on t5.dept_id = t6.dept_id
+  </select>
+  <select id="selectBycdId" resultType="com.example.demo.entity.Collect">
+    select
+    <include refid="Base_Column_List" />
+    from collect
+    where cd_id = #{cdId,jdbcType=INTEGER}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from collect
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.CollectionDetail">
+    insert into collect (collect_id, cd_id, member_id, 
+      s_status,file_name)
+    values (#{collectId,jdbcType=INTEGER}, #{cdId,jdbcType=INTEGER}, #{memberId,jdbcType=INTEGER}, 
+      #{sStatus,jdbcType=INTEGER},#{fileName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.CollectionDetail">
+    insert into collect
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="collectId != null">
+        collect_id,
+      </if>
+      <if test="cdId != null">
+        cd_id,
+      </if>
+      <if test="memberId != null">
+        member_id,
+      </if>
+      <if test="sStatus != null">
+        s_status,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="collectId != null">
+        #{collectId,jdbcType=INTEGER},
+      </if>
+      <if test="cdId != null">
+        #{cdId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null">
+        #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="sStatus != null">
+        #{sStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.CollectionDetail">
+    update collect
+    <set>
+      <if test="cdId != null">
+        cd_id = #{cdId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null">
+        member_id = #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="sStatus != null">
+        s_status = #{sStatus,jdbcType=INTEGER},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=INTEGER},
+      </if>
+    </set>
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.CollectionDetail">
+    update collect
+    set cd_id = #{cdId,jdbcType=INTEGER},
+      member_id = #{memberId,jdbcType=INTEGER},
+      s_status = #{sStatus,jdbcType=INTEGER},
+      file_name = #{fileName,jdbcType=INTEGER}
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByMemberIdAanCdId">
+    update collect
+    set file_name = #{fileName,jdbcType=INTEGER},s_status = 0
+    where member_id = #{memberId,jdbcType=INTEGER} and cd_id = #{cdId,jdbcType=INTEGER}
+  </update>
+</mapper>

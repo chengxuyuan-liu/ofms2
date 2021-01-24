@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ShareDetailDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ShareDetail">
+    <id column="sd_id" jdbcType="INTEGER" property="sdId" />
+    <result column="share_describe" jdbcType="VARCHAR" property="shareDescribe" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="all_num" jdbcType="INTEGER" property="allNum" />
+    <result column="load_num" jdbcType="INTEGER" property="loadNum" />
+    <result column="file_id" jdbcType="INTEGER" property="fileId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    sd_id, share_describe, file_name, all_num, load_num, file_id, user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from share_detail
+    where sd_id = #{sdId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultType="com.example.demo.entity.ShareDetail">
+    select
+    <include refid="Base_Column_List" />
+    from share_detail
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from share_detail
+    where sd_id = #{sdId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.ShareDetail">
+    insert into share_detail (sd_id, share_describe, file_name, 
+      all_num, load_num, file_id, user_id
+      )
+    values (#{sdId,jdbcType=INTEGER}, #{shareDescribe,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
+      #{allNum,jdbcType=INTEGER}, #{loadNum,jdbcType=INTEGER}, #{fileId,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="sdId"  parameterType="com.example.demo.entity.ShareDetail" >
+    insert into share_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="sdId != null">
+        sd_id,
+      </if>
+      <if test="shareDescribe != null">
+        share_describe,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="allNum != null">
+        all_num,
+      </if>
+      <if test="loadNum != null">
+        load_num,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="fileId != null">
+      user_id
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="sdId != null">
+        #{sdId,jdbcType=INTEGER},
+      </if>
+      <if test="shareDescribe != null">
+        #{shareDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="allNum != null">
+        #{allNum,jdbcType=INTEGER},
+      </if>
+      <if test="loadNum != null">
+        #{loadNum,jdbcType=INTEGER},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.ShareDetail">
+    update share_detail
+    <set>
+      <if test="shareDescribe != null">
+        share_describe = #{shareDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="allNum != null">
+        all_num = #{allNum,jdbcType=INTEGER},
+      </if>
+      <if test="loadNum != null">
+        load_num = #{loadNum,jdbcType=INTEGER},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where sd_id = #{sdId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ShareDetail">
+    update share_detail
+    set share_describe = #{shareDescribe,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      all_num = #{allNum,jdbcType=INTEGER},
+      load_num = #{loadNum,jdbcType=INTEGER},
+      file_id = #{fileId,jdbcType=INTEGER}
+      user_id = #{userId,jdbcType=INTEGER}
+    where sd_id = #{sdId,jdbcType=INTEGER}
+  </update>
+</mapper>

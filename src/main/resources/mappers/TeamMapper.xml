@@ -43,7 +43,7 @@
   </insert>
 
 
-  <insert id="insertSelective" parameterType="com.example.demo.entity.Team">
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="teamId" parameterType="com.example.demo.entity.Team">
     insert into team
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="teamId != null">

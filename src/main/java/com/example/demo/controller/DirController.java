@@ -86,6 +86,10 @@ public class DirController {
     public String getDirListAadMove(Map<String,Object> map,Integer dirId,Integer parentId){
         JSONArray tree = new JSONArray();   //json数组
 
+        System.out.println(dirId);
+        System.out.println(parentId);
+
+
         List<DirInf> list = dirInfService.selectChildrenDirByDirId(parentId);  //所有子文件夹
         List<DirInf> list2 = dirInfService.selectChildrenDirByDirId(dirId);  //所有子文件夹
         Iterator<DirInf> di = list.iterator();
@@ -99,11 +103,6 @@ public class DirController {
                 }
             }
         }
-
-
-
-
-
 
         JSONObject obj;
         for(DirInf resOwner : list){

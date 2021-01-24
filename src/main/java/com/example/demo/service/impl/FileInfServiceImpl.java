@@ -199,7 +199,6 @@ public class FileInfServiceImpl implements FileInfServive {
                 }
                 fix+=1;
                 fileName = perfix+"("+(fix)+")"+suffix;
-                System.out.println("文件名="+fileName);
                 repeatFile = fileInfDao.selectByFileNameAndDirId(fileName,dirId);
             }while (repeatFile != null);
         }

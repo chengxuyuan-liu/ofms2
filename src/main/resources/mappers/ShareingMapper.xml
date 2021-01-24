@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ShareingDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Shareing">
+    <id column="share_id" jdbcType="INTEGER" property="shareId" />
+    <result column="sd_id" jdbcType="INTEGER" property="sdId" />
+    <result column="member_id" jdbcType="INTEGER" property="memberId" />
+    <result column="s_status" jdbcType="INTEGER" property="sStatus" />
+  </resultMap>
+
+  <resultMap id="VOResultMap" type="com.example.demo.vo.ShareingVO">
+    <id column="sd_id" jdbcType="INTEGER" property="sdId" />
+    <result column="share_describe" jdbcType="VARCHAR" property="shareDescribe" />
+    <result column="username" jdbcType="VARCHAR" property="userName" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
+    <result column="file_id" jdbcType="INTEGER" property="fileId" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    share_id, sd_id, member_id, s_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from shareing
+    where share_id = #{shareId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="VOResultMap">
+    SELECT t6.sd_id,t6.username,t6.share_describe,t6.file_name,t6.file_id,t6.user_id,t5.dept_name
+    FROM department as t5 RIGHT JOIN (SELECT  t4.sd_id,t4.username,t4.share_describe,t4.file_name,t4.file_id,t4.user_id,t3.dept_id
+    FROM members as t3 RIGHT JOIN  (SELECT t1.username,t2.share_describe,t2.file_name,t2.file_id,t2.user_id,t2.sd_id
+    FROM user_inf as t1 join ( SELECT sd_id,share_describe,file_name,file_id,user_id
+    FROM share_detail
+    WHERE sd_id in(
+    SELECT sd_id
+    FROM shareing
+    WHERE member_id = #{memberId})) as t2 on t1.user_id = t2.user_id)as t4 on t3.user_id = t4.user_id
+    ) as t6 on t5.dept_id = t6.dept_id
+  </select>
+  <select id="selectBySdId" resultType="com.example.demo.entity.Shareing">
+    select
+    <include refid="Base_Column_List" />
+    from shareing
+    where sd_id = #{sdId,jdbcType=INTEGER}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from shareing
+    where share_id = #{shareId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.Shareing">
+    insert into shareing (share_id, sd_id, member_id,
+      s_status)
+    values (#{shareId,jdbcType=INTEGER}, #{sdId,jdbcType=INTEGER}, #{memberId,jdbcType=INTEGER},
+      #{sStatus,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Shareing">
+    insert into shareing
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="shareId != null">
+        share_id,
+      </if>
+      <if test="sdId != null">
+        sd_id,
+      </if>
+      <if test="memberId != null">
+        member_id,
+      </if>
+      <if test="sStatus != null">
+        s_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="shareId != null">
+        #{shareId,jdbcType=INTEGER},
+      </if>
+      <if test="sdId != null">
+        #{sdId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null">
+        #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="sStatus != null">
+        #{sStatus,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.Shareing">
+    update shareing
+    <set>
+      <if test="sdId != null">
+        sd_id = #{sdId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null">
+        member_id = #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="sStatus != null">
+        s_status = #{sStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+    where share_id = #{shareId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.Shareing">
+    update shareing
+    set sd_id = #{sdId,jdbcType=INTEGER},
+      member_id = #{memberId,jdbcType=INTEGER},
+      s_status = #{sStatus,jdbcType=INTEGER}
+    where share_id = #{shareId,jdbcType=INTEGER}
+  </update>
+</mapper>

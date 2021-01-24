@@ -75,13 +75,13 @@
   <select id="selectByUserName"  resultMap="MemberResultMap">
       select t2.id,t1.username,t1.user_phone,t2.used_space,t2.max_space,t2.recent,t2.p_upload,t2.p_down,t2.p_preview
       from user_inf as t1 join (
-          SELECT t3.id,t3.user_id,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
+          SELECT t3.id,t3.dept_id,t3.user_id,t3.used_space,t3.max_space,t3.recent,t3.p_upload,t3.p_down,t3.p_preview
           FROM members AS t3 JOIN (
 				SELECT team_id
                 FROM team
                 WHERE	user_id = #{userId})AS t4 ON t4.team_id = t3.team_id
           WHERE t3.m_status = 1) as t2 on t1.user_id = t2.user_id
-      where t1.username like "%${userName}%"
+      where t1.username like "%${userName}%" and t2.dept_id = #{deptId}
   </select>
 
 

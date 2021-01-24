@@ -31,6 +31,8 @@ public class MemberController {
     FileCabinetService fileCabinetService;
     @Autowired
     PermissionService permissionService;
+    @Autowired
+    TeamService teamService;
 
     /*
     添加成员
@@ -54,16 +56,15 @@ public class MemberController {
         FileCabinet fileCabinet = fileCabinetService.selectByDeptId(deptId);
         Department department = departmentService.selectByPrimaryKey(deptId);
         //添加新成员
-        try {
-            //成员是否已加入团队
-            DeptMember deptMember =  deptMemberService.selectByUserIdAndTeamId(checkUser.getUserId(),department.getTeamId());
-            if(deptMember != null){
-                return "该用户已存在团队中!";
-            }
+        DeptMember checkMember = deptMemberService.selectByUserKey(checkUser.getUserId());   //获取成员信息
+        Team team = teamService.selectByPrimaryKey(department.getTeamId());   //获取成员所在的团队
+        if(checkMember  == null){
             if(!fileCabinetService.updateWhenNewMember(fileCabinet)) return "文件柜空间已达上限!"; //文件空间已满
             Boolean result = deptMemberService.insertSelective(deptId,userPhone,userInf);
             return "添加成功!"; //添加成功
-        }catch (Exception e){
+        }else if(checkMember  != null && checkMember.getTeamId().equals(team.getTeamId())){ //成员是否已加入团队
+            return "该用户已存在团队中!";
+        }else{
             return "用户已加入其他团队!"; //成员已存在
         }
     }

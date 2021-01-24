@@ -1,6 +1,8 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dao.DeptMemberDao;
 import com.example.demo.dao.TeamDao;
+import com.example.demo.entity.DeptMember;
 import com.example.demo.entity.Team;
 import com.example.demo.entity.UserInf;
 import com.example.demo.service.TeamService;
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Service;
 public class TeamServiceImpl implements TeamService {
     @Autowired
     TeamDao teamDao;
+    @Autowired
+    DeptMemberDao deptMemberDao;
 
     @Override
     public int deleteByPrimaryKey(Integer teamId) {
@@ -26,6 +30,14 @@ public class TeamServiceImpl implements TeamService {
     public int insertSelective(Team team, UserInf userInf) {
         team.setUserId(userInf.getUserId());
         int result = teamDao.insertSelective(team);
+
+        //插入团队用户成员信息
+        DeptMember deptMember = new DeptMember();
+        deptMember.setDeptId(null);
+        deptMember.setUserId(userInf.getUserId());
+        deptMember.setTeamId(team.getTeamId());
+        deptMemberDao.insertSelective(deptMember);
+
         return result;
     }
 

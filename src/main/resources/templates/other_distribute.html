@@ -84,6 +84,15 @@
             display: none;
         }
 
+
+        .text-hidden{
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow: ellipsis;
+            display: block;
+            width: 150px;
+        }
+
     </style>
 </head>
 <body>
@@ -134,7 +143,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
+            <tr th:each="share :${shareingVOS}">
                 <td>
                     <input type="checkbox" class="all_check_button" th:attr="data-type=2"/><img src="#" style="width: 15px;
     position: absolute;
@@ -142,18 +151,17 @@
     height: 17px;">
                 </td>
                 <td>
+                    <span class="text-hidden" th:text="${share.getShareDescribe()}" th:title="${share.getShareDescribe()}"></span>
+                </td>
+                <td th:text="${share.getUserName()}">
+                </td>
+                <td th:text="${share.getDeptName()}">
                 </td>
                 <td>
+                    <span class="text-hidden" th:text="${share.getFileName()}" th:title="${share.getFileName()}"></span>
                 </td>
                 <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                            data-target="#modal-container-edit">下载文件
+                    <a type="button" th:href="@{/shareing/shareDownload(fileId=${share.getFileId()},sdId=${share.getSdId()})}">下载</a>
                 </td>
             </tr>
             </tbody>

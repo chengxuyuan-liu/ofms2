@@ -58,7 +58,7 @@
       )
   </insert>
 
-  <insert id="insertSelective" parameterType="com.example.demo.entity.Department">
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="deptId" parameterType="com.example.demo.entity.Department">
     insert into department
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="deptId != null">

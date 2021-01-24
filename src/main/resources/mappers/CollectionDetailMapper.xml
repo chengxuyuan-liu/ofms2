@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.CollectionDetailDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.CollectionDetail">
+    <id column="cd_id" jdbcType="INTEGER" property="cdId" />
+    <result column="cd_describe" jdbcType="VARCHAR" property="cdDescribe" />
+    <result column="save_path" jdbcType="VARCHAR" property="savePath" />
+    <result column="deadline" jdbcType="TIMESTAMP" property="deadline" />
+    <result column="all_num" jdbcType="INTEGER" property="allNum" />
+    <result column="upload_num" jdbcType="INTEGER" property="uploadNum" />
+    <result column="cd_status" jdbcType="INTEGER" property="cdStatus" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="dir_id" jdbcType="INTEGER" property="dirId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    cd_id, cd_describe, deadline, all_num, upload_num, cd_status, user_id, dir_id,save_path
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from collection_detail
+    where cd_id = #{cdId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultType="com.example.demo.entity.CollectionDetail">
+    select
+    <include refid="Base_Column_List" />
+    from collection_detail
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from collection_detail
+    where cd_id = #{cdId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.CollectionDetail">
+    insert into collection_detail (cd_id, cd_describe, deadline, 
+      all_num, upload_num, cd_status, ,save_path
+      user_id, dir_id)
+    values (#{cdId,jdbcType=INTEGER}, #{cdDescribe,jdbcType=VARCHAR}, #{deadline,jdbcType=TIMESTAMP}, 
+      #{allNum,jdbcType=INTEGER}, #{uploadNum,jdbcType=INTEGER}, #{cdStatus,jdbcType=INTEGER}, 
+      #{userId,jdbcType=INTEGER}, #{dirId,jdbcType=INTEGER}),#{savePath,jdbcType=VARCHAR}
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="cdId" parameterType="com.example.demo.entity.CollectionDetail">
+    insert into collection_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cdId != null">
+        cd_id,
+      </if>
+      <if test="cdDescribe != null">
+        cd_describe,
+      </if>
+      <if test="deadline != null">
+        deadline,
+      </if>
+      <if test="allNum != null">
+        all_num,
+      </if>
+      <if test="uploadNum != null">
+        upload_num,
+      </if>
+      <if test="cdStatus != null">
+        cd_status,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="dirId != null">
+        dir_id,
+      </if>
+      <if test="savePath != null">
+        save_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cdId != null">
+        #{cdId,jdbcType=INTEGER},
+      </if>
+      <if test="cdDescribe != null">
+        #{cdDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="deadline != null">
+        #{deadline,jdbcType=TIMESTAMP},
+      </if>
+      <if test="allNum != null">
+        #{allNum,jdbcType=INTEGER},
+      </if>
+      <if test="uploadNum != null">
+        #{uploadNum,jdbcType=INTEGER},
+      </if>
+      <if test="cdStatus != null">
+        #{cdStatus,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="dirId != null">
+        #{dirId,jdbcType=INTEGER},
+      </if>
+      <if test="savePath != null">
+        #{savePath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.entity.CollectionDetail">
+    update collection_detail
+    <set>
+      <if test="cdDescribe != null">
+        cd_describe = #{cdDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="deadline != null">
+        deadline = #{deadline,jdbcType=TIMESTAMP},
+      </if>
+      <if test="allNum != null">
+        all_num = #{allNum,jdbcType=INTEGER},
+      </if>
+      <if test="uploadNum != null">
+        upload_num = #{uploadNum,jdbcType=INTEGER},
+      </if>
+      <if test="cdStatus != null">
+        cd_status = #{cdStatus,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="dirId != null">
+        dir_id = #{dirId,jdbcType=INTEGER},
+      </if>
+      <if test="savePath != null">
+        save_path = #{savePath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where cd_id = #{cdId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.CollectionDetail">
+    update collection_detail
+    set cd_describe = #{cdDescribe,jdbcType=VARCHAR},
+      deadline = #{deadline,jdbcType=TIMESTAMP},
+      all_num = #{allNum,jdbcType=INTEGER},
+      upload_num = #{uploadNum,jdbcType=INTEGER},
+      cd_status = #{cdStatus,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      dir_id = #{dirId,jdbcType=INTEGER}
+      save_path = #{savePath,jdbcType=VARCHAR},
+    where cd_id = #{cdId,jdbcType=INTEGER}
+  </update>
+</mapper>

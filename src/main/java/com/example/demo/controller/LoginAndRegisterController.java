@@ -121,12 +121,12 @@ public class LoginAndRegisterController {
         //调用创建文件服务，创建根文件夹和’我的文件‘
         DirInf rootDir = dirInfService.insertSelective(null,null,newUser); //创建根文件
         DirInf myDir = dirInfService.insertSelective("我的文件",rootDir.getDirId(),newUser);  //创建我的文件
-
+        if(userInf.getUserType() == 2)  teamService.insertSelective(team,userInf);
         //创建我的文件，文件柜
         fileCabinetService.newFileCabinet(myDir,userInf);
 
         //如果是团队账号，创建团队
-        if(userInf.getUserType() == 2)  teamService.insertSelective(team,userInf);
+
 
         return "注册成功!";
     }

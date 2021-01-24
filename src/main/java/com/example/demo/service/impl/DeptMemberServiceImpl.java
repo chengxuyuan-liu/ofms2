@@ -103,8 +103,8 @@ public class DeptMemberServiceImpl implements DeptMemberService {
     }
 
     @Override
-    public List<MemberVO> selectByUserName(Integer userId, String userName) {
-        List<MemberVO> memberVO = deptMemberDao.selectByUserName(userId,userName);
+    public List<MemberVO> selectByUserName(Integer userId, String userName,Integer deptId) {
+        List<MemberVO> memberVO = deptMemberDao.selectByUserName(userId,userName,deptId);
         return memberVO;
     }
 
@@ -130,7 +130,6 @@ public class DeptMemberServiceImpl implements DeptMemberService {
         UserInf newMember = userInfService.selectByUserPhone(userPhone);   //通过手机号查询用户
 
         if(userInf != null){
-
             Team team = teamDao.selectByUserId(userInf.getUserId());    //通过用户id查询团队
             //封装成员信息成DeptMember对象
             DeptMember deptMember = new DeptMember();

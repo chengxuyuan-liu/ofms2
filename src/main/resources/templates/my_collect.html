@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/zTreeStyle.css" type="text/css">
     <script type="text/javascript" src="/js/libs/jquery.ztree.core.min.js"></script>
+    <script type="text/javascript" src="/js/libs/jquery.ztree.excheck.min.js"></script>
 
     <style>
         body {
@@ -84,6 +85,14 @@
             display: none;
         }
 
+        .text-hidden{
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            width: 150px;
+        }
+
     </style>
 </head>
 <body>
@@ -98,7 +107,8 @@
 <!--添加成员、搜索-->
 <div class="btn-group" style="margin-left: 7px;">
     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-            data-target="#modal-container-new-memberVO">发布收集
+            data-target="#modal-container-new-memberVO"
+            th:onclick="|select_dir()|">发布收集
     </button>
     <form class="navbar-form navbar-left" role="search" style="margin: 0;" action="/permissionSearch">
         <div class="form-group">
@@ -126,7 +136,7 @@
                     存放位置
                 </th>
                 <th>
-                    期限
+                    截止时间
                 </th>
                 <th>
                     提交人数
@@ -140,28 +150,31 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
+            <tr th:each="collect:${collectionDetails}">
                 <td>
-                    <input type="checkbox" class="all_check_button" th:attr="data-type=2"/><img src="#" style="width: 15px;
+                    <input type="checkbox" class="all_check_button" th:attr="data-type=2,data-cd-id=${collect.getCdId()}"/><img src="#" style="width: 15px;
     position: absolute;
     margin-left: 10px;
     height: 17px;">
                 </td>
                 <td>
+                    <span class="text-hidden" th:text="${collect.getCdDescribe()}" th:title="${collect.getCdDescribe()}"></span>
                 </td>
                 <td>
+                    <span class="text-hidden" th:text="${collect.getSavePath()}" th:title="${collect.getSavePath()}"></span>
+                </td>
+                <td th:text="${#dates.format(collect.getDeadline(), 'yyyy-MM-dd HH:mm')}">
                 </td>
                 <td>
+                    [[${collect.getUploadNum()}]]/[[${collect.getAllNum()}]]
                 </td>
                 <td>
+                    <span th:if="${collect.getCdStatus() eq 1}" style="color: #00d75e">进行中</span>
+                    <span th:if="${collect.getCdStatus() eq 0}" style="color: #7a8793">已结束</span>
                 </td>
                 <td>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                            data-target="#modal-container-edit">修改期限
-                    </button>
-                    <button type="button" class="btn btn-default btn-primary" id="app">删除
+                    <button type="button" class="btn btn-default btn-primary btn-id" data-toggle="modal"
+                            data-target="#modal-container-edit"  th:onclick="|getEditCdId(${collect.getCdId()})|">修改期限
                     </button>
                 </td>
             </tr>
@@ -182,58 +195,46 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                         <h4 class="modal-title" id="new_member">
-                            添加角色
+                            发布搜集
                         </h4>
                     </div>
                     <br class="modal-body">
                     <br id="add_member_from">
                     <form class="form-horizontal" role="form"  id="new_role">
-                    <div class="form-group">
-                        <label  class="col-sm-2 control-label" style="padding-top:0;">
-                            职位：
-                        </label>
-                        <input type="text" name="role" id="new-role"/></br>
-                    </div>
-                    <div class="form-group">
-                        <label  class="col-sm-2 control-label" style="padding-top:0;">
-                            部门:
-                        </label>
-                        <select id="add_dept" name="deptId">
-                            <option value="">-请选择-</option>
-                            <option >用户名</option>
-                        </select></br>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" style="padding-top:0;">
-                            成员：
-                        </label>
-                        <select id="add_member" name="memberId">
-                            <option value="">-请选择-</option>
-
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label  class="col-sm-2 control-label" style="padding-top:0;">
-                            团队权限:
-                        </label>
-                        <div class="col-sm-10">
-                             <span>新建部门：</span><input type="checkbox" name="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                            <span> 编辑部门：</span><input type="checkbox" name="pEditDept" class="checkbox_role" value="0"/>
+                        <!----------------------------------------------------->
+                         <!--文件夹目录-->
+                        <p>选择存储的文件:<span></span></p>
+                        <div id="new-select-dir">
+                            <div class="content_wrap" >
+                                <div class="zTreeDemoBackground left">
+                                    <ul id="treeDemo" class="ztree"></ul>
+                                </div>
+                             </div>
                         </div>
-                    </div>
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                部门权限:
-                            </label>
-                            <div class="col-sm-10">
-                                <span>添加成员：</span><input type="checkbox" name="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span>编辑成员：</span><input type="checkbox" name="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span>删除成员：</span><input type="checkbox" name="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
+                        <!----------------------------------------------------->
+                        <p>选择搜集对象:<span></span></p>
+                        <div class="content_wrap">
+                            <div class="zTreeDemoBackground left">
+                                <ul id="treeDemo2" class="ztree"></ul>
                             </div>
+                        </div>
+                        <!----------------------------------------------------->
+                        <div class="form-group">
+                            <label for="new-collect-data" class="col-sm-2 control-label" style="padding-top:0;">
+                                设置截止时间：
+                            </label>
+                            <input type="date" name="role" id="new-collect-data"/>
+                            <input type="time" name="role" id="new-collect-time"/></br>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-collect-describe" class="col-sm-2 control-label" style="padding-top:0;">
+                                描述:
+                            </label>
+                            <textarea type="text" name="role" id="new-collect-describe"></textarea>
                         </div>
                     </form>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="newRole()" >确定</button>
+                        <button type="button" class="btn btn-primary" onclick="ack_collect()" >确定</button>
                     </div>
                 </div>
 
@@ -256,101 +257,28 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                         <h4 class="modal-title" id="edit">
-                            编辑
+                            修改时间
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <form class="form-horizontal" role="form" id="edit_role">
-                            <input type="hidden" id="edit_role_id" name="psiId">
-<!--                            <div class="form-group">-->
-<!--                                <label for="edit_role_username" class="col-sm-2 control-label"-->
-<!--                                       style="padding-top:3px;">用户：</label>-->
-<!--                                <div class="col-sm-10">-->
-<!--                                    <input type="text" id="edit_role_username" style="width:80px;" name="userName">-->
-<!--                                </div>-->
-<!--                            </div>-->
-                            <div class="form-group">
-                                <label for="edit_role_position" class="col-sm-2 control-label"
-                                       style="padding-top:3px;">职位:</label>
-                                <div class="col-sm-10">
-                                    <input type="text" id="edit_role_position" style="width:80px;" name="role">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                    团队权限:
-                                </label>
-                                <div class="col-sm-10">
-                                    <span>新建部门：</span><input type="checkbox" id="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                    <span> 编辑部门：</span><input type="checkbox" id="pEditDept" class="checkbox_role" value="0"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                    部门权限:
-                                </label>
-                                <div class="col-sm-10">
-                                    <span>添加成员：</span><input type="checkbox" id="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                    <span>编辑成员：</span><input type="checkbox" id="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                    <span>删除成员：</span><input type="checkbox" id="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                </div>
-                            </div>
-                        </form>
+                        <input type="hidden" id="edit-cd-id">
+                        <div class="form-group">
+                            <label for="new-collect-data" class="col-sm-2 control-label" style="padding-top:0;">
+                                设置截止时间：
+                            </label>
+                           <!-- <input type="date" name="role" id="edit-collect-data"/>-->
+                            <input type="date" name="role" id="edit-collect-date"/>
+                            <input type="time" name="role" id="edit-collect-time"/>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="editRole()">确定</button>
+                        <button type="button" class="btn btn-primary" onclick="editDeadline()">确定修改</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-<!--部门编辑模态窗口-->
-<div class="row clearfix">
-    <div class="col-md-12 column">
-        <!--toggle and tagget-->
-        <div class="modal fade" id="modal-dept-edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="dept_edit">
-                            编辑
-                        </h4>
-                    </div>
-                    <div class="modal-body">
-                        <form class="form-horizontal" role="form" id="edit_dept">
-                            <input type="hidden" name="deptId" id="edit_deptId">
-
-                            <div class="form-group">
-                                <label for="edit_dept_name" class="col-sm-2 control-label" style="padding-top:3px;">部门名称:</label>
-                                <div class="col-sm-10">
-                                    <input type="text" name="deptName" id="edit_dept_name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
-                                    部门总空间:</label>
-                                <div class="col-sm-10">
-                                    <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace"
-                                           min="0">&nbsp;GB
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">解散部门</button>
-                        <button type="button" class="btn btn-primary">保存</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <!--========================js=========================-->
 
@@ -501,14 +429,14 @@
 
 
         let idList = $('.all_check_button');       //记录复选框
-        let psnId = [];                         //成员id
+        let ids = [];                         //成员id
         let flag = false;                          //判断是否存在选中复选框
 
 
         //获得成员id
         for (let i = 0; i < idList.length; i++) {
             if (idList.eq(i).prop('checked')) {
-                psnId.push(idList.eq(i).attr('data-psn-id'))
+                ids.push(idList.eq(i).attr('data-cd-id'))
                 flag = true;
             }
         }
@@ -529,19 +457,19 @@
         //取消绑定事件
         $('#all-delete').unbind('click')
 
+
+        console.log(ids);
         //提交请求到服务器
         $('#all-delete').click(function () {
             if (confirm("确定要删除这些角色吗？")) {
                 $.ajax({
-                    url: '/deleteBatchPermission',
+                    url: '/collectionDetail/delete',
                     type: 'post',
-                    data: {psnId: psnId},
+                    data: {cdId: ids},
                     traditional: true,
                     success: function (data) {
-                        if (data == 'OK') {
-                            alert('删除成功')
+                            alert(data)
                             window.location.reload();
-                        }
                     }
                 })
             }
@@ -557,6 +485,116 @@
             $('#search_content').prop('placeholder','请输入手机号');
         }
     });
+
+
+    //构建文件目录和部门目录
+    function select_dir(dirId, fileId, parentId) {
+
+        // $('#move_dir_id').prop('value', dirId)
+        // $('#move_file_id').prop('value', fileId)
+
+        //文件夹目录
+        $.post('/collectionDetail/getDirList', {'dirId': dirId, 'parentId': parentId}, function (data) {
+            console.log(data)
+            var setting = {
+                view: {
+                    showLine: false,
+                    showIcon: true
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                async: {
+                    enable: false
+                },
+
+            }
+            $(document).ready(function () {
+                $.fn.zTree.init($("#treeDemo"), setting, JSON.parse(data));
+            });
+        });
+
+
+        //部门目录
+        $.post('/shareDetail/getAllDeptMember', function (data) {
+            var setting = {
+                view: {
+                    showIcon: false
+                },
+                check: {
+                    enable: true
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+            }
+            $(document).ready(function () {
+                $.fn.zTree.init($("#treeDemo2"), setting, JSON.parse(data));
+            });
+
+        });
+    }
+
+    //提交请求发出共享
+    function ack_collect() {
+        //文件夹
+        let dirTreeObj = $.fn.zTree.getZTreeObj("treeDemo"); //目录对象
+        let dirNodeArray = dirTreeObj.getSelectedNodes(true); //选中的对象数组
+        let dirId = dirNodeArray[0].id      //选中对象的id属性
+        console.log(dirId);
+
+        //部门成员
+        let memberTreeObj = $.fn.zTree.getZTreeObj("treeDemo2"); //目录对象
+        let memberNodeArray = memberTreeObj.getCheckedNodes(true); //选中的对象数组
+        let memberId = []           //id
+        let memberNum = 0;          //人数
+        for (let i = 0; i < memberNodeArray.length; i++) {
+            if(memberNodeArray[i].id != null){
+                memberId.push('"'+memberNodeArray[i].id+'"');
+                memberNum++;
+            }
+        }
+        let JsonMemberId = '{"memberId":'+'['+memberId+']}'
+        //描述
+        let describe = $('#new-collect-describe').val();
+        //获取规定时间
+        let date = $('#new-collect-data').prop('value');
+        let time =  $('#new-collect-time').prop('value');
+        console.log(date);
+        console.log(time);
+        let datetime = date+' '+time;
+        console.log(datetime);
+
+        //提交请求(文件夹id,成员id,人数,描述)
+        $.post('/collectionDetail/add',{'dirId':dirId,'memberId':JsonMemberId,'memberNum':memberNum,'describe':describe,'datetime':datetime},function (data) {
+             alert(data);
+            window.location.reload();
+        })
+    }
+
+    //修改时间窗口获取值
+    function getEditCdId(cdId) {
+        console.log(cdId);
+        //let index = $('.btn-id').index(this)
+        $('#edit-cd-id').prop('value',cdId);
+
+    }
+
+    //修改时间
+    function editDeadline() {
+        let date = $('#edit-collect-date').prop('value');
+        let time = $('#edit-collect-time').prop('value');
+        let dateTime = date+" "+time
+        let cdId = $('#edit-cd-id').prop('value');
+        $.post('/collectionDetail/edit',{'cdId':cdId,'deadline':dateTime},function (data) {
+            alert(data);
+            window.location.reload();
+        })
+    }
 
 </script>
 </body>

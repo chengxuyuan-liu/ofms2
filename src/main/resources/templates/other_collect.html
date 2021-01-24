@@ -84,6 +84,14 @@
             display: none;
         }
 
+        .text-hidden{
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            width: 150px;
+        }
+
     </style>
 </head>
 <body>
@@ -132,35 +140,41 @@
                     状态
                 </th>
                 <th>
+                    已上传文件
+                </th>
+                <th>
                     操作
                 </th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>
+            <tr th:each="col:${collects}">
+                <td >
                     <input type="checkbox" class="all_check_button" th:attr="data-type=2"/><img src="#" style="width: 15px;
     position: absolute;
     margin-left: 10px;
     height: 17px;">
                 </td>
                 <td>
+                    <span class="text-hidden" th:text="${col.getCollectDescribe()}" th:title="${col.getCollectDescribe()}"></span>
+                </td>
+                <td th:text="${col.getUserName()}">
+                </td>
+                <td th:text="${col.getDeptName()}">
+                </td>
+                <td th:text="${#dates.format(col.getDeadline(), 'yyyy-MM-dd HH:mm')}">
                 </td>
                 <td>
+                    <span th:if="${col.getDescribeStatus() eq 1}" style="color: #00d75e">进行中</span>
+                    <span th:if="${col.getDescribeStatus() eq 0}" style="color: #7a8793">已结束</span>
                 </td>
                 <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
+                    <span class="text-hidden" style="color: #3300aa;" th:if="${col.getFileName() ne null}" th:title="${col.getFileName()}" th:text="${col.getFileName()}"></span>
+                    <span th:if="${col.getFileName() eq null}" style="color: #7a8793">未上传</span>
                 </td>
                 <td>
                     <button type="button" class="btn btn-default btn-primary" data-toggle="modal"
-                            data-target="#modal-container-edit">上传文件
-                    </button>
-                    <button type="button" class="btn btn-default btn-primary" id="app">修改该文件
+                            data-target="#modal-container-upload" th:onclick="|setUpload(${col.getDirId()},${col.getCdId()})|">上传文件
                     </button>
                 </td>
             </tr>
@@ -189,46 +203,15 @@
                     <form class="form-horizontal" role="form"  id="new_role">
                         <div class="form-group">
                             <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                职位：
+                               设置期限：
                             </label>
-                            <input type="text" name="role" id="new-role"/></br>
+                            <input type="time" name="role" id="new-collect-deadline"/></br>
                         </div>
                         <div class="form-group">
                             <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                部门:
+                                描述:
                             </label>
-                            <select id="add_dept" name="deptId">
-                                <option value="">-请选择-</option>
-                                <option >用户名</option>
-                            </select></br>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" style="padding-top:0;">
-                                成员：
-                            </label>
-                            <select id="add_member" name="memberId">
-                                <option value="">-请选择-</option>
-
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                团队权限:
-                            </label>
-                            <div class="col-sm-10">
-                                <span>新建部门：</span><input type="checkbox" name="pAddDept"  class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span> 编辑部门：</span><input type="checkbox" name="pEditDept" class="checkbox_role" value="0"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label" style="padding-top:0;">
-                                部门权限:
-                            </label>
-                            <div class="col-sm-10">
-                                <span>添加成员：</span><input type="checkbox" name="pAddMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span>编辑成员：</span><input type="checkbox" name="pEditMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                                <span>删除成员：</span><input type="checkbox" name="pDelMember" class="checkbox_role" value="0"/>&nbsp&nbsp&nbsp&nbsp
-                            </div>
+                            <textarea type="text" name="role" id="new-collect-describe"></textarea>
                         </div>
                     </form>
                     <div class="modal-footer">
@@ -261,13 +244,7 @@
                     <div class="modal-body">
                         <form class="form-horizontal" role="form" id="edit_role">
                             <input type="hidden" id="edit_role_id" name="psiId">
-                            <!--                            <div class="form-group">-->
-                            <!--                                <label for="edit_role_username" class="col-sm-2 control-label"-->
-                            <!--                                       style="padding-top:3px;">用户：</label>-->
-                            <!--                                <div class="col-sm-10">-->
-                            <!--                                    <input type="text" id="edit_role_username" style="width:80px;" name="userName">-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
+
                             <div class="form-group">
                                 <label for="edit_role_position" class="col-sm-2 control-label"
                                        style="padding-top:3px;">职位:</label>
@@ -305,46 +282,35 @@
     </div>
 </div>
 
-
-<!--部门编辑模态窗口-->
-<div class="row clearfix">
+<!--上传文件模态窗口-->
+<div class="row clearfix modals">
     <div class="col-md-12 column">
         <!--toggle and tagget-->
-        <div class="modal fade" id="modal-dept-edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="modal-container-upload" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="dept_edit">
-                            编辑
+                        <h4 class="modal-title" id="myModalLabel">
+                            上传文件
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <form class="form-horizontal" role="form" id="edit_dept">
-                            <input type="hidden" name="deptId" id="edit_deptId">
+                        <form onsubmit="return fileCheck()" id="uploal_form" method="post"
+                              enctype="multipart/form-data">
+                            <input type="hidden" name="dirId" id="upload_dirId">
+                            <input type="hidden"  name="cdId" id="upload_cdId">
+                            <input type="file" id="file" name="uploadfile"/>
 
-                            <div class="form-group">
-                                <label for="edit_dept_name" class="col-sm-2 control-label" style="padding-top:3px;">部门名称:</label>
-                                <div class="col-sm-10">
-                                    <input type="text" name="deptName" id="edit_dept_name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_dept_maxSpace" class="col-sm-2 control-label" style="padding-top:0;">
-                                    部门总空间:</label>
-                                <div class="col-sm-10">
-                                    <input type="number" name="maxSpace" style="width:70px;" id="edit_dept_maxSpace"
-                                           min="0">&nbsp;GB
-                                </div>
-                            </div>
                         </form>
+                        <span style="margin-top: 0;position: absolute;right: 122px;top: 23px;">*上传文件大小不能大于<span style="color: red">500M</span></span>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">解散部门</button>
-                        <button type="button" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="uploadFile()">上传</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -556,6 +522,50 @@
             $('#search_content').prop('placeholder','请输入手机号');
         }
     });
+
+
+    /*
+       获取dirid
+   */
+    function setUpload(dirId,cdId){
+        console.log(dirId)
+        $('#upload_dirId').prop('value',dirId);
+        $('#upload_cdId').prop('value',cdId);
+    }
+
+    /*
+   上传文件文件
+   */
+    function uploadFile() {
+        /*event = event ? event : window.event;
+        let obj = event.srcElement? event.srcElement:event.target;*/
+        let file = document.getElementById("file").value;
+        if (file.length == 0 || file == "") {
+            alert("请选 上传文件");
+            return false;
+        }
+        let f = document.getElementById("file").files;
+        if(f[0].size > 524288000){
+            alert("文件大小超过500MB!");
+            return false;
+        }
+        var formData = new FormData($("#uploal_form")[0]); //获得文件数据
+        var dirId = document.getElementById("upload_dirId");
+        var cdId = document.getElementById("upload_cdId");
+        $.ajax({
+            type: "POST",
+            url: "/collect/upload",
+            data: formData, dirId,cdId,
+            async: true,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                alert(data);
+                window.location.reload();
+            }
+        });
+    }
+
 
 </script>
 </body>
